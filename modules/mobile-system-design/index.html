@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <title>Mobile System Design — Hotel / Reservation App</title>
+  <style>
+    :root{color-scheme:dark;--bg:#08101d;--panel:rgba(15,25,43,.84);--solid:#111c2f;--solid2:#16243a;--text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;--accent2:#2bb7f3;--violet:#a292ff;--green:#64dda9;--yellow:#ffdb78;--red:#ff8989;--orange:#ffad6b;--code:#091321;--shadow:0 24px 70px rgba(0,0,0,.25);--max:1180px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 8% -8%,rgba(43,183,243,.15),transparent 32%),radial-gradient(circle at 95% 8%,rgba(162,146,255,.13),transparent 34%),linear-gradient(180deg,var(--bg),#07101c 52%,#08121f);overflow-x:hidden}.state{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.app{min-height:100vh;color:var(--text)}#theme:checked~.app{color-scheme:light;--bg:#f5f8fc;--panel:rgba(255,255,255,.92);--solid:#fff;--solid2:#f2f6fa;--text:#132033;--muted:#617087;--border:#d8e3ed;--accent:#087fc2;--accent2:#006ea8;--violet:#6656c8;--green:#087a52;--yellow:#946200;--red:#bd3030;--orange:#aa5b19;--code:#f3f7fb;--shadow:0 22px 55px rgba(46,67,92,.12);background:radial-gradient(circle at 8% -8%,rgba(10,136,201,.09),transparent 32%),radial-gradient(circle at 95% 10%,rgba(109,90,212,.08),transparent 34%),linear-gradient(180deg,#fbfdff,#f5f8fc 58%,#edf3f8)}.shell{width:min(var(--max),calc(100% - 30px));margin:0 auto}.topbar{position:sticky;top:0;z-index:40;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.topbar-inner{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0}.brand-mark{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--green) 34%,var(--border));border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--green) 12%,var(--solid));color:var(--green);font-weight:900}.brand-copy b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-copy span{display:block;color:var(--muted);font-size:.76rem}.controls{display:flex;gap:8px;align-items:center}.mode-tabs{display:flex;gap:4px;padding:5px;border:1px solid var(--border);border-radius:17px 17px 23px 17px;background:var(--panel)}.mode-tab,.theme-toggle{min-height:42px;display:grid;place-items:center;padding:0 14px;border-radius:12px 12px 17px 12px;color:var(--muted);cursor:pointer;font-weight:780;user-select:none;-webkit-tap-highlight-color:transparent}.theme-toggle{width:44px;padding:0;border:1px solid var(--border);background:var(--panel);color:var(--text)}#mode-learn:checked~.app label[for=mode-learn],#mode-review:checked~.app label[for=mode-review],#mode-interview:checked~.app label[for=mode-interview]{color:#07111b;background:linear-gradient(135deg,#8adfff,#66c8ef)}.theme-toggle .sun{display:none}#theme:checked~.app .theme-toggle .moon{display:none}#theme:checked~.app .theme-toggle .sun{display:block}.review-only,.interview-only{display:none}#mode-review:checked~.app .learn-only,#mode-review:checked~.app .interview-only,#mode-interview:checked~.app .learn-only,#mode-interview:checked~.app .review-only{display:none}#mode-review:checked~.app .review-only,#mode-interview:checked~.app .interview-only{display:block}main{padding:42px 0 90px}.hero{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:center;min-height:500px;padding:44px;overflow:hidden;border:1px solid var(--border);border-radius:38px 38px 70px 38px;background:var(--panel);box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:360px;height:360px;right:-130px;top:-180px;border-radius:50%;border:1px solid color-mix(in srgb,var(--green) 25%,transparent);box-shadow:0 0 0 52px color-mix(in srgb,var(--green) 4%,transparent),0 0 0 104px color-mix(in srgb,var(--violet) 3%,transparent)}.kicker{color:var(--green);font-size:.78rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:12px 0 16px;font-size:clamp(2.5rem,7vw,5rem);line-height:.95;letter-spacing:-.055em}.hero p{margin:0;color:var(--muted);font-size:1.05rem;line-height:1.7}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.pill{padding:8px 11px;border:1px solid var(--border);border-radius:999px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:720}.arch-map{position:relative;min-height:310px;display:grid;place-items:center}.phone{width:130px;height:235px;border:1px solid color-mix(in srgb,var(--accent) 38%,var(--border));border-radius:30px;background:color-mix(in srgb,var(--accent) 8%,var(--solid));display:grid;place-items:center;text-align:center;box-shadow:var(--shadow)}.phone b{display:block;font-size:1.15rem}.phone span{font-size:.75rem;color:var(--muted)}.cloud{position:absolute;width:145px;padding:16px;border:1px solid color-mix(in srgb,var(--violet) 35%,var(--border));border-radius:30px 30px 44px 30px;background:color-mix(in srgb,var(--violet) 8%,var(--solid));text-align:center}.cloud b{display:block}.cloud span{font-size:.72rem;color:var(--muted)}.cloud.top{top:10px;right:0}.cloud.bottom{bottom:8px;right:15px}.arrow{position:absolute;color:var(--muted);font-weight:900}.arrow.a{right:142px;top:92px}.arrow.b{right:150px;bottom:82px}.route{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}.route a{padding:9px 12px;border:1px solid var(--border);border-radius:14px 14px 20px 14px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:760;text-decoration:none}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:54px 0 18px}.section-head h2{margin:7px 0 0;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:-.04em}.section-head p{margin:0;max-width:510px;color:var(--muted);line-height:1.55}.scene{padding:28px;border:1px solid var(--border);border-radius:32px 32px 50px 32px;background:var(--panel);box-shadow:0 16px 50px rgba(0,0,0,.11)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:center}.node{min-height:108px;padding:16px 12px;display:grid;place-items:center;text-align:center;border:1px solid var(--border);border-radius:24px 24px 34px 24px;background:var(--solid)}.node b{display:block;margin-bottom:4px}.node span{color:var(--muted);font-size:.76rem;line-height:1.35}.node.hot{border-color:color-mix(in srgb,var(--green) 38%,var(--border));background:color-mix(in srgb,var(--green) 7%,var(--solid))}.flow-arrow{text-align:center;color:var(--muted);font-weight:900}.rule{margin-top:18px;padding:16px 18px;border:1px solid color-mix(in srgb,var(--green) 28%,var(--border));border-radius:20px 20px 28px 20px;background:color-mix(in srgb,var(--green) 7%,transparent);color:var(--muted);line-height:1.55}.rule b{color:var(--text)}details.code{margin-top:18px;border:1px solid var(--border);border-radius:20px 20px 28px 20px;background:var(--solid);overflow:hidden}details.code summary{padding:15px 17px;cursor:pointer;font-weight:800}details.code pre{margin:0;padding:18px;overflow-x:auto;background:var(--code);font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.lane{padding:20px;border:1px solid var(--border);border-radius:26px 26px 38px 26px;background:var(--solid)}.lane.good{border-color:color-mix(in srgb,var(--green) 34%,var(--border))}.lane.bad{border-color:color-mix(in srgb,var(--red) 32%,var(--border))}.lane h3{margin:0 0 16px}.steps{display:grid;gap:10px}.step{display:flex;gap:12px;align-items:flex-start}.step i{font-style:normal;width:28px;height:28px;display:grid;place-items:center;flex:0 0 28px;border-radius:50%;background:var(--solid2);color:var(--muted);font-size:.75rem;font-weight:850}.step b{display:block;margin:1px 0 3px}.step span{display:block;color:var(--muted);font-size:.86rem;line-height:1.45}.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.time-card{padding:18px;border:1px solid var(--border);border-radius:24px 24px 34px 24px;background:var(--solid)}.time-card em{font-style:normal;color:var(--accent);font-size:.75rem;font-weight:850}.time-card b{display:block;margin:8px 0 5px}.time-card span{color:var(--muted);font-size:.82rem;line-height:1.45}.review-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.orb{min-height:160px;padding:18px;border:1px solid var(--border);border-radius:50% 44% 49% 46%;background:var(--solid);display:grid;place-items:center;text-align:center}.orb b{display:block}.orb span{display:block;margin-top:5px;color:var(--muted);font-size:.76rem;line-height:1.4}.interview-deck{display:grid;gap:12px}.interview-card{border:1px solid var(--border);border-radius:22px 22px 30px 22px;background:var(--solid);overflow:hidden}.interview-card summary{padding:18px;cursor:pointer;font-weight:820}.interview-card p{margin:0;padding:0 18px 18px;color:var(--muted);line-height:1.6}.home-fab{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;padding:10px 13px;border:1px solid var(--border);border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--solid) 92%,transparent);color:var(--text);text-decoration:none;font-size:.8rem;font-weight:800;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}.grid2,.timeline{grid-template-columns:1fr}.review-strip{grid-template-columns:1fr 1fr}.section-head{align-items:start;flex-direction:column}.cloud.top{right:8%}.cloud.bottom{right:10%}.arrow.a,.arrow.b{display:none}}
+    @media(max-width:720px){.mode-tab{padding:0 10px;font-size:.77rem}.brand-copy span{display:none}.hero{padding:27px 22px;border-radius:28px 28px 44px 28px}.hero h1{font-size:clamp(2.55rem,14vw,4rem)}main{padding-top:24px}.scene{padding:20px}.review-strip{grid-template-columns:1fr}.topbar-inner{gap:8px}.brand-mark{width:40px;height:40px;flex-basis:40px}.controls{gap:5px}.theme-toggle{width:40px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <input class="state" type="radio" name="mode" id="mode-learn" checked>
+  <input class="state" type="radio" name="mode" id="mode-review">
+  <input class="state" type="radio" name="mode" id="mode-interview">
+  <input class="state" type="checkbox" id="theme">
+  <div class="app">
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="../../index.html">
+          <div class="brand-mark">MSD</div>
+          <div class="brand-copy"><b>Mobile System Design Playbook</b><span>Case Study 01 · Hotel / Reservation App</span></div>
+        </a>
+        <div class="controls">
+          <div class="mode-tabs" role="group" aria-label="Режим">
+            <label class="mode-tab" for="mode-learn">Навчання</label>
+            <label class="mode-tab" for="mode-review">Повторення</label>
+            <label class="mode-tab" for="mode-interview">Інтерв’ю</label>
+          </div>
+          <label class="theme-toggle" for="theme" aria-label="Перемкнути тему"><span class="moon">☾</span><span class="sun">☀</span></label>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="learn-only">
+        <div class="hero" id="mental-model">
+          <div>
+            <div class="kicker">Reusable mental model</div>
+            <h1>Mobile — не копія backend.</h1>
+            <p>У reservation app клієнт має швидко показувати дані, переживати нестабільну мережу і не створювати дублікати booking. Головне питання: <strong>що клієнт може вирішити локально, а що остаточно вирішує сервер?</strong></p>
+            <div class="pills"><span class="pill">≈ 20–30 хв</span><span class="pill">iOS perspective</span><span class="pill">Offline-aware</span><span class="pill">Reusable patterns</span></div>
+            <nav class="route"><a href="#boundaries">1. Boundaries</a><a href="#read-path">2. Read path</a><a href="#booking">3. Booking</a><a href="#sync">4. Sync</a><a href="#observability">5. Observability</a></nav>
+          </div>
+          <div class="arch-map" aria-label="Client-server architecture map">
+            <div class="phone"><div><b>iOS App</b><span>UI + local state + cache</span></div></div>
+            <div class="cloud top"><b>Read APIs</b><span>search · hotel · availability</span></div>
+            <div class="cloud bottom"><b>Booking API</b><span>authoritative write path</span></div>
+            <div class="arrow a">↗</div><div class="arrow b">↘</div>
+          </div>
+        </div>
+
+        <div class="section-head" id="boundaries"><div><div class="kicker">01 · Boundaries</div><h2>Спочатку розділи read path і write path</h2></div><p>Це прибирає більшість плутанини. Search і hotel details можуть бути tolerant до stale data. Booking — ні.</p></div>
+        <section class="scene">
+          <div class="grid2">
+            <div class="lane good"><h3>Read path</h3><div class="steps"><div class="step"><i>1</i><div><b>Search / hotel data</b><span>Можна кешувати, показувати stale-while-refresh, prefetch.</span></div></div><div class="step"><i>2</i><div><b>Availability</b><span>Кеш корисний для UX, але не є фінальною гарантією.</span></div></div><div class="step"><i>3</i><div><b>Images / metadata</b><span>Добрий кандидат для агресивного cache + CDN.</span></div></div></div></div>
+            <div class="lane bad"><h3>Write path</h3><div class="steps"><div class="step"><i>1</i><div><b>Create reservation</b><span>Лише сервер може підтвердити, що room ще доступний.</span></div></div><div class="step"><i>2</i><div><b>Payment / hold</b><span>Повторний tap або retry не повинен створити другу операцію.</span></div></div><div class="step"><i>3</i><div><b>Cancel / modify</b><span>Потрібен authoritative server response і конфліктна стратегія.</span></div></div></div></div>
+          </div>
+          <div class="rule"><b>Memory rule:</b> cache може прискорити рішення користувача, але не може сам гарантувати бізнес-інваріант.</div>
+        </section>
+
+        <div class="section-head" id="read-path"><div><div class="kicker">02 · Read path</div><h2>Швидкий UI через local-first читання</h2></div><p>Користувач не має дивитися на spinner щоразу, коли повертається на hotel details.</p></div>
+        <section class="scene">
+          <div class="flow">
+            <div class="node hot"><div><b>Screen</b><span>показує cached model</span></div></div><div class="flow-arrow">→</div>
+            <div class="node"><div><b>Repository</b><span>memory + disk cache</span></div></div><div class="flow-arrow">→</div>
+            <div class="node"><div><b>API</b><span>refresh in background</span></div></div>
+          </div>
+          <div class="timeline" style="margin-top:18px">
+            <div class="time-card"><em>T0</em><b>Open screen</b><span>Read cached hotel immediately.</span></div>
+            <div class="time-card"><em>T+20ms</em><b>Render</b><span>User sees useful content, not blank UI.</span></div>
+            <div class="time-card"><em>T+network</em><b>Refresh</b><span>Fetch latest price / availability.</span></div>
+            <div class="time-card"><em>T+update</em><b>Reconcile</b><span>Update local cache and visible state.</span></div>
+          </div>
+          <details class="code"><summary>Показати client-side repository sketch</summary><pre><code>actor HotelRepository {
+    private let api: HotelAPI
+    private let cache: HotelCache
+
+    func hotel(id: Hotel.ID) async throws -> Hotel {
+        if let cached = await cache.hotel(id: id) {
+            Task { try? await refresh(id: id) }
+            return cached
+        }
+        return try await refresh(id: id)
+    }
+
+    @discardableResult
+    private func refresh(id: Hotel.ID) async throws -> Hotel {
+        let hotel = try await api.hotel(id: id)
+        await cache.save(hotel)
+        return hotel
+    }
+}</code></pre></details>
+          <div class="rule"><b>Trade-off:</b> для availability додай timestamp / freshness indicator. Не маскуй старі дані як гарантовано актуальні.</div>
+        </section>
+
+        <div class="section-head" id="booking"><div><div class="kicker">03 · Booking write path</div><h2>Один намір користувача → один idempotency key</h2></div><p>Ключ створюється перед першим booking request і повторно використовується для retry цього самого наміру.</p></div>
+        <section class="scene">
+          <div class="flow">
+            <div class="node hot"><div><b>Tap Book</b><span>створити key</span></div></div><div class="flow-arrow">→</div>
+            <div class="node"><div><b>POST /reservations</b><span>Idempotency-Key header</span></div></div><div class="flow-arrow">→</div>
+            <div class="node"><div><b>Server</b><span>atomic availability check + create</span></div></div>
+          </div>
+          <div class="grid2" style="margin-top:18px">
+            <div class="lane good"><h3>Network timeout після POST</h3><div class="steps"><div class="step"><i>1</i><div><b>Не знаємо результат</b><span>Request міг дійти до сервера.</span></div></div><div class="step"><i>2</i><div><b>Retry з тим самим key</b><span>Server повертає той самий booking result замість дубля.</span></div></div><div class="step"><i>3</i><div><b>Persist pending intent</b><span>Якщо app kill — можна безпечно завершити reconciliation.</span></div></div></div></div>
+            <div class="lane bad"><h3>Що не робити</h3><div class="steps"><div class="step"><i>×</i><div><b>Новий key на кожен retry</b><span>Це перетворює retry на нову бізнес-операцію.</span></div></div><div class="step"><i>×</i><div><b>Вірити cached availability</b><span>Між screen render і tap room уже могли забронювати.</span></div></div><div class="step"><i>×</i><div><b>Blind optimistic success</b><span>Booking success має бути підтверджений backend.</span></div></div></div></div>
+          </div>
+          <details class="code"><summary>Показати booking request sketch</summary><pre><code>struct BookingIntent: Codable {
+    let key: UUID
+    let hotelID: String
+    let roomID: String
+    let dates: DateInterval
+}
+
+func submit(_ intent: BookingIntent) async throws -> Reservation {
+    try await api.createReservation(
+        intent,
+        idempotencyKey: intent.key.uuidString
+    )
+}</code></pre></details>
+          <div class="rule"><b>Important distinction:</b> idempotency key захищає від повторної обробки одного наміру. Він не «лочить» кімнату сам по собі — availability / inventory consistency вирішується сервером.</div>
+        </section>
+
+        <div class="section-head" id="sync"><div><div class="kicker">04 · Offline & reconciliation</div><h2>Не всі actions однаково офлайнові</h2></div><p>Read UX може бути local-first. Booking — pending, але не confirmed, доки немає server acknowledgement.</p></div>
+        <section class="scene">
+          <div class="timeline">
+            <div class="time-card"><em>Offline</em><b>Browse cache</b><span>Hotel details і recent search можуть працювати.</span></div>
+            <div class="time-card"><em>Book</em><b>Create pending intent</b><span>Пояснити, що confirmation ще немає.</span></div>
+            <div class="time-card"><em>Online</em><b>Submit safely</b><span>Той самий idempotency key.</span></div>
+            <div class="time-card"><em>Conflict</em><b>Resolve explicitly</b><span>Room unavailable → show alternatives, not silent overwrite.</span></div>
+          </div>
+          <div class="rule"><b>State machine:</b> idle → submitting → confirmed | failed | needsReconciliation. Це краще за кілька незалежних Boolean flags.</div>
+        </section>
+
+        <div class="section-head" id="observability"><div><div class="kicker">05 · Reliability</div><h2>Логуй intent, а не лише HTTP status</h2></div><p>При booking bugs важливо відновити історію одного користувацького наміру через retries і app lifecycle.</p></div>
+        <section class="scene">
+          <div class="grid2">
+            <div class="lane"><h3>Client signals</h3><div class="steps"><div class="step"><i>•</i><div><b>bookingIntentID</b><span>Локальний correlation ID.</span></div></div><div class="step"><i>•</i><div><b>idempotencyKey</b><span>Не логувати секрети, але key/correlation потрібен для trace.</span></div></div><div class="step"><i>•</i><div><b>attempt + latency</b><span>Яка це спроба і скільки тривала.</span></div></div></div></div>
+            <div class="lane"><h3>User-visible behavior</h3><div class="steps"><div class="step"><i>•</i><div><b>Retryable vs terminal</b><span>Timeout ≠ sold out.</span></div></div><div class="step"><i>•</i><div><b>Safe re-entry</b><span>Після app relaunch pending booking треба reconcile.</span></div></div><div class="step"><i>•</i><div><b>No duplicate tap</b><span>UI disable допомагає UX, але не замінює server idempotency.</span></div></div></div></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="review-only">
+        <div class="section-head"><div><div class="kicker">4-minute review</div><h2>П’ять образів для пам’яті</h2></div><p>Спробуй проговорити правило до того, як читаєш підпис.</p></div>
+        <div class="review-strip">
+          <div class="orb"><div><b>Два шляхи</b><span>Read може бути stale-tolerant; booking write — authoritative.</span></div></div>
+          <div class="orb"><div><b>Cache</b><span>Прискорює UX, але не гарантує availability.</span></div></div>
+          <div class="orb"><div><b>Key</b><span>Один user intent → один idempotency key через retries.</span></div></div>
+          <div class="orb"><div><b>Pending</b><span>Offline booking не є confirmed booking.</span></div></div>
+          <div class="orb"><div><b>Trace</b><span>Correlation через app lifecycle важливіший за один HTTP log.</span></div></div>
+        </div>
+        <details class="code"><summary>Відновити booking state machine з пам’яті</summary><pre><code>enum BookingState {
+    case idle
+    case submitting(intent: BookingIntent)
+    case confirmed(Reservation)
+    case failed(Error)
+    case needsReconciliation(BookingIntent)
+}</code></pre></details>
+      </section>
+
+      <section class="interview-only">
+        <div class="section-head"><div><div class="kicker">Interview drill</div><h2>Відповідай уголос, потім відкривай</h2></div><p>Тримай відповідь короткою: рішення → причина → trade-off.</p></div>
+        <div class="interview-deck">
+          <details class="interview-card"><summary>Де має жити source of truth для availability?</summary><p>Фінальний source of truth — backend/inventory system. Client cache може пришвидшувати display, але перед booking server має атомарно перевірити актуальну availability.</p></details>
+          <details class="interview-card"><summary>Що робити, якщо create booking timeout-нув після відправки?</summary><p>Вважати результат unknown, не failed. Retry з тим самим idempotency key або виконати status reconciliation. Новий key може створити дубль.</p></details>
+          <details class="interview-card"><summary>Коли створюється idempotency key?</summary><p>Коли формується один конкретний booking intent, до першого POST. Усі retries цього intent повторно використовують той самий key. Новий intent користувача отримує новий key.</p></details>
+          <details class="interview-card"><summary>Чи варто робити booking optimistic UI?</summary><p>Можна optimistic показати submitting/pending, але не confirmed. Confirmation — лише після server acknowledgement, бо inventory може конфліктувати.</p></details>
+          <details class="interview-card"><summary>Як би ти підтримав app relaunch під час booking?</summary><p>Persist pending BookingIntent разом із idempotency key. Після launch перевірити server status або безпечно retryнути, потім перейти у confirmed/failed/reconciliation state.</p></details>
+          <details class="interview-card"><summary>Який mobile-specific trade-off найважливіший тут?</summary><p>Баланс між швидким local-first UX і серверною коректністю. Mobile має нестабільну мережу та lifecycle interruptions, тому cache/retry/reconciliation — частина дизайну, не edge case.</p></details>
+        </div>
+      </section>
+    </main>
+    <a class="home-fab" href="../../index.html">← Knowledge Base</a>
+  </div>
+</body>
+</html>
