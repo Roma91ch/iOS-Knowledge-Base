@@ -243,5 +243,6 @@ for value in arrayB {
       document.querySelectorAll('.quiz').forEach(quiz=>quiz.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{const ok=button.textContent.trim()===quiz.dataset.answer;quiz.classList.remove('correct','wrong');quiz.classList.add(ok?'correct':'wrong');quiz.querySelector('.quiz-feedback').textContent=ok?'Правильно. Тепер поясни одним реченням, чому.':'Не зовсім. Простеж, скільки разів повторюється робота, коли input росте.'})));
     })();
   </script>
+  <script src="../../assets/big-o-ui-v4.js"></script>
 </body>
 </html>
