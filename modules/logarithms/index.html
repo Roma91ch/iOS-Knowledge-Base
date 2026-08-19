@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="uk" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <meta name="description" content="Interactive bilingual visual explorer for logarithms in coding interviews.">
+  <title>Logarithms — Visual Explorer</title>
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg:#08101d;--bg2:#0d1728;--panel:rgba(15,25,43,.88);--solid:#111c2f;--solid2:#16243a;
+      --text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;
+      --yellow:#ffcf5a;--green:#64dda9;--violet:#b49cff;--red:#ff8989;--code:#091321;
+      --shadow:0 24px 70px rgba(0,0,0,.25);--max:1160px;
+    }
+    :root[data-theme="light"]{
+      color-scheme:light;
+      --bg:#f5f8fc;--bg2:#edf3f8;--panel:rgba(255,255,255,.95);--solid:#fff;--solid2:#f2f6fa;
+      --text:#132033;--muted:#617087;--border:#d8e3ed;--accent:#087fc2;
+      --yellow:#946200;--green:#087a52;--violet:#6545bd;--red:#bd3030;--code:#f3f7fb;
+      --shadow:0 22px 55px rgba(46,67,92,.12);
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;overflow-x:hidden;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 8% -8%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 32%),radial-gradient(circle at 95% 8%,color-mix(in srgb,var(--violet) 9%,transparent),transparent 34%),linear-gradient(180deg,var(--bg),var(--bg2))}button,input{font:inherit}.shell{width:min(var(--max),calc(100% - 30px));margin:0 auto}
+
+    .topbar{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+    .topbar-inner{min-height:70px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:var(--text)}
+    .brand-mark{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--violet) 40%,var(--border));border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--violet) 12%,var(--solid));color:var(--violet);font-weight:900;font-size:1.05rem}
+    .brand-copy{min-width:0}.brand-copy b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-copy span{display:block;color:var(--muted);font-size:.76rem}
+    .controls{display:flex;align-items:center;gap:8px}.language-toggle{display:flex;gap:4px;padding:5px;border:1px solid var(--border);border-radius:16px 16px 22px 16px;background:var(--panel)}
+    .lang-button,.theme-toggle{min-height:42px;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:11px 11px 16px 11px;font-weight:800}.lang-button{padding:0 13px;background:transparent;color:var(--muted)}.lang-button.active{color:#110d1c;background:linear-gradient(135deg,#d8ccff,#ae93ff)}
+    .theme-toggle{width:44px;border:1px solid var(--border);background:var(--panel);color:var(--text);display:grid;place-items:center}.theme-toggle svg{width:19px;height:19px}
+
+    main{padding:34px 0 96px}.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:center;padding:44px;border:1px solid var(--border);border-radius:38px 38px 70px 38px;background:var(--panel);box-shadow:var(--shadow)}
+    .hero:after{content:"";position:absolute;width:360px;height:360px;right:-145px;top:-190px;border-radius:50%;border:1px solid color-mix(in srgb,var(--violet) 25%,transparent);box-shadow:0 0 0 52px color-mix(in srgb,var(--violet) 4%,transparent),0 0 0 104px color-mix(in srgb,var(--accent) 3%,transparent);pointer-events:none}
+    .kicker{color:var(--violet);font-size:.78rem;font-weight:860;letter-spacing:.12em;text-transform:uppercase}h1{margin:12px 0 16px;font-size:clamp(2.6rem,7vw,5rem);line-height:.95;letter-spacing:-.055em}.hero p{margin:0;color:var(--muted);font-size:1.05rem;line-height:1.7}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.pill{padding:8px 11px;border:1px solid var(--border);border-radius:999px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:720}
+    .formula-hero{position:relative;z-index:1;display:grid;gap:14px;padding:28px;border:1px solid var(--border);border-radius:30px 30px 44px 30px;background:var(--solid)}.formula-main{font:900 clamp(1.7rem,5vw,3rem)/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-.045em}.formula-main .arrow{color:var(--violet)}.formula-sub{color:var(--muted);line-height:1.55}.formula-sub strong{color:var(--text)}
+
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:56px 0 18px}.section-head h2{margin:7px 0 0;font-size:clamp(1.85rem,4vw,2.9rem);letter-spacing:-.045em}.section-head p{margin:0;max-width:520px;color:var(--muted);line-height:1.55}.scene{padding:28px;border:1px solid var(--border);border-radius:32px 32px 50px 32px;background:var(--panel);box-shadow:0 16px 50px rgba(0,0,0,.1)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{padding:21px;border:1px solid var(--border);border-radius:25px 25px 34px 25px;background:var(--solid)}.card b,.card h3{display:block;margin:0 0 8px}.card p,.card span{color:var(--muted);line-height:1.55;font-size:.88rem}.card strong.big{display:block;margin:9px 0 3px;font-size:clamp(1.8rem,5vw,3rem);letter-spacing:-.045em}.accent{color:var(--violet)!important}.green{color:var(--green)!important}
+
+    .equation-card{display:grid;gap:16px}.equation{padding:20px;border:1px solid var(--border);border-radius:22px;background:var(--code);font:850 clamp(1.25rem,4vw,2rem)/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.translation{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}.translation i{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--violet) 12%,var(--solid2));color:var(--violet);font-style:normal;font-weight:900}.translation b{margin:4px 0 4px;display:block}.translation span{color:var(--muted);line-height:1.55}
+
+    .doubling-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:18px}.doubling-row input{width:100%}.n-badge{padding:9px 13px;border:1px solid var(--border);border-radius:999px;background:var(--solid);font-weight:850;white-space:nowrap}.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.compare-card{padding:22px;border:1px solid var(--border);border-radius:26px;background:var(--solid);min-width:0}.compare-card b{display:block}.compare-card strong{display:block;margin:12px 0 6px;font-size:clamp(2rem,7vw,4rem);letter-spacing:-.06em;word-break:break-word}.compare-card span{color:var(--muted);font-size:.84rem;line-height:1.5}.step-note{margin-top:16px;padding:15px 17px;border-left:4px solid var(--violet);border-radius:0 18px 18px 0;background:color-mix(in srgb,var(--violet) 7%,var(--solid));color:var(--muted);line-height:1.55}.step-note b{color:var(--text)}
+
+    .halving{display:grid;gap:10px}.halving-line{display:grid;grid-template-columns:100px 1fr auto;gap:12px;align-items:center}.halving-line code{font:800 .84rem ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text)}.track{height:12px;border-radius:999px;background:var(--solid2);overflow:hidden}.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--accent))}.halving-line span{color:var(--muted);font-size:.76rem;font-weight:760}
+
+    .interview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.interview-card{padding:20px;border:1px solid var(--border);border-radius:24px;background:var(--solid)}.interview-card .tag{display:inline-flex;padding:6px 9px;border-radius:999px;background:color-mix(in srgb,var(--green) 10%,var(--solid2));color:var(--green);font-size:.72rem;font-weight:850;margin-bottom:10px}.interview-card h3{margin:0 0 7px}.interview-card p{margin:0;color:var(--muted);line-height:1.5;font-size:.85rem}
+
+    .quiz{padding:24px;border:1px solid var(--border);border-radius:30px;background:var(--panel)}.quiz pre{margin:16px 0;padding:17px;border-radius:20px;background:var(--code);overflow:auto;white-space:pre;font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.quiz-options{display:flex;gap:8px;flex-wrap:wrap}.quiz-options button{padding:10px 13px;border:1px solid var(--border);border-radius:15px;background:var(--solid);color:var(--text);font-weight:800;cursor:pointer}.quiz-options button.correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 80%,var(--solid));color:#07150f}.quiz-options button.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 80%,var(--solid));color:#210707}.quiz-feedback{min-height:24px;margin-top:12px;color:var(--muted);font-size:.84rem;font-weight:780}.quiz-feedback.ok{color:var(--green)}.quiz-feedback.no{color:var(--red)}
+
+    .home-fab{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;padding:10px 13px;border:1px solid var(--border);border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--solid) 94%,transparent);color:var(--text);text-decoration:none;font-size:.8rem;font-weight:800;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.grid2,.grid3{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}}
+    @media(max-width:720px){.topbar-inner{grid-template-columns:minmax(0,1fr)}.controls{width:100%;min-width:0}.language-toggle{flex:1}.lang-button{flex:1}.brand-copy span{display:none}.hero{padding:26px 21px 30px;border-radius:28px 28px 44px 28px}.scene{padding:20px}.interview-grid{grid-template-columns:1fr}}
+    @media(max-width:520px){.shell{width:min(100% - 22px,var(--max))}.compare-grid{grid-template-columns:1fr 1fr;gap:10px}.compare-card{padding:16px}.compare-card strong{font-size:1.7rem}.doubling-row{grid-template-columns:1fr}.n-badge{justify-self:start}.halving-line{grid-template-columns:72px 1fr auto;gap:8px}.section-head{margin-top:46px}.quiz{padding:18px}.quiz pre{padding:14px;font-size:12px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="../../index.html" aria-label="iOS Knowledge Base">
+        <div class="brand-mark">log</div>
+        <div class="brand-copy"><b>Logarithms — Visual Explorer</b><span>Algorithms & Data Structures</span></div>
+      </a>
+      <div class="controls">
+        <div class="language-toggle" role="group" aria-label="Language">
+          <button class="lang-button active" type="button" data-lang="uk">UA</button>
+          <button class="lang-button" type="button" data-lang="en">EN</button>
+        </div>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Перемкнути тему"></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="kicker" data-i18n="heroKicker">Logarithmic growth</div>
+        <h1 data-i18n="heroTitle">Чому O(log N) росте так повільно.</h1>
+        <p data-i18n="heroBody">Логарифм відповідає на питання: до якого степеня треба піднести основу, щоб отримати певне число? У coding interviews це дає дуже корисний mental model для алгоритмів, які щоразу різко зменшують problem space.</p>
+        <div class="pills"><span class="pill">Binary search</span><span class="pill">Halving</span><span class="pill">Balanced trees</span><span class="pill">Heap operations</span></div>
+      </div>
+      <div class="formula-hero">
+        <div class="formula-main">log<sub>b</sub>(x) = y <span class="arrow">⇔</span> b<sup>y</sup> = x</div>
+        <div class="formula-sub" data-i18n="formulaCaption">Логарифм — це просто інший спосіб поставити питання про степінь. Для binary-search-style задач зручно думати про <strong>base 2</strong>.</div>
+      </div>
+    </section>
+
+    <div class="section-head"><div><div class="kicker">01 · Definition</div><h2 data-i18n="definitionTitle">Що означає логарифм?</h2></div><p data-i18n="definitionBody">Твоя вихідна формула — це вся ідея. Решта лише способи її інтерпретувати.</p></div>
+    <section class="scene equation-card">
+      <div class="equation">log<sub>b</sub>(x) = y &nbsp;⇔&nbsp; b<sup>y</sup> = x</div>
+      <div class="translation"><i>1</i><div><b data-i18n="baseLabel">b — base</b><span data-i18n="baseBody">Число, яке ми підносимо до степеня.</span></div></div>
+      <div class="translation"><i>2</i><div><b data-i18n="inputLabel">x — result</b><span data-i18n="inputBody">Число, яке хочемо отримати.</span></div></div>
+      <div class="translation"><i>3</i><div><b data-i18n="answerLabel">y — answer</b><span data-i18n="answerBody">Степінь, до якого треба піднести base.</span></div></div>
+      <div class="grid3">
+        <div class="card"><b>log₂(8) = 3</b><span>2³ = 8</span></div>
+        <div class="card"><b>log₂(32) = 5</b><span>2⁵ = 32</span></div>
+        <div class="card"><b>log₁₀(1000) = 3</b><span>10³ = 1000</span></div>
+      </div>
+    </section>
+
+    <div class="section-head"><div><div class="kicker">02 · Interview mental model</div><h2 data-i18n="base2Title">Чому в інтервʼю ми думаємо про log₂?</h2></div><p data-i18n="base2Body">Коли алгоритм кожним кроком ділить problem space приблизно навпіл, кількість кроків визначається тим, скільки разів N можна поділити на 2 до 1.</p></div>
+    <section class="grid2">
+      <div class="card"><b data-i18n="binaryLabel">Binary-search intuition</b><strong class="big accent">2ʸ = N</strong><span data-i18n="binaryBody">Тому y = log₂(N). Якщо N подвоївся, y збільшується лише на 1.</span></div>
+      <div class="card"><b data-i18n="bigONuanceLabel">Big O nuance</b><strong class="big">O(log N)</strong><span data-i18n="bigONuanceBody">У Big O base зазвичай не пишуть: зміна base лише множить логарифм на constant factor. Для halving алгоритмів base 2 — найзручніший mental model.</span></div>
+    </section>
+
+    <div class="section-head"><div><div class="kicker">03 · Doubling explorer</div><h2 data-i18n="doublingTitle">Подвоюй input і дивись, що відбувається.</h2></div><p data-i18n="doublingBody">Для простоти N тут завжди дорівнює 2ᵏ. Це робить різницю між linear і logarithmic growth дуже наочною.</p></div>
+    <section class="scene">
+      <div class="doubling-row"><input id="powerRange" type="range" min="0" max="20" value="10" aria-label="Power of two"><span class="n-badge">N = <span id="nValue">1,024</span></span></div>
+      <div class="compare-grid">
+        <div class="compare-card"><b>O(N)</b><strong id="linearValue">1,024</strong><span data-i18n="linearCaption">Умовних операцій при linear pass.</span></div>
+        <div class="compare-card"><b>O(log N)</b><strong id="logValue">10</strong><span data-i18n="logCaption">Умовних кроків при halving.</span></div>
+      </div>
+      <div class="step-note" id="doublingNote"><b data-i18n="doublingRuleStrong">Головний mental model:</b> <span data-i18n="doublingRule">коли N подвоюється, O(N) приблизно подвоює роботу, а O(log N) додає лише один крок.</span></div>
+    </section>
+
+    <div class="section-head"><div><div class="kicker">04 · 1,000 elements</div><h2 data-i18n="thousandTitle">Чому 1,000 елементів — це приблизно 10 кроків?</h2></div><p data-i18n="thousandBody">Бо 2¹⁰ = 1,024. Тобто log₂(1,000) ≈ 9.97.</p></div>
+    <section class="grid2">
+      <div class="card"><b>Linear</b><strong class="big">~1,000</strong><span data-i18n="thousandLinear">Один linear pass по 1,000 елементах — приблизно 1,000 units of work.</span></div>
+      <div class="card"><b>Logarithmic</b><strong class="big green">~10</strong><span data-i18n="thousandLog">Halving-style search — приблизно 10 кроків, бо 2¹⁰ ≈ 1,000.</span></div>
+    </section>
+
+    <div class="section-head"><div><div class="kicker">05 · Halving</div><h2 data-i18n="halvingTitle">Binary search буквально стискає problem space.</h2></div><p data-i18n="halvingBody">Кожен крок прибирає приблизно половину варіантів. Тому кількість кроків росте дуже повільно.</p></div>
+    <section class="scene halving" aria-label="Halving visualization">
+      <div class="halving-line"><code>1,024</code><div class="track"><div class="fill" style="width:100%"></div></div><span>step 0</span></div>
+      <div class="halving-line"><code>512</code><div class="track"><div class="fill" style="width:50%"></div></div><span>step 1</span></div>
+      <div class="halving-line"><code>256</code><div class="track"><div class="fill" style="width:25%"></div></div><span>step 2</span></div>
+      <div class="halving-line"><code>128</code><div class="track"><div class="fill" style="width:12.5%"></div></div><span>step 3</span></div>
+      <div class="halving-line"><code>...</code><div class="track"><div class="fill" style="width:5%"></div></div><span>...</span></div>
+      <div class="halving-line"><code>1</code><div class="track"><div class="fill" style="width:1%"></div></div><span>step 10</span></div>
+    </section>
+
+    <div class="section-head"><div><div class="kicker">06 · Interviews</div><h2 data-i18n="interviewsTitle">Де логарифми зʼявляються на інтервʼю?</h2></div><p data-i18n="interviewsBody">Шукай pattern: problem space або tree height зменшується/росте експоненційно відносно кількості кроків.</p></div>
+    <section class="interview-grid">
+      <article class="interview-card"><span class="tag">O(log N)</span><h3>Binary Search</h3><p data-i18n="binarySearchCard">Кожен comparison відкидає приблизно половину пошукового простору.</p></article>
+      <article class="interview-card"><span class="tag">O(log N)</span><h3>Balanced BST</h3><p data-i18n="bstCard">Search / insert / delete залежать від height; у balanced tree height ≈ log₂(N).</p></article>
+      <article class="interview-card"><span class="tag">O(log N)</span><h3>Heap</h3><p data-i18n="heapCard">Insert і remove можуть рухати element по tree height, а height binary heap — O(log N).</p></article>
+      <article class="interview-card"><span class="tag">depth ≈ log N</span><h3>Divide & Conquer</h3><p data-i18n="divideCard">Recursion depth часто logarithmic, якщо input ділиться навпіл. Загальна time complexity залежить ще й від роботи на кожному level.</p></article>
+    </section>
+
+    <div class="section-head"><div><div class="kicker">07 · Quick check</div><h2 data-i18n="quizTitle">Яка тут time complexity?</h2></div><p data-i18n="quizBody">Не рахуй iterations буквально — подивись, як швидко змінюється n.</p></div>
+    <section class="quiz" data-answer="O(log N)">
+      <pre><code>var n = values.count
+
+while n > 1 {
+  n /= 2
+}</code></pre>
+      <div class="quiz-options"><button type="button">O(1)</button><button type="button">O(log N)</button><button type="button">O(N)</button><button type="button">O(N²)</button></div>
+      <div class="quiz-feedback" data-i18n="quizPrompt">Обери відповідь.</div>
+    </section>
+  </main>
+
+  <a class="home-fab" href="../../index.html">← Knowledge Base</a>
+
+  <script>
+    (()=>{
+      const root=document.documentElement;
+      const translations={
+        uk:{
+          heroKicker:'Logarithmic growth',heroTitle:'Чому O(log N) росте так повільно.',heroBody:'Логарифм відповідає на питання: до якого степеня треба піднести основу, щоб отримати певне число? У coding interviews це дає дуже корисний mental model для алгоритмів, які щоразу різко зменшують problem space.',formulaCaption:'Логарифм — це просто інший спосіб поставити питання про степінь. Для binary-search-style задач зручно думати про <strong>base 2</strong>.',
+          definitionTitle:'Що означає логарифм?',definitionBody:'Твоя вихідна формула — це вся ідея. Решта лише способи її інтерпретувати.',baseLabel:'b — base',baseBody:'Число, яке ми підносимо до степеня.',inputLabel:'x — result',inputBody:'Число, яке хочемо отримати.',answerLabel:'y — answer',answerBody:'Степінь, до якого треба піднести base.',
+          base2Title:'Чому в інтервʼю ми думаємо про log₂?',base2Body:'Коли алгоритм кожним кроком ділить problem space приблизно навпіл, кількість кроків визначається тим, скільки разів N можна поділити на 2 до 1.',binaryLabel:'Binary-search intuition',binaryBody:'Тому y = log₂(N). Якщо N подвоївся, y збільшується лише на 1.',bigONuanceLabel:'Big O nuance',bigONuanceBody:'У Big O base зазвичай не пишуть: зміна base лише множить логарифм на constant factor. Для halving алгоритмів base 2 — найзручніший mental model.',
+          doublingTitle:'Подвоюй input і дивись, що відбувається.',doublingBody:'Для простоти N тут завжди дорівнює 2ᵏ. Це робить різницю між linear і logarithmic growth дуже наочною.',linearCaption:'Умовних операцій при linear pass.',logCaption:'Умовних кроків при halving.',doublingRuleStrong:'Головний mental model:',doublingRule:'коли N подвоюється, O(N) приблизно подвоює роботу, а O(log N) додає лише один крок.',
+          thousandTitle:'Чому 1,000 елементів — це приблизно 10 кроків?',thousandBody:'Бо 2¹⁰ = 1,024. Тобто log₂(1,000) ≈ 9.97.',thousandLinear:'Один linear pass по 1,000 елементах — приблизно 1,000 units of work.',thousandLog:'Halving-style search — приблизно 10 кроків, бо 2¹⁰ ≈ 1,000.',halvingTitle:'Binary search буквально стискає problem space.',halvingBody:'Кожен крок прибирає приблизно половину варіантів. Тому кількість кроків росте дуже повільно.',
+          interviewsTitle:'Де логарифми зʼявляються на інтервʼю?',interviewsBody:'Шукай pattern: problem space або tree height зменшується/росте експоненційно відносно кількості кроків.',binarySearchCard:'Кожен comparison відкидає приблизно половину пошукового простору.',bstCard:'Search / insert / delete залежать від height; у balanced tree height ≈ log₂(N).',heapCard:'Insert і remove можуть рухати element по tree height, а height binary heap — O(log N).',divideCard:'Recursion depth часто logarithmic, якщо input ділиться навпіл. Загальна time complexity залежить ще й від роботи на кожному level.',
+          quizTitle:'Яка тут time complexity?',quizBody:'Не рахуй iterations буквально — подивись, як швидко змінюється n.',quizPrompt:'Обери відповідь.',quizCorrect:'Правильно. n ділиться на 2 кожним кроком, тому кількість кроків — O(log N).',quizWrong:'Не зовсім. Кожна iteration ділить n навпіл, тому відповідь — O(log N).'
+        },
+        en:{
+          heroKicker:'Logarithmic growth',heroTitle:'Why O(log N) grows so slowly.',heroBody:'A logarithm answers one question: to what power must we raise a base to get a particular number? In coding interviews, this becomes a useful mental model for algorithms that sharply reduce the problem space at every step.',formulaCaption:'A logarithm is another way to ask a question about exponents. For binary-search-style problems, it is most useful to think in terms of <strong>base 2</strong>.',
+          definitionTitle:'What does a logarithm mean?',definitionBody:'Your original equation contains the whole idea. Everything else is just a way to interpret it.',baseLabel:'b — base',baseBody:'The number we raise to a power.',inputLabel:'x — result',inputBody:'The number we want to obtain.',answerLabel:'y — answer',answerBody:'The exponent we need to apply to the base.',
+          base2Title:'Why do interviews make us think about log₂?',base2Body:'When an algorithm cuts the problem space roughly in half at each step, the number of steps is determined by how many times N can be divided by 2 before reaching 1.',binaryLabel:'Binary-search intuition',binaryBody:'So y = log₂(N). If N doubles, y increases by only 1.',bigONuanceLabel:'Big O nuance',bigONuanceBody:'In Big O we usually omit the logarithm base because changing the base only changes the value by a constant factor. For halving algorithms, base 2 is the most useful mental model.',
+          doublingTitle:'Double the input and watch what happens.',doublingBody:'For clarity, N is always 2ᵏ here. This makes the difference between linear and logarithmic growth easy to see.',linearCaption:'Approximate units of work for a linear pass.',logCaption:'Approximate steps for halving.',doublingRuleStrong:'Core mental model:',doublingRule:'when N doubles, O(N) roughly doubles its work, while O(log N) adds only one step.',
+          thousandTitle:'Why are 1,000 elements only about 10 steps?',thousandBody:'Because 2¹⁰ = 1,024, so log₂(1,000) ≈ 9.97.',thousandLinear:'A linear pass over 1,000 elements is roughly 1,000 units of work.',thousandLog:'A halving-style search takes roughly 10 steps because 2¹⁰ ≈ 1,000.',halvingTitle:'Binary search literally compresses the problem space.',halvingBody:'Each step removes roughly half of the remaining possibilities, so the number of steps grows very slowly.',
+          interviewsTitle:'Where do logarithms appear in interviews?',interviewsBody:'Look for a pattern where the problem space or tree height changes exponentially relative to the number of steps.',binarySearchCard:'Each comparison discards roughly half of the remaining search space.',bstCard:'Search / insert / delete depend on height; in a balanced tree, height ≈ log₂(N).',heapCard:'Insert and remove may move an element along the tree height, and a binary heap has height O(log N).',divideCard:'Recursion depth is often logarithmic when the input is split in half. Total time still depends on the work performed at each level.',
+          quizTitle:'What is the time complexity?',quizBody:'Do not count iterations literally—look at how quickly n changes.',quizPrompt:'Choose an answer.',quizCorrect:'Correct. n is divided by 2 each step, so the number of steps is O(log N).',quizWrong:'Not quite. Each iteration halves n, so the answer is O(log N).'
+        }
+      };
+
+      let lang=localStorage.getItem('ios-kb-language')||'uk';
+      const renderLanguage=()=>{
+        document.documentElement.lang=lang;
+        document.querySelectorAll('[data-lang]').forEach(button=>button.classList.toggle('active',button.dataset.lang===lang));
+        document.querySelectorAll('[data-i18n]').forEach(node=>{const value=translations[lang][node.dataset.i18n];if(value!==undefined)node.innerHTML=value});
+      };
+      document.querySelectorAll('[data-lang]').forEach(button=>button.addEventListener('click',()=>{lang=button.dataset.lang;localStorage.setItem('ios-kb-language',lang);renderLanguage()}));
+      renderLanguage();
+
+      const savedTheme=localStorage.getItem('ios-kb-theme');
+      const systemLight=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches;
+      root.dataset.theme=savedTheme||(systemLight?'light':'dark');
+      const themeButton=document.querySelector('[data-theme-toggle]');
+      const renderTheme=()=>{const light=root.dataset.theme==='light';themeButton.setAttribute('aria-label',light?'Enable dark theme':'Enable light theme');themeButton.innerHTML=light?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 15.3A8.4 8.4 0 0 1 8.7 4a8.5 8.5 0 1 0 11.3 11.3Z"/></svg>'};
+      renderTheme();
+      themeButton.addEventListener('click',()=>{root.dataset.theme=root.dataset.theme==='light'?'dark':'light';localStorage.setItem('ios-kb-theme',root.dataset.theme);renderTheme()});
+
+      const range=document.getElementById('powerRange'),nValue=document.getElementById('nValue'),linearValue=document.getElementById('linearValue'),logValue=document.getElementById('logValue');
+      const updateExplorer=()=>{const power=Number(range.value),n=2**power;nValue.textContent=n.toLocaleString('en-US');linearValue.textContent=n.toLocaleString('en-US');logValue.textContent=power.toLocaleString('en-US')};
+      range.addEventListener('input',updateExplorer);updateExplorer();
+
+      const quiz=document.querySelector('.quiz'),feedback=quiz.querySelector('.quiz-feedback'),buttons=[...quiz.querySelectorAll('.quiz-options button')];
+      buttons.forEach(button=>button.addEventListener('click',()=>{buttons.forEach(b=>b.classList.remove('correct','wrong'));const ok=button.textContent.trim()===quiz.dataset.answer;button.classList.add(ok?'correct':'wrong');feedback.className='quiz-feedback '+(ok?'ok':'no');feedback.textContent=translations[lang][ok?'quizCorrect':'quizWrong']}));
+    })();
+  </script>
+</body>
+</html>
