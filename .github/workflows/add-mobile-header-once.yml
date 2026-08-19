@@ -1,0 +1,39 @@
+name: Add shared mobile header once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-mobile-header-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Link shared mobile header stylesheet
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = [
+              Path('modules/combine/index.html'),
+              Path('modules/swift-concurrency/index.html'),
+              Path('modules/mobile-system-design/index.html'),
+          ]
+          link = '  <link rel="stylesheet" href="../../assets/mobile-header.css">\n'
+
+          for path in files:
+              text = path.read_text()
+              if 'assets/mobile-header.css' not in text:
+                  text = text.replace('</head>', link + '</head>', 1)
+                  path.write_text(text)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add modules
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Fix mobile module headers"
+          git push
