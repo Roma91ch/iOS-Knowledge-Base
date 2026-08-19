@@ -90,6 +90,92 @@
     .quiz.wrong {
       background: color-mix(in srgb, var(--red) 6%, var(--panel));
     }
+    .log-note {
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+      border-radius: 28px 28px 40px 28px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));
+    }
+    .log-note-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .log-note-head h3 {
+      margin: 5px 0 0;
+      font-size: clamp(1.35rem, 4vw, 2rem);
+      letter-spacing: -.035em;
+    }
+    .log-note-head p {
+      margin: 0;
+      max-width: 520px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .log-note-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .log-note-card {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--solid);
+    }
+    .log-note-card b {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--accent);
+      font-size: .78rem;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .log-formula {
+      font: 850 clamp(1.35rem, 5vw, 2.1rem)/1.25 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: -.04em;
+    }
+    .log-note-card p {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.55;
+    }
+    .log-compare {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .log-compare strong {
+      display: block;
+      font-size: 1.45rem;
+      letter-spacing: -.04em;
+    }
+    .log-compare span {
+      color: var(--muted);
+      font-size: .76rem;
+    }
+    .log-arrow { color: var(--accent); font-weight: 900; }
+    .log-note-foot {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--yellow) 8%, var(--solid));
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.5;
+    }
+    .log-note-foot strong { color: var(--text); }
+    @media (max-width: 720px) {
+      .log-note-head { flex-direction: column; }
+      .log-note-grid { grid-template-columns: 1fr; }
+    }
     @media (max-width: 520px) {
       .complexity-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -108,9 +194,48 @@
         font-size: 1.08rem;
         line-height: 1.2;
       }
+      .log-note { padding: 18px; }
     }
   `;
   document.head.appendChild(style);
+
+  const growthScene = document.querySelector('.complexity-grid')?.closest('.scene');
+  if (growthScene && !document.querySelector('.log-note')) {
+    const note = document.createElement('section');
+    note.className = 'log-note';
+    note.innerHTML = `
+      <div class="log-note-head">
+        <div>
+          <div class="kicker">Logarithm · O(log N)</div>
+          <h3>Кожне подвоєння input додає лише один крок.</h3>
+        </div>
+        <p>Для алгоритмів, що щоразу ділять problem space приблизно навпіл, зручно мислити через <strong>log₂ N</strong>.</p>
+      </div>
+      <div class="log-note-grid">
+        <div class="log-note-card">
+          <b>Definition</b>
+          <div class="log-formula">log<sub>b</sub>(x) = y ⇔ b<sup>y</sup> = x</div>
+          <p>Логарифм відповідає на питання: “у який степінь треба піднести base, щоб отримати x?”</p>
+        </div>
+        <div class="log-note-card">
+          <b>Interview mental model</b>
+          <div class="log-formula">log₂(N) = y ⇔ 2<sup>y</sup> = N</div>
+          <div class="log-compare">
+            <div><strong>N</strong><span>input</span></div>
+            <div class="log-arrow">×2 →</div>
+            <div><strong>+1</strong><span>step</span></div>
+          </div>
+        </div>
+        <div class="log-note-card">
+          <b>Example</b>
+          <div class="log-formula">2<sup>10</sup> = 1024</div>
+          <p>Тому при <strong>N ≈ 1,000</strong> logarithmic algorithm потребує приблизно <strong>10</strong> halving steps, тоді як linear algorithm — приблизно <strong>1,000</strong> units of work.</p>
+        </div>
+      </div>
+      <div class="log-note-foot"><strong>Nuance:</strong> у Big O base логарифма зазвичай не пишуть, бо зміна base дає лише constant factor. Для binary search та інших halving algorithms природний mental model — base 2.</div>
+    `;
+    growthScene.insertAdjacentElement('afterend', note);
+  }
 
   const sourceImage = document.querySelector('.chart-card img');
   if (sourceImage) {
