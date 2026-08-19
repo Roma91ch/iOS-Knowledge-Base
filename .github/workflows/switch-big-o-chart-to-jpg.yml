@@ -1,0 +1,30 @@
+name: Switch Big O chart to JPG
+
+on:
+  push:
+    paths:
+      - '.github/workflows/switch-big-o-chart-to-jpg.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Big O chart reference
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('modules/big-o/index.html')
+          text = path.read_text()
+          text = text.replace('../../assets/big-o-chart-reference.webp', '../../assets/big-o-chart-reference.jpg')
+          path.write_text(text)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add modules/big-o/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Use full JPG Big O reference chart"
+          git push
