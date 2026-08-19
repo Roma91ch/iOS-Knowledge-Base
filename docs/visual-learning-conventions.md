@@ -2,23 +2,15 @@
 
 Living implementation and design conventions for the iOS Knowledge Base.
 
-The goal of this file is to capture reusable lessons from shipped modules and fixes so new learning pages remain visually consistent, mobile-safe, accessible, and predictable on GitHub Pages.
+The goal is to capture reusable lessons from shipped modules and fixes so new learning pages remain visually consistent, mobile-safe, accessible, and predictable on GitHub Pages. Update this document when a bug or design correction reveals a reusable rule, not for one-off content edits.
 
 ## 1. Scope
 
-These conventions apply to:
-
-- the Knowledge Base landing page;
-- all Visual Explorer modules;
-- future Algorithms & Data Structures modules;
-- future Mobile System Design case studies;
-- reusable components added to this repository.
-
-Treat this as a living document. Update it when a bug or design correction reveals a reusable rule, not for one-off content edits.
+These conventions apply to the Knowledge Base landing page, all Visual Explorer modules, Algorithms & Data Structures modules, Mobile System Design case studies, and reusable components in this repository.
 
 ## 2. Mobile-first layout
 
-Design for portrait mobile first. The primary validation width is approximately 390 pt / CSS px, with additional checks around 320, 430, tablet, and desktop widths.
+Design for portrait mobile first. Primary validation width is approximately 390 CSS px, with additional checks around 320, 430, tablet, and desktop widths.
 
 ### Header rule
 
@@ -26,15 +18,15 @@ On mobile portrait:
 
 - brand/title occupies the first row;
 - mode controls and theme toggle occupy the second row;
-- controls must not overlap, truncate into, or sit on top of the title;
-- use an explicit mobile grid/flex rule rather than hoping a desktop row wraps correctly;
-- long titles must use `min-width: 0` and safe truncation where appropriate.
+- controls must not overlap or cover the title;
+- use an explicit mobile grid/flex rule rather than relying on desktop wrapping;
+- long titles use `min-width: 0` and safe truncation where appropriate.
 
-Desktop/tablet may use a single-row header when there is sufficient space.
+Desktop/tablet may use a single-row header when there is enough space.
 
 ## 3. Shared theme behavior
 
-All pages use the same persisted theme state:
+All pages use the same persisted key:
 
 ```text
 ios-kb-theme
@@ -42,33 +34,26 @@ ios-kb-theme
 
 Rules:
 
-- landing and every module must read the same key;
-- switching theme on any page must affect the next page opened;
-- support system preference when no saved value exists;
-- test both light and dark modes before considering a module complete;
-- theme variables must be applied at the same scope where components inherit `color`, `background`, `border`, and code-surface tokens;
-- do not assume changing CSS variables alone is enough if an ancestor still owns a stale explicit `color` value.
+- landing and every module read/write the same key;
+- use system preference only when no saved value exists;
+- test both light and dark before considering a module complete;
+- apply theme variables at a scope where text, backgrounds, borders, code surfaces, and decorative elements all inherit correctly;
+- avoid mixing incompatible theme mechanisms inside one module;
+- prefer the landing-page pattern: one explicit `data-theme` state on the document root.
 
 ## 4. Card layout
 
 Module cards contain dynamic text and must grow naturally.
 
-Rules:
-
-- use normal document flow for title, description, and footer;
-- do not absolutely position the footer when description length can vary;
-- preferred structure is vertical flex/grid with the description in the middle and footer pushed down with `margin-top: auto`;
-- preserve a clear gap between description and footer;
-- decorative pseudo-elements must sit behind content and must never intercept taps;
-- long copy must increase card height instead of overlapping metadata or actions.
+- Use normal document flow for title, description, and footer.
+- Do not absolutely position a footer when description length can vary.
+- Prefer vertical flex/grid with footer pushed down using `margin-top: auto`.
+- Decorative pseudo-elements stay behind content and never intercept taps.
+- Long copy increases card height instead of overlapping metadata/actions.
 
 ## 5. Visibility and filtering
 
-The landing page uses `hidden` to filter module cards.
-
-Because cards may explicitly define `display: flex` or `display: grid`, never rely only on the browser's default hidden stylesheet.
-
-Keep an explicit rule equivalent to:
+If UI uses the HTML `hidden` attribute, keep an explicit rule:
 
 ```css
 [hidden] {
@@ -76,155 +61,141 @@ Keep an explicit rule equivalent to:
 }
 ```
 
-When changing a component's `display` value, re-test all visibility/filter/search behavior that depends on `hidden`.
+A component with `display:flex` or `display:grid` can otherwise defeat the browser's default hidden styling. Re-test filtering/search whenever display behavior changes.
 
-## 6. Interactive controls
+## 6. Interactive controls and modes
 
-Interactions must remain obvious and useful without excessive UI chrome.
+Interactions need a visible selected state, comfortable touch targets, and a clear teaching payoff.
 
-Rules:
+For Learn / Review / Practice style modes:
 
-- controls need visible selected states;
-- search and category filters must update immediately;
-- mode switches must not create layout jumps that hide navigation unexpectedly;
-- interactive examples should teach one concept at a time;
-- each interaction should have a clear explanatory payoff, not exist only for animation;
-- touch targets must be comfortable on iPhone;
-- avoid interactions that depend on hover for understanding.
+- treat each mode as an independent layout that must be tested separately;
+- do not assume a working Learn layout means Review or Practice is responsive;
+- when modes contain materially different content/layouts, prefer simple explicit JavaScript state plus `hidden` panels over fragile radio-input/sibling-selector CSS state;
+- changing a mode should not create unexpected horizontal overflow or leave stale content visible;
+- on mobile, Practice cards default to one column unless there is clearly enough width for more.
 
-## 7. Charts and diagrams
+## 7. Code presentation
 
-Charts that explain technical behavior must be data-correct, not merely decorative.
+Code is learning content, not decorative copy.
 
-Rules:
+- Use real multiline `<pre><code>` blocks.
+- Store actual line breaks in HTML/JavaScript template literals.
+- Never render escaped `\n` sequences as visible text.
+- Preserve indentation and use horizontal scrolling only when genuinely necessary.
+- Verify every code example at mobile width.
+- Interactive code examples that change must update with `.textContent` using real multiline strings.
 
-- use SVG or Canvas for mathematically meaningful charts;
-- generate plotted curves from the actual functions where practical;
-- do not fake complexity curves with rotated CSS borders or decorative arcs;
-- labels and legend must remain readable in light and dark modes;
-- charts must scale to portrait mobile without clipping;
-- diagrams should communicate the mental model before surrounding prose explains it.
+## 8. Charts, diagrams, and supplied visuals
 
-For Big O specifically, growth curves should be based on actual functions such as:
+Technical visuals must be semantically faithful.
 
-- `1`
-- `log₂ N`
-- `N`
-- `N log N`
-- `N²`
-- `2ᴺ`
+- If the user supplies a trusted explanatory visual that already communicates the concept well, reuse it rather than recreating an inferior pseudo-chart.
+- Store supplied/reference visuals as normal repository assets when possible and reference them directly with relative paths.
+- For charts that need to be generated or interactive, use real data/functions with SVG/Canvas rather than decorative CSS curves.
+- Do not fake complexity curves with rotated borders or arbitrary arcs.
+- Labels/legends must be readable at portrait mobile size.
+- A visual should communicate the mental model before surrounding prose explains it.
 
-## 8. Content accuracy
+For Big O, if generating a chart, plot actual functions such as `1`, `log₂ N`, `N`, `N log N`, `N²`, and `2ᴺ`.
+
+## 9. Content accuracy
 
 Visual simplification must not introduce incorrect technical claims.
 
-Examples already established:
+Established examples:
 
-- Big O is formally an asymptotic upper bound; interview shorthand often uses "Big O" when asking for worst-case complexity, but those ideas are not identical;
-- "elementary operation" is better treated as a constant-time unit of primitive work, not literally one memory-slot access;
-- distinguish auxiliary space from total space where the distinction matters;
-- avoid absolute claims such as "O(N!) is the worst possible complexity".
+- Big O is formally an asymptotic upper bound; interview shorthand often uses “Big O” when asking for worst-case complexity, but those concepts are not identical;
+- “elementary operation” is better treated as a constant-time unit of primitive work, not literally one memory-slot access;
+- distinguish auxiliary space from total space where relevant;
+- avoid absolute claims such as “O(N!) is the worst possible complexity.”
 
-If a supplied learning note contains a useful simplification that is technically imprecise, preserve the teaching intent but correct the statement in the module.
+If a supplied note is useful but technically imprecise, preserve the teaching intent while correcting the statement.
 
-## 9. GitHub Pages and caching
+## 10. Avoid patch stacking
 
-This repository is a static GitHub Pages site with no build step.
+Repeated regressions are a signal that the underlying component should be rebuilt.
 
-Rules:
+- Do not keep layering `v2`, `v3`, runtime CSS injection, and one-off JavaScript patches when the architecture itself is causing the bugs.
+- After two or more related layout/state regressions, prefer a clean replacement with one state model and one responsive strategy.
+- Remove obsolete patch assets/workflows after the clean implementation is committed.
+- Verify the repository no longer references obsolete patch files.
 
-- use relative links so project-site hosting works under `/iOS-Knowledge-Base/`;
-- keep `.nojekyll` in the repository;
-- avoid unnecessary runtime dependencies and external CDNs;
-- when Safari/GitHub Pages caching makes a changed asset difficult to invalidate, prefer a versioned filename for that asset;
-- do not create new versioned files for every small edit by default; use them when cache invalidation is actually relevant;
-- after deployment-sensitive fixes, verify the committed HTML references the expected asset directly.
+## 11. GitHub Pages and caching
 
-## 10. Reusable shared behavior
+This is a static GitHub Pages site with no build step.
 
-Prefer one source of truth for behavior used across modules.
+- Use relative links so project hosting works under `/iOS-Knowledge-Base/`.
+- Keep `.nojekyll`.
+- Avoid unnecessary external runtimes/CDNs.
+- When Safari/Pages caching is genuinely the issue, version an asset or change its filename.
+- Do not attribute every missing visual change to cache before verifying the committed HTML/CSS/JS first.
+- After deployment-sensitive fixes, verify the exact committed asset path and file contents.
 
-Examples:
+## 12. Reusable shared behavior
 
-- shared theme persistence;
-- shared mobile-header conventions;
-- common navigation back to Knowledge Base;
-- accessibility and reduced-motion behavior.
+Prefer one source of truth for behavior used across modules, including theme persistence, mobile-header conventions, Knowledge Base navigation, accessibility, and reduced-motion behavior.
 
-However, avoid making a module depend on fragile runtime patching when a direct stylesheet/script reference is clearer and more reliable.
+Shared behavior should not become fragile runtime patching. A direct implementation inside a self-contained module is preferable when it is clearer and less coupled.
 
-## 11. Accessibility and resilience
+## 13. Accessibility and resilience
 
 Every module should:
 
 - support `prefers-reduced-motion`;
-- use semantic buttons/links for controls;
-- provide meaningful `aria-label`s where visible text is insufficient;
+- use semantic buttons/links;
+- provide meaningful `aria-label`s where needed;
 - maintain readable contrast in both themes;
 - support keyboard focus on desktop;
 - avoid horizontal overflow at supported mobile widths;
-- keep core learning content understandable even if decorative motion is disabled.
+- remain understandable if decorative effects fail or are disabled.
 
-## 12. Pre-deploy validation checklist
-
-Before considering a new module or reusable UI change complete, verify:
+## 14. Pre-deploy validation checklist
 
 ### Mobile portrait
 
-- approximately 390 px width;
-- header title and controls do not overlap;
-- no horizontal scrolling;
-- cards grow correctly with long text;
-- charts/diagrams fit their containers;
+- ~390 px width;
+- title and controls do not overlap;
+- no horizontal page overflow;
+- cards grow with long text;
+- diagrams/images fit their containers;
+- code is truly multiline and readable;
 - fixed Knowledge Base navigation does not cover essential content.
 
 ### Themes
 
-- landing light mode;
-- landing dark mode;
-- module light mode;
-- module dark mode;
-- theme persists across navigation.
+- landing light/dark;
+- module light/dark;
+- theme persists across navigation;
+- image/code surfaces remain readable in both themes.
 
 ### Interactions
 
 - landing search;
 - every landing category filter;
-- module mode switches;
+- every module mode/tab individually;
 - theme switch;
-- interactive exercises/sliders/buttons;
+- exercises/sliders/buttons;
+- dynamic code examples;
 - back navigation.
 
 ### Static hosting
 
-- all relative asset paths resolve under GitHub Pages project URL;
+- relative asset paths resolve under GitHub Pages;
+- every referenced image/script/style exists in the repository;
 - no accidental localhost/build-tool dependencies;
-- new assets are committed;
-- temporary GitHub Actions workflows used for one-time repository edits are removed afterward.
+- temporary workflows and obsolete patch assets are removed.
 
-## 13. When to update this document
+## 15. When to update this document
 
-Add or revise a convention when:
+Add or revise a convention when the same bug could affect another module, a fix establishes a reusable implementation pattern, a visual/accessibility rule becomes part of the product language, a hosting/browser constraint affects future work, or a content-accuracy correction applies to similar educational material.
 
-- the same type of bug could reasonably affect another module;
-- a fix establishes a better reusable implementation pattern;
-- a visual or accessibility rule becomes part of the product language;
-- a hosting/browser constraint affects future work;
-- a technical-content correction should influence similar educational pages.
+Do not add rules for typos or one-off local copy changes.
 
-Do not add rules for typo fixes, one-off copy edits, or purely local content changes.
-
-## 14. Current design philosophy
+## 16. Design philosophy
 
 The Knowledge Base should feel like a visual learning system rather than a textbook or generic dashboard.
 
-Prefer:
+Prefer mental models before definitions, meaningful visuals/flows/diagrams, concise explanation paired with interaction, organic rounded surfaces consistent with existing Visual Explorer pages, mobile usability equal to desktop usability, and standalone static pages with minimal dependencies.
 
-- mental models before definitions;
-- flows, timelines, architecture maps, state diagrams, and meaningful charts;
-- concise explanations paired with interaction;
-- organic rounded surfaces consistent with existing Visual Explorer pages;
-- mobile usability equal to desktop usability;
-- standalone static pages with minimal dependencies.
-
-The target experience is: open a topic, understand the shape of the idea quickly, interact with it, then return later for fast review.
+Target experience: open a topic, understand the shape of the idea quickly, interact with it, then return later for fast review.
