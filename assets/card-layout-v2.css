@@ -1,0 +1,43 @@
+.module-card {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+.module-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.module-card::after {
+  z-index: 0;
+  pointer-events: none;
+}
+
+.module-card p {
+  margin-bottom: 0;
+}
+
+.module-foot {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  margin-top: auto;
+  padding-top: 24px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 560px) {
+  .module-card,
+  .module-card.wide {
+    min-height: 0;
+  }
+
+  .module-foot {
+    left: auto;
+    right: auto;
+    bottom: auto;
+    padding-top: 26px;
+  }
+}
