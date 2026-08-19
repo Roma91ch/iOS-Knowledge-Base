@@ -4,6 +4,10 @@
   const systemLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
   root.dataset.theme = savedTheme || (systemLight ? 'light' : 'dark');
 
+  const hiddenStyle = document.createElement('style');
+  hiddenStyle.textContent = '[hidden]{display:none!important}';
+  document.head.appendChild(hiddenStyle);
+
   const themeButton = document.querySelector('[data-theme-toggle]');
   const updateThemeButton = () => {
     if (!themeButton) return;
