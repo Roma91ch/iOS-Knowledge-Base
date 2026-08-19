@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="uk">
+<html lang="uk" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,237 +8,558 @@
   <meta name="description" content="Interactive Big O visual explorer for algorithm complexity analysis.">
   <title>Big O — Visual Explorer</title>
   <style>
-    :root{color-scheme:dark;--bg:#08101d;--panel:rgba(15,25,43,.84);--solid:#111c2f;--solid2:#16243a;--text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;--accent2:#2bb7f3;--violet:#a292ff;--green:#64dda9;--yellow:#ffdb78;--orange:#ffad6b;--red:#ff8989;--code:#091321;--shadow:0 24px 70px rgba(0,0,0,.25);--max:1180px}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 8% -8%,rgba(43,183,243,.15),transparent 32%),radial-gradient(circle at 95% 8%,rgba(162,146,255,.13),transparent 34%),linear-gradient(180deg,var(--bg),#07101c 52%,#08121f);overflow-x:hidden}.app{min-height:100vh}.state{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%)}
-    #theme:checked~.app{color-scheme:light;--bg:#f5f8fc;--panel:rgba(255,255,255,.92);--solid:#fff;--solid2:#f2f6fa;--text:#132033;--muted:#617087;--border:#d8e3ed;--accent:#087fc2;--accent2:#006ea8;--violet:#6656c8;--green:#087a52;--yellow:#946200;--orange:#aa5b19;--red:#bd3030;--code:#f3f7fb;--shadow:0 22px 55px rgba(46,67,92,.12);background:radial-gradient(circle at 8% -8%,rgba(10,136,201,.09),transparent 32%),radial-gradient(circle at 95% 10%,rgba(109,90,212,.08),transparent 34%),linear-gradient(180deg,#fbfdff,#f5f8fc 58%,#edf3f8)}
-    .shell{width:min(var(--max),calc(100% - 30px));margin:0 auto}.topbar{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.topbar-inner{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none}.brand-mark{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--yellow) 34%,var(--border));border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--yellow) 12%,var(--solid));color:var(--yellow);font-weight:900}.brand-copy{min-width:0}.brand-copy b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-copy span{display:block;color:var(--muted);font-size:.76rem}.controls{display:flex;align-items:center;gap:8px}.mode-tabs{display:flex;gap:4px;padding:5px;border:1px solid var(--border);border-radius:17px 17px 23px 17px;background:var(--panel)}.mode-tab,.theme-toggle{min-height:42px;display:grid;place-items:center;padding:0 14px;border-radius:12px 12px 17px 12px;color:var(--muted);cursor:pointer;font-weight:780;user-select:none;-webkit-tap-highlight-color:transparent}.theme-toggle{width:44px;padding:0;border:1px solid var(--border);background:var(--panel);color:var(--text)}#mode-learn:checked~.app label[for=mode-learn],#mode-review:checked~.app label[for=mode-review],#mode-practice:checked~.app label[for=mode-practice]{color:#07111b;background:linear-gradient(135deg,#ffe488,#ffc64e)}.theme-toggle .sun{display:none}#theme:checked~.app .theme-toggle .moon{display:none}#theme:checked~.app .theme-toggle .sun{display:block}.review-only,.practice-only{display:none}#mode-review:checked~.app .learn-only,#mode-practice:checked~.app .learn-only{display:none}#mode-review:checked~.app .review-only{display:block}#mode-practice:checked~.app .practice-only{display:block}
-    main{padding:34px 0 90px}.hero{position:relative;display:grid;grid-template-columns:1.03fr .97fr;gap:34px;align-items:center;min-height:500px;padding:44px;overflow:hidden;border:1px solid var(--border);border-radius:38px 38px 70px 38px;background:var(--panel);box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:360px;height:360px;right:-130px;top:-180px;border-radius:50%;border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);box-shadow:0 0 0 52px color-mix(in srgb,var(--yellow) 4%,transparent),0 0 0 104px color-mix(in srgb,var(--orange) 3%,transparent)}.kicker{color:var(--yellow);font-size:.78rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:12px 0 16px;font-size:clamp(2.7rem,7vw,5.4rem);line-height:.94;letter-spacing:-.06em}.hero p{margin:0;max-width:720px;color:var(--muted);font-size:1.05rem;line-height:1.7}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.pill{padding:8px 11px;border:1px solid var(--border);border-radius:999px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:720}.hero-visual{min-height:340px;display:grid;place-items:center;position:relative}.axis-card{width:min(100%,390px);padding:22px;border:1px solid var(--border);border-radius:30px 30px 48px 30px;background:var(--solid);box-shadow:var(--shadow)}.mini-axis{height:220px;position:relative;border-left:2px solid var(--muted);border-bottom:2px solid var(--muted);overflow:hidden}.mini-axis:before,.mini-axis:after{content:"";position:absolute;inset:auto 0 32% 0;border-top:1px dashed var(--border)}.mini-axis:after{bottom:66%}.curve{position:absolute;left:0;bottom:0;border-radius:999px;transform-origin:left bottom}.curve.constant{width:100%;height:3px;bottom:14px;background:var(--green)}.curve.log{width:100%;height:58px;border-bottom:5px solid var(--green);border-radius:0 0 0 90%;transform:skewX(-20deg)}.curve.linear{width:96%;height:4px;background:var(--yellow);transform:rotate(-31deg);bottom:1px}.curve.quad{width:62%;height:132px;border-right:6px solid var(--orange);border-radius:0 100% 0 0;left:24%;bottom:0;transform:rotate(10deg)}.curve.exp{width:36%;height:178px;border-right:6px solid var(--red);border-radius:0 100% 0 0;left:10%;bottom:0}.axis-caption{display:flex;justify-content:space-between;margin-top:12px;color:var(--muted);font-size:.76rem;font-weight:760}
-    .section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:62px 0 18px}.section-head h2{margin:7px 0 0;font-size:clamp(1.9rem,4vw,3rem);letter-spacing:-.045em}.section-head p{margin:0;max-width:500px;color:var(--muted);line-height:1.55}.scene{padding:28px;border:1px solid var(--border);border-radius:32px 32px 50px 32px;background:var(--panel);box-shadow:0 16px 50px rgba(0,0,0,.1)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.rule{padding:18px;border:1px solid color-mix(in srgb,var(--yellow) 30%,var(--border));border-radius:22px 22px 30px 22px;background:color-mix(in srgb,var(--yellow) 6%,transparent);color:var(--muted);line-height:1.55}.rule b{color:var(--text)}
-    .growth-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}.growth-toolbar label{font-weight:800}.growth-toolbar input{flex:1;min-width:180px}.n-badge{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:var(--solid);font-weight:850}.complexity-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.complexity-card{padding:17px;border:1px solid var(--border);border-radius:22px 22px 30px 22px;background:var(--solid);min-height:126px}.complexity-card b{display:block;font-size:1.18rem;margin-bottom:8px}.complexity-card span{display:block;color:var(--muted);font-size:.78rem}.complexity-card strong{display:block;margin-top:9px;font-size:.92rem;word-break:break-word}.complexity-card.good{border-color:color-mix(in srgb,var(--green) 35%,var(--border))}.complexity-card.ok{border-color:color-mix(in srgb,var(--yellow) 35%,var(--border))}.complexity-card.bad{border-color:color-mix(in srgb,var(--red) 35%,var(--border))}
-    .ladder{display:grid;gap:10px}.ladder-row{display:grid;grid-template-columns:96px 1fr auto;gap:12px;align-items:center}.ladder-code{font-weight:900}.bar{height:15px;border-radius:999px;background:var(--solid2);overflow:hidden}.bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red))}.ladder-row span:last-child{color:var(--muted);font-size:.76rem;text-align:right}
-    .machine-card{padding:20px;border:1px solid var(--border);border-radius:26px;background:var(--solid)}.machine-card b{display:block;margin-bottom:6px}.machine-card .number{font-size:2rem;font-weight:900;letter-spacing:-.04em}.machine-card span{color:var(--muted);font-size:.82rem;line-height:1.45}.arrow-note{text-align:center;padding:10px;color:var(--muted);font-weight:800}
-    .lab{display:grid;grid-template-columns:.85fr 1.15fr;gap:18px}.lab-buttons{display:grid;gap:9px}.lab-buttons button,.switch button,.quiz-options button{border:1px solid var(--border);background:var(--solid);color:var(--text);border-radius:16px;padding:13px 14px;text-align:left;font:inherit;font-weight:780;cursor:pointer}.lab-buttons button.active,.switch button.active{border-color:color-mix(in srgb,var(--yellow) 50%,var(--border));background:color-mix(in srgb,var(--yellow) 9%,var(--solid))}.lab-result{padding:22px;border:1px solid var(--border);border-radius:28px;background:var(--solid)}.raw{font:800 1.05rem/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}.simplified{margin:18px 0;font-size:clamp(2rem,5vw,3.8rem);font-weight:900;letter-spacing:-.055em;color:var(--yellow)}.why{color:var(--muted);line-height:1.6}
-    .switch{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.code-panel{padding:18px;border:1px solid var(--border);border-radius:24px;background:var(--code);overflow:auto}.code-panel pre{margin:0;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}.formula-card{display:grid;place-items:center;min-height:190px;border:1px solid var(--border);border-radius:28px;background:var(--solid);text-align:center;padding:22px}.formula-card strong{font-size:3rem;letter-spacing:-.06em}.formula-card span{display:block;margin-top:10px;color:var(--muted);line-height:1.5}
-    .space-card{padding:20px;border:1px solid var(--border);border-radius:26px;background:var(--solid)}.space-card h3{margin:0 0 8px}.space-card p{margin:0;color:var(--muted);line-height:1.55}.space-card code{display:inline-block;margin-top:14px;padding:7px 10px;border-radius:10px;background:var(--code);font-size:.8rem}
-    .case-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.case-card{padding:20px;border:1px solid var(--border);border-radius:25px;background:var(--solid)}.case-card b{display:block;margin-bottom:8px}.case-card span{color:var(--muted);font-size:.83rem;line-height:1.5}.technical{border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}.interview{border-color:color-mix(in srgb,var(--yellow) 35%,var(--border))}
-    .checklist{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.check{padding:18px;border:1px solid var(--border);border-radius:24px;background:var(--solid)}.check i{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--yellow) 14%,var(--solid2));font-style:normal;font-weight:900;color:var(--yellow)}.check b{display:block;margin:10px 0 5px}.check span{color:var(--muted);font-size:.8rem;line-height:1.45}
-    .review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}.review-card{padding:22px;border:1px solid var(--border);border-radius:28px;background:var(--panel)}.review-card b{display:block;font-size:1.1rem;margin-bottom:7px}.review-card span{color:var(--muted);line-height:1.5;font-size:.85rem}
-    .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.quiz{padding:20px;border:1px solid var(--border);border-radius:28px;background:var(--panel)}.quiz h3{margin:0 0 12px}.quiz pre{margin:0 0 14px;padding:14px;border-radius:16px;background:var(--code);overflow:auto;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.quiz-options{display:flex;gap:7px;flex-wrap:wrap}.quiz-options button{padding:9px 11px}.quiz-feedback{min-height:22px;margin-top:12px;color:var(--muted);font-size:.82rem;font-weight:760}.quiz.correct{border-color:color-mix(in srgb,var(--green) 48%,var(--border))}.quiz.wrong{border-color:color-mix(in srgb,var(--red) 48%,var(--border))}
-    .home-fab{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:80;padding:10px 13px;border:1px solid var(--border);border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--solid) 92%,transparent);color:var(--text);text-decoration:none;font-size:.8rem;font-weight:800;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
-    @media(max-width:920px){.hero{grid-template-columns:1fr}.complexity-grid{grid-template-columns:repeat(2,1fr)}.grid3,.checklist{grid-template-columns:1fr 1fr}.lab{grid-template-columns:1fr}.case-flow{grid-template-columns:1fr}.review-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:720px){.shell{width:min(var(--max),calc(100% - 20px))}.topbar-inner{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:8px;padding:10px 0}.brand{grid-row:1;width:100%}.controls{grid-row:2;width:100%;gap:6px}.mode-tabs{flex:1;min-width:0}.mode-tab{flex:1;padding:0 7px;font-size:.76rem}.theme-toggle{flex:0 0 42px;width:42px}.brand-copy span{display:none}.hero{padding:28px 22px;border-radius:28px 28px 46px 28px}.hero h1{font-size:clamp(2.7rem,15vw,4.2rem)}main{padding-top:22px}.scene{padding:20px}.grid2,.grid3,.checklist,.review-grid,.quiz-grid{grid-template-columns:1fr}.complexity-grid{grid-template-columns:1fr 1fr}.ladder-row{grid-template-columns:82px 1fr}.ladder-row span:last-child{display:none}.section-head{align-items:start;flex-direction:column}.formula-card strong{font-size:2.6rem}}
-    @media(max-width:420px){.complexity-grid{grid-template-columns:1fr}.mode-tab{font-size:.72rem;padding-inline:5px}.brand-copy b{max-width:230px}}
-    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+    :root {
+      color-scheme: dark;
+      --bg:#08101d; --bg2:#0d1728; --panel:rgba(15,25,43,.86); --solid:#111c2f; --solid2:#16243a;
+      --text:#f4f8ff; --muted:#9eabc0; --border:rgba(154,174,210,.18);
+      --accent:#75d5ff; --yellow:#ffcf5a; --yellow-strong:#e2a900; --green:#64dda9; --orange:#ffad6b; --red:#ff8989;
+      --code:#091321; --shadow:0 24px 70px rgba(0,0,0,.25); --max:1180px;
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg:#f5f8fc; --bg2:#edf3f8; --panel:rgba(255,255,255,.94); --solid:#fff; --solid2:#f2f6fa;
+      --text:#132033; --muted:#617087; --border:#d8e3ed;
+      --accent:#087fc2; --yellow:#946200; --yellow-strong:#7b5100; --green:#087a52; --orange:#aa5b19; --red:#bd3030;
+      --code:#f3f7fb; --shadow:0 22px 55px rgba(46,67,92,.12);
+    }
+
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0; min-height:100vh; overflow-x:hidden;
+      font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 8% -8%, color-mix(in srgb,var(--accent) 13%,transparent), transparent 32%),
+        radial-gradient(circle at 95% 8%, color-mix(in srgb,var(--yellow) 10%,transparent), transparent 34%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+    }
+    button, input { font:inherit; }
+    [hidden] { display:none !important; }
+    .shell { width:min(var(--max),calc(100% - 30px)); margin:0 auto; }
+
+    .topbar {
+      position:sticky; top:0; z-index:50;
+      border-bottom:1px solid var(--border);
+      background:color-mix(in srgb,var(--bg) 88%,transparent);
+      backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    }
+    .topbar-inner {
+      min-height:70px; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px 0;
+    }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; text-decoration:none; color:var(--text); }
+    .brand-mark {
+      width:43px; height:43px; flex:0 0 43px; display:grid; place-items:center;
+      border:1px solid color-mix(in srgb,var(--yellow) 38%,var(--border));
+      border-radius:15px 15px 21px 15px;
+      background:color-mix(in srgb,var(--yellow) 12%,var(--solid));
+      color:var(--yellow); font-weight:900;
+    }
+    .brand-copy { min-width:0; }
+    .brand-copy b { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .brand-copy span { display:block; color:var(--muted); font-size:.76rem; }
+
+    .controls { display:flex; align-items:center; gap:8px; }
+    .tabs {
+      display:flex; gap:4px; padding:5px;
+      border:1px solid var(--border); border-radius:17px 17px 23px 17px; background:var(--panel);
+    }
+    .tab, .theme-toggle {
+      min-height:42px; border:0; cursor:pointer; -webkit-tap-highlight-color:transparent;
+      border-radius:12px 12px 17px 12px; font-weight:790;
+    }
+    .tab { padding:0 14px; background:transparent; color:var(--muted); }
+    .tab.active { color:#171006; background:linear-gradient(135deg,#ffe488,#ffc64e); }
+    .theme-toggle {
+      width:44px; border:1px solid var(--border); background:var(--panel); color:var(--text); display:grid; place-items:center;
+    }
+    .theme-toggle svg { width:19px; height:19px; }
+
+    main { padding:34px 0 92px; }
+    .hero {
+      position:relative; overflow:hidden;
+      display:grid; grid-template-columns:1fr .94fr; gap:34px; align-items:center;
+      padding:44px; border:1px solid var(--border); border-radius:38px 38px 70px 38px;
+      background:var(--panel); box-shadow:var(--shadow);
+    }
+    .hero::after {
+      content:""; position:absolute; width:360px; height:360px; right:-145px; top:-190px;
+      border-radius:50%; border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);
+      box-shadow:0 0 0 52px color-mix(in srgb,var(--yellow) 4%,transparent),0 0 0 104px color-mix(in srgb,var(--orange) 3%,transparent);
+      pointer-events:none;
+    }
+    .kicker { color:var(--yellow); font-size:.78rem; font-weight:860; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:12px 0 16px; font-size:clamp(2.6rem,7vw,5.2rem); line-height:.95; letter-spacing:-.055em; }
+    .hero p { margin:0; color:var(--muted); font-size:1.05rem; line-height:1.7; }
+    .pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+    .pill {
+      padding:8px 11px; border:1px solid var(--border); border-radius:999px;
+      background:var(--solid); color:var(--muted); font-size:.8rem; font-weight:720;
+    }
+    .chart-card {
+      position:relative; z-index:1; padding:10px;
+      border:1px solid var(--border); border-radius:28px 28px 42px 28px; background:#fff; box-shadow:var(--shadow);
+    }
+    .chart-card img {
+      display:block; width:100%; height:auto; border-radius:20px 20px 32px 20px;
+    }
+    .chart-caption {
+      padding:10px 10px 4px; color:#617087; font-size:.73rem; line-height:1.4;
+    }
+
+    .section-head {
+      display:flex; justify-content:space-between; align-items:end; gap:20px; margin:58px 0 18px;
+    }
+    .section-head h2 { margin:7px 0 0; font-size:clamp(1.85rem,4vw,2.9rem); letter-spacing:-.045em; }
+    .section-head p { margin:0; max-width:520px; color:var(--muted); line-height:1.55; }
+
+    .scene {
+      padding:28px; border:1px solid var(--border); border-radius:32px 32px 50px 32px;
+      background:var(--panel); box-shadow:0 16px 50px rgba(0,0,0,.1);
+    }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+
+    .mental {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+    }
+    .mental-card, .space-card, .case-card, .review-card {
+      padding:20px; border:1px solid var(--border); border-radius:25px 25px 34px 25px; background:var(--solid);
+    }
+    .mental-card b, .space-card h3, .case-card b, .review-card b { display:block; margin:0 0 7px; }
+    .mental-card span, .space-card p, .case-card span, .review-card span {
+      color:var(--muted); line-height:1.5; font-size:.84rem;
+    }
+
+    .growth-toolbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+    .growth-toolbar input { flex:1; min-width:180px; }
+    .n-badge { padding:8px 12px; border:1px solid var(--border); border-radius:999px; background:var(--solid); font-weight:850; }
+    .complexity-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .complexity-card {
+      padding:17px; min-height:124px; border:1px solid var(--border);
+      border-radius:22px 22px 30px 22px; background:var(--solid);
+    }
+    .complexity-card b { display:block; font-size:1.18rem; margin-bottom:8px; }
+    .complexity-card span { display:block; color:var(--muted); font-size:.78rem; }
+    .complexity-card strong { display:block; margin-top:9px; font-size:.92rem; word-break:break-word; }
+
+    .lab { display:grid; grid-template-columns:.85fr 1.15fr; gap:18px; }
+    .lab-buttons { display:grid; gap:9px; }
+    .lab-buttons button, .switch button, .quiz-options button {
+      border:1px solid var(--border); background:var(--solid); color:var(--text);
+      border-radius:16px; padding:13px 14px; text-align:left; font-weight:780; cursor:pointer;
+    }
+    .lab-buttons button.active, .switch button.active {
+      border-color:color-mix(in srgb,var(--yellow) 50%,var(--border));
+      background:color-mix(in srgb,var(--yellow) 9%,var(--solid));
+    }
+    .lab-result { padding:22px; border:1px solid var(--border); border-radius:28px; background:var(--solid); }
+    .raw { font:800 1.02rem/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .simplified { margin:18px 0; font-size:clamp(2rem,5vw,3.7rem); font-weight:900; letter-spacing:-.055em; color:var(--yellow); }
+    .why { color:var(--muted); line-height:1.6; }
+
+    .switch { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .code-panel {
+      min-width:0; padding:18px; border:1px solid var(--border); border-radius:24px; background:var(--code); overflow:auto;
+    }
+    pre { margin:0; white-space:pre; tab-size:2; }
+    code { font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; }
+    .formula-card {
+      display:grid; place-items:center; min-height:190px; padding:22px; text-align:center;
+      border:1px solid var(--border); border-radius:28px; background:var(--solid);
+    }
+    .formula-card strong { font-size:clamp(2.5rem,7vw,4.2rem); letter-spacing:-.06em; }
+    .formula-card span { display:block; margin-top:10px; color:var(--muted); line-height:1.5; }
+
+    .space-card code {
+      display:inline-block; margin-top:14px; padding:7px 10px; border-radius:10px;
+      background:var(--code); color:var(--text); font-size:.8rem;
+    }
+    .case-flow { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+
+    .checklist { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .check { padding:18px; border:1px solid var(--border); border-radius:24px; background:var(--solid); }
+    .check i {
+      width:30px; height:30px; display:grid; place-items:center; border-radius:50%;
+      background:color-mix(in srgb,var(--yellow) 14%,var(--solid2)); color:var(--yellow); font-style:normal; font-weight:900;
+    }
+    .check b { display:block; margin:10px 0 5px; }
+    .check span { color:var(--muted); font-size:.8rem; line-height:1.45; }
+
+    .review-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .quiz-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .quiz {
+      min-width:0; padding:20px; border:1px solid var(--border); border-radius:28px; background:var(--panel);
+    }
+    .quiz h3 { margin:0 0 12px; }
+    .quiz pre {
+      margin-bottom:14px; padding:14px; border-radius:16px; background:var(--code); overflow-x:auto;
+    }
+    .quiz-options { display:flex; gap:7px; flex-wrap:wrap; }
+    .quiz-options button { padding:9px 11px; }
+    .quiz-feedback { min-height:22px; margin-top:12px; color:var(--muted); font-size:.82rem; font-weight:760; }
+    .quiz.correct { border-color:color-mix(in srgb,var(--green) 48%,var(--border)); }
+    .quiz.wrong { border-color:color-mix(in srgb,var(--red) 48%,var(--border)); }
+
+    .home-fab {
+      position:fixed; left:max(14px,env(safe-area-inset-left)); bottom:max(14px,env(safe-area-inset-bottom)); z-index:60;
+      padding:10px 13px; border:1px solid var(--border); border-radius:15px 15px 21px 15px;
+      background:color-mix(in srgb,var(--solid) 94%,transparent); color:var(--text); text-decoration:none;
+      font-size:.8rem; font-weight:800; box-shadow:var(--shadow);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    }
+
+    @media (max-width:900px) {
+      .hero { grid-template-columns:1fr; }
+      .grid2, .grid3, .mental, .case-flow { grid-template-columns:1fr; }
+      .complexity-grid { grid-template-columns:repeat(2,1fr); }
+      .checklist { grid-template-columns:1fr 1fr; }
+      .review-grid { grid-template-columns:1fr 1fr; }
+      .section-head { align-items:start; flex-direction:column; }
+    }
+    @media (max-width:720px) {
+      .topbar-inner { display:grid; grid-template-columns:minmax(0,1fr); align-items:stretch; gap:8px; }
+      .brand { width:100%; min-width:0; }
+      .controls { width:100%; min-width:0; display:flex; }
+      .tabs { flex:1 1 auto; min-width:0; }
+      .tab { flex:1 1 0; min-width:0; padding-inline:8px; font-size:.79rem; }
+      .theme-toggle { flex:0 0 44px; }
+      .brand-copy span { display:none; }
+      main { padding-top:24px; }
+      .hero { padding:26px 21px 30px; border-radius:28px 28px 44px 28px; }
+      .scene { padding:20px; }
+      .lab { grid-template-columns:1fr; }
+      .quiz-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width:520px) {
+      .shell { width:min(100% - 22px,var(--max)); }
+      .complexity-grid, .checklist, .review-grid { grid-template-columns:1fr; }
+      .chart-card { padding:7px; border-radius:24px 24px 36px 24px; }
+      .chart-card img { border-radius:17px 17px 27px 17px; }
+      .section-head { margin-top:46px; }
+      .quiz { padding:16px; }
+      .quiz pre, .code-panel { padding:13px; }
+      code { font-size:12px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; }
+    }
   </style>
 </head>
 <body>
-  <input class="state" type="radio" name="mode" id="mode-learn" checked>
-  <input class="state" type="radio" name="mode" id="mode-review">
-  <input class="state" type="radio" name="mode" id="mode-practice">
-  <input class="state" type="checkbox" id="theme">
-  <div class="app">
-    <header class="topbar">
-      <div class="shell topbar-inner">
-        <a class="brand" href="../../index.html">
-          <div class="brand-mark">O</div>
-          <div class="brand-copy"><b>Big O Visual Explorer</b><span>Algorithms & Data Structures · Fundamentals</span></div>
-        </a>
-        <div class="controls">
-          <div class="mode-tabs" role="group" aria-label="Режим">
-            <label class="mode-tab" for="mode-learn">Навчання</label>
-            <label class="mode-tab" for="mode-review">Повторення</label>
-            <label class="mode-tab" for="mode-practice">Практика</label>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="../../index.html" aria-label="iOS Knowledge Base">
+        <div class="brand-mark">O</div>
+        <div class="brand-copy"><b>Big O Visual Explorer</b><span>Algorithms & Data Structures</span></div>
+      </a>
+      <div class="controls">
+        <div class="tabs" role="tablist" aria-label="Режим">
+          <button class="tab active" type="button" data-mode="learn" role="tab" aria-selected="true">Навчання</button>
+          <button class="tab" type="button" data-mode="review" role="tab" aria-selected="false">Повторення</button>
+          <button class="tab" type="button" data-mode="practice" role="tab" aria-selected="false">Практика</button>
+        </div>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Перемкнути тему"></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section data-panel="learn">
+      <div class="hero">
+        <div>
+          <div class="kicker">Algorithm complexity</div>
+          <h1>Про ріст, а не про секунди.</h1>
+          <p>Big O описує, як змінюється кількість роботи або пам’яті, коли росте input. Нас цікавить не те, що код сьогодні виконався за 3 ms, а те, що станеться, коли <b>N</b> виросте у 100, 1 000 або 1 000 000 разів.</p>
+          <div class="pills">
+            <span class="pill">Time complexity</span><span class="pill">Space complexity</span>
+            <span class="pill">Multiple inputs</span><span class="pill">Swift examples</span>
           </div>
-          <label class="theme-toggle" for="theme" aria-label="Перемкнути тему"><span class="moon">☾</span><span class="sun">☀</span></label>
+        </div>
+        <figure class="chart-card">
+          <img src="data:image/webp;base64,UklGRjIAAABXRUJQVlA4WAoAAAAQAAAAhwMA1AMASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH5gABAAEAAAAA<bruncated-placeholder>" alt="Big O complexity growth chart showing O(1), O(log N), O(N), O(N log N), O(N²), O(2^N), and O(N!)">
+          <figcaption class="chart-caption">Reference chart from your original note. Use it to remember the relative shape of the growth classes.</figcaption>
+        </figure>
+      </div>
+
+      <div class="section-head"><div><div class="kicker">01 · Mental model</div><h2>Що саме вимірює Big O?</h2></div><p>Не wall-clock time на конкретному Mac. Ми описуємо форму росту роботи відносно розміру input.</p></div>
+      <div class="mental">
+        <div class="mental-card"><b>Input size</b><span>N, M, number of nodes, characters, edges — те, що може рости.</span></div>
+        <div class="mental-card"><b>Primitive work</b><span>Порівняння, access, arithmetic, append тощо — constant-time building blocks.</span></div>
+        <div class="mental-card"><b>Growth class</b><span>Залишаємо те, що визначає поведінку при великих inputs.</span></div>
+      </div>
+
+      <div class="section-head"><div><div class="kicker">02 · Growth explorer</div><h2>Зміни N і подивись, як розʼїжджаються класи.</h2></div><p>Числа тут не benchmark. Це лише кількість умовних операцій для однакового N.</p></div>
+      <div class="scene">
+        <div class="growth-toolbar">
+          <label for="nRange">Input N</label><input id="nRange" type="range" min="1" max="20" value="10"><span class="n-badge">N = <span id="nValue">10</span></span>
+        </div>
+        <div class="complexity-grid">
+          <div class="complexity-card" data-kind="one"><b>O(1)</b><span>constant</span><strong></strong></div>
+          <div class="complexity-card" data-kind="log"><b>O(log N)</b><span>logarithmic</span><strong></strong></div>
+          <div class="complexity-card" data-kind="n"><b>O(N)</b><span>linear</span><strong></strong></div>
+          <div class="complexity-card" data-kind="nlog"><b>O(N log N)</b><span>linearithmic</span><strong></strong></div>
+          <div class="complexity-card" data-kind="n2"><b>O(N²)</b><span>quadratic</span><strong></strong></div>
+          <div class="complexity-card" data-kind="n3"><b>O(N³)</b><span>cubic</span><strong></strong></div>
+          <div class="complexity-card" data-kind="pow"><b>O(2ᴺ)</b><span>exponential</span><strong></strong></div>
+          <div class="complexity-card" data-kind="fact"><b>O(N!)</b><span>factorial</span><strong></strong></div>
         </div>
       </div>
-    </header>
 
-    <main class="shell">
-      <section class="learn-only">
-        <div class="hero">
-          <div>
-            <div class="kicker">Algorithm Complexity</div>
-            <h1>Big O — це про ріст, не секунди.</h1>
-            <p>Big O допомагає описати, як змінюється кількість роботи або памʼяті, коли росте input. Нас цікавить не те, що код сьогодні виконався за 3 ms, а те, що станеться, коли <b>N</b> виросте у 100, 1 000 або 1 000 000 разів.</p>
-            <div class="pills"><span class="pill">Time complexity</span><span class="pill">Space complexity</span><span class="pill">Multiple inputs</span><span class="pill">Swift examples</span></div>
-          </div>
-          <div class="hero-visual" aria-label="Схематичні криві складності">
-            <div class="axis-card">
-              <div class="mini-axis"><i class="curve constant"></i><i class="curve log"></i><i class="curve linear"></i><i class="curve quad"></i><i class="curve exp"></i></div>
-              <div class="axis-caption"><span>Input size N →</span><span>work ↑</span></div>
-            </div>
-          </div>
+      <div class="section-head"><div><div class="kicker">03 · Simplification</div><h2>Drop constants. Drop dominated terms.</h2></div><p>Big O не намагається зберегти точний operation count — тільки asymptotic growth.</p></div>
+      <div class="lab">
+        <div class="lab-buttons">
+          <button class="active" type="button" data-expression="0">O(2N + 10)</button>
+          <button type="button" data-expression="1">O(N² + N + 1)</button>
+          <button type="button" data-expression="2">O(5N³ + 20N² + 7)</button>
+          <button type="button" data-expression="3">O(N! + log M + 2N + 3)</button>
         </div>
+        <div class="lab-result"><div class="raw" id="rawExpr">O(2N + 10)</div><div class="simplified" id="simpleExpr">O(N)</div><div class="why" id="whyExpr">2 і 10 — constants. Коли N росте, вони не змінюють growth class.</div></div>
+      </div>
 
-        <div class="section-head"><div><div class="kicker">01 · Mental model</div><h2>Що саме вимірює Big O?</h2></div><p>Не реальний час на конкретному Mac. Ми описуємо форму росту роботи відносно розміру input.</p></div>
-        <div class="scene grid2">
-          <div class="rule"><b>Time complexity</b><br>Як росте кількість значущої роботи: comparisons, iterations, lookups, recursive calls тощо.</div>
-          <div class="rule"><b>Space complexity</b><br>Як росте памʼять. На інтервʼю часто окремо уточнюють <b>auxiliary space</b> — додаткову памʼять понад сам input.</div>
+      <div class="section-head"><div><div class="kicker">04 · Multiple inputs</div><h2>N і M — незалежні dimensions.</h2></div><p>Sequential work додається. Nested work множиться. Не перетворюй M на N без відомого relationship.</p></div>
+      <div class="scene">
+        <div class="switch">
+          <button class="active" type="button" data-multi="sequential">Sequential loops</button>
+          <button type="button" data-multi="nested">Nested loops</button>
         </div>
+        <div class="grid2">
+          <div class="code-panel"><pre><code id="multiCode">for value in arrayA {
+  use(value)
+}
 
-        <div class="section-head"><div><div class="kicker">02 · Growth explorer</div><h2>Відчуй різницю між класами.</h2></div><p>Посунь N. Числа приблизні, але масштаб росту — саме те, що треба побачити.</p></div>
-        <div class="scene">
-          <div class="growth-toolbar"><label for="nRange">Input size</label><input id="nRange" type="range" min="1" max="30" value="10"><span class="n-badge">N = <span id="nValue">10</span></span></div>
-          <div class="complexity-grid" id="complexityGrid">
-            <div class="complexity-card good" data-kind="one"><b>O(1)</b><span>Constant</span><strong>1</strong></div>
-            <div class="complexity-card good" data-kind="log"><b>O(log N)</b><span>Logarithmic</span><strong>~3.3</strong></div>
-            <div class="complexity-card ok" data-kind="n"><b>O(N)</b><span>Linear</span><strong>10</strong></div>
-            <div class="complexity-card ok" data-kind="nlog"><b>O(N log N)</b><span>Linearithmic</span><strong>~33</strong></div>
-            <div class="complexity-card bad" data-kind="n2"><b>O(N²)</b><span>Quadratic</span><strong>100</strong></div>
-            <div class="complexity-card bad" data-kind="n3"><b>O(N³)</b><span>Cubic</span><strong>1,000</strong></div>
-            <div class="complexity-card bad" data-kind="pow"><b>O(2ᴺ)</b><span>Exponential</span><strong>1,024</strong></div>
-            <div class="complexity-card bad" data-kind="fact"><b>O(N!)</b><span>Factorial</span><strong>3,628,800</strong></div>
-          </div>
+for value in arrayB {
+  use(value)
+}</code></pre></div>
+          <div class="formula-card"><div><strong id="multiFormula">O(N + M)</strong><span id="multiWhy">Проходимо N елементів, потім M елементів. Робота додається.</span></div></div>
         </div>
+      </div>
 
-        <div class="section-head"><div><div class="kicker">03 · Hierarchy</div><h2>Швидше → повільніше.</h2></div><p>Не сприймай кольори як абсолютне “добре/погано”. Контекст і розмір input завжди важливі.</p></div>
-        <div class="scene ladder">
-          <div class="ladder-row"><div class="ladder-code">O(1)</div><div class="bar"><i style="width:7%"></i></div><span>array index, hash lookup average</span></div>
-          <div class="ladder-row"><div class="ladder-code">O(log N)</div><div class="bar"><i style="width:14%"></i></div><span>binary search</span></div>
-          <div class="ladder-row"><div class="ladder-code">O(N)</div><div class="bar"><i style="width:28%"></i></div><span>single pass</span></div>
-          <div class="ladder-row"><div class="ladder-code">O(N log N)</div><div class="bar"><i style="width:40%"></i></div><span>efficient comparison sorting</span></div>
-          <div class="ladder-row"><div class="ladder-code">O(N²)</div><div class="bar"><i style="width:58%"></i></div><span>many pair comparisons</span></div>
-          <div class="ladder-row"><div class="ladder-code">O(2ᴺ)</div><div class="bar"><i style="width:78%"></i></div><span>branching recursion</span></div>
-          <div class="ladder-row"><div class="ladder-code">O(N!)</div><div class="bar"><i style="width:100%"></i></div><span>permutations</span></div>
-        </div>
+      <div class="section-head"><div><div class="kicker">05 · Time vs space</div><h2>Один алгоритм має дві complexity.</h2></div><p>Після time complexity завжди запитай: що я додатково алокую залежно від input?</p></div>
+      <div class="grid3">
+        <div class="space-card"><h3>Set lookup</h3><p>Один pass і зберігаємо seen values.</p><code>Time O(N) · Space O(N)</code></div>
+        <div class="space-card"><h3>Nested loops</h3><p>Порівнюємо багато пар, але не створюємо структуру, що росте з N.</p><code>Time O(N²) · Space O(1)</code></div>
+        <div class="space-card"><h3>Recursion</h3><p>Навіть без Array/Dictionary call stack може рости з depth.</p><code>Auxiliary space O(N)</code></div>
+      </div>
 
-        <div class="section-head"><div><div class="kicker">04 · Why not milliseconds?</div><h2>Секунди змінюються. Growth class — ні.</h2></div><p>Швидше hardware зсуває цифру, але не змінює форму росту алгоритму.</p></div>
-        <div class="scene grid3">
-          <div class="machine-card"><b>O(1)</b><div class="number">1</div><span>Робота не залежить від N. На швидшому CPU вона просто стане ще трохи швидшою.</span></div>
-          <div class="machine-card"><b>O(N)</b><div class="number">N</div><span>У 100× більший input ≈ у 100× більше роботи, незалежно від конкретних milliseconds.</span></div>
-          <div class="machine-card"><b>O(N²)</b><div class="number">N²</div><span>У 100× більший input ≈ у 10 000× більше роботи. Саме тут hardware перестає “рятувати”.</span></div>
-        </div>
+      <div class="section-head"><div><div class="kicker">06 · Important nuance</div><h2>Big O і “worst case” — не синоніми.</h2></div><p>На інтервʼю “What’s the Big O?” часто означає worst-case complexity, але формально Big O — asymptotic upper bound.</p></div>
+      <div class="case-flow">
+        <div class="case-card"><b>Formal</b><span>Big O дає upper bound для функції росту.</span></div>
+        <div class="case-card"><b>Interview shorthand</b><span>Якщо case не уточнений, часто очікують worst-case time complexity.</span></div>
+        <div class="case-card"><b>Quick Sort</b><span>Average/expected: Θ(N log N). Worst case: Θ(N²). Називай case явно.</span></div>
+      </div>
 
-        <div class="section-head"><div><div class="kicker">05 · Simplification lab</div><h2>Викидай те, що не впливає на ріст.</h2></div><p>Константи і non-dominant terms зникають, але незалежні variables залишаються.</p></div>
-        <div class="scene lab">
-          <div class="lab-buttons" id="labButtons">
-            <button class="active" data-expression="0">O(2N + 10)</button>
-            <button data-expression="1">O(N² + N + 1)</button>
-            <button data-expression="2">O(5N³ + 20N² + 7)</button>
-            <button data-expression="3">O(N! + log M + 2N + 3)</button>
-            <button data-expression="4">O(N × M + N)</button>
-          </div>
-          <div class="lab-result"><div class="raw" id="rawExpr">O(2N + 10)</div><div class="simplified" id="simpleExpr">O(N)</div><div class="why" id="whyExpr">2 і 10 — constants. Коли N росте, вони не змінюють growth class.</div></div>
-        </div>
+      <div class="section-head"><div><div class="kicker">07 · Routine</div><h2>Чотири кроки для аналізу.</h2></div><p>Ця процедура покриває більшість coding-task scenarios.</p></div>
+      <div class="checklist">
+        <div class="check"><i>1</i><b>Назви inputs</b><span>N, M, nodes, edges, characters.</span></div>
+        <div class="check"><i>2</i><b>Знайди repeated work</b><span>Loops, recursion, branching, nested traversal.</span></div>
+        <div class="check"><i>3</i><b>Запиши raw growth</b><span>Напр. 2N² + 100N + log M.</span></div>
+        <div class="check"><i>4</i><b>Спрости</b><span>Drop constants і dominated terms; keep independent variables.</span></div>
+      </div>
+    </section>
 
-        <div class="section-head"><div><div class="kicker">06 · Multiple inputs</div><h2>N і M не можна просто зліпити в N.</h2></div><p>Два незалежні inputs — дві незалежні dimensions. Послідовні loops додаються, nested loops множаться.</p></div>
-        <div class="scene">
-          <div class="switch"><button class="active" data-multi="sequential">Sequential loops</button><button data-multi="nested">Nested loops</button></div>
-          <div class="grid2">
-            <div class="code-panel"><pre id="multiCode">for value in arrayA {\n    use(value)\n}\n\nfor value in arrayB {\n    use(value)\n}</pre></div>
-            <div class="formula-card"><div><strong id="multiFormula">O(N + M)</strong><span id="multiWhy">Проходимо N елементів, потім M елементів. Робота додається.</span></div></div>
-          </div>
-        </div>
+    <section data-panel="review" hidden>
+      <div class="hero">
+        <div><div class="kicker">Review mode</div><h1>Big O за 5 хвилин.</h1><p>Швидкі mental anchors без довгих пояснень.</p></div>
+        <div class="formula-card"><div><strong>growth &gt; ms</strong><span>Думай про scaling, не benchmark.</span></div></div>
+      </div>
+      <div class="section-head"><div><div class="kicker">Cheat sheet</div><h2>Те, що варто тримати в голові.</h2></div></div>
+      <div class="review-grid">
+        <div class="review-card"><b>O(1)</b><span>Input росте, робота — ні.</span></div>
+        <div class="review-card"><b>O(log N)</b><span>Problem space суттєво зменшується кожним кроком.</span></div>
+        <div class="review-card"><b>O(N)</b><span>Один proportional pass.</span></div>
+        <div class="review-card"><b>O(N log N)</b><span>Типова efficient comparison sorting complexity.</span></div>
+        <div class="review-card"><b>O(N²)</b><span>Часто pairwise / nested work.</span></div>
+        <div class="review-card"><b>O(2ᴺ), O(N!)</b><span>Explosive growth; малий N уже має значення.</span></div>
+        <div class="review-card"><b>Constants</b><span>O(2N + 100) → O(N).</span></div>
+        <div class="review-card"><b>Dominant term</b><span>O(N² + N) → O(N²).</span></div>
+        <div class="review-card"><b>Independent inputs</b><span>O(N + M) або O(NM), не автоматично O(N²).</span></div>
+      </div>
+    </section>
 
-        <div class="section-head"><div><div class="kicker">07 · Time vs Space</div><h2>Один алгоритм має дві complexity.</h2></div><p>Не зупиняйся після time complexity. Запитай себе: що я алокую залежно від N?</p></div>
-        <div class="scene grid3">
-          <div class="space-card"><h3>Set lookup solution</h3><p>Один pass по array і зберігаємо побачені values.</p><code>Time O(N) · Space O(N)</code></div>
-          <div class="space-card"><h3>Two nested loops</h3><p>Порівнюємо багато пар, але не створюємо структуру, що росте з N.</p><code>Time O(N²) · Space O(1)</code></div>
-          <div class="space-card"><h3>Recursive call stack</h3><p>Навіть без array/dictionary recursion може споживати stack proportional to depth.</p><code>Space може бути O(N)</code></div>
-        </div>
+    <section data-panel="practice" hidden>
+      <div class="hero">
+        <div><div class="kicker">Practice mode</div><h1>read → trace → name</h1><p>Спочатку уяви, як росте робота. Потім назви complexity і поясни причину одним реченням.</p></div>
+        <div class="formula-card"><div><strong>6 drills</strong><span>Swift snippets · mobile friendly</span></div></div>
+      </div>
 
-        <div class="section-head"><div><div class="kicker">08 · Important nuance</div><h2>Big O і “worst case” — не одне й те саме.</h2></div><p>Це корисна точність: на інтервʼю shorthand часто спрощують, але ти маєш розуміти формальну картину.</p></div>
-        <div class="scene case-flow">
-          <div class="case-card technical"><b>Технічно</b><span>Big O — asymptotic upper bound. Можна говорити про Big O конкретної worst-case, average-case або іншої функції.</span></div>
-          <div class="case-card interview"><b>У практиці інтервʼю</b><span>Коли питають “What’s the Big O?”, часто очікують worst-case time complexity, якщо не сказано інакше.</span></div>
-          <div class="case-card"><b>Quick Sort example</b><span>Average/expected behavior: Θ(N log N). Worst case: Θ(N²). Краще називати case явно.</span></div>
-        </div>
+      <div class="section-head"><div><div class="kicker">Practice</div><h2>Визнач complexity.</h2></div><p>Після відповіді сформулюй “чому” — це важливіше за сам label.</p></div>
+      <div class="quiz-grid">
+        <article class="quiz" data-answer="O(1)">
+          <h3>1 · Direct access</h3>
+          <pre><code>func first(_ values: [Int]) -> Int? {
+  values.first
+}</code></pre>
+          <div class="quiz-options"><button>O(1)</button><button>O(N)</button><button>O(log N)</button></div><div class="quiz-feedback"></div>
+        </article>
+        <article class="quiz" data-answer="O(N)">
+          <h3>2 · Single pass</h3>
+          <pre><code>for value in values {
+  print(value)
+}</code></pre>
+          <div class="quiz-options"><button>O(1)</button><button>O(N)</button><button>O(N²)</button></div><div class="quiz-feedback"></div>
+        </article>
+        <article class="quiz" data-answer="O(N²)">
+          <h3>3 · Pair work</h3>
+          <pre><code>for a in values {
+  for b in values {
+    compare(a, b)
+  }
+}</code></pre>
+          <div class="quiz-options"><button>O(N)</button><button>O(N log N)</button><button>O(N²)</button></div><div class="quiz-feedback"></div>
+        </article>
+        <article class="quiz" data-answer="O(log N)">
+          <h3>4 · Halving</h3>
+          <pre><code>var n = values.count
 
-        <div class="section-head"><div><div class="kicker">09 · Four-step routine</div><h2>Як аналізувати код без паніки.</h2></div><p>Одна коротка процедура працює для більшості interview-style задач.</p></div>
-        <div class="checklist">
-          <div class="check"><i>1</i><b>Назви inputs</b><span>N, M, number of nodes, edges, characters тощо.</span></div>
-          <div class="check"><i>2</i><b>Знайди repeated work</b><span>Loops, recursion, branching, nested traversal.</span></div>
-          <div class="check"><i>3</i><b>Запиши raw growth</b><span>Напр. 2N² + 100N + log M.</span></div>
-          <div class="check"><i>4</i><b>Спрости</b><span>Drop constants і non-dominant terms; independent variables лишаються.</span></div>
-        </div>
-      </section>
+while n > 1 {
+  n /= 2
+}</code></pre>
+          <div class="quiz-options"><button>O(log N)</button><button>O(N)</button><button>O(N²)</button></div><div class="quiz-feedback"></div>
+        </article>
+        <article class="quiz" data-answer="O(N + M)">
+          <h3>5 · Two independent arrays</h3>
+          <pre><code>for x in a {
+  use(x)
+}
 
-      <section class="review-only">
-        <div class="hero"><div><div class="kicker">Review mode</div><h1>Big O за 5 хвилин.</h1><p>Швидке повторення mental anchors без довгих пояснень.</p></div><div class="formula-card"><div><strong>growth &gt; ms</strong><span>Думай про scaling.</span></div></div></div>
-        <div class="review-grid">
-          <div class="review-card"><b>O(1)</b><span>Input росте, робота — ні.</span></div>
-          <div class="review-card"><b>O(log N)</b><span>Кожен крок суттєво зменшує problem space.</span></div>
-          <div class="review-card"><b>O(N)</b><span>Один proportional pass.</span></div>
-          <div class="review-card"><b>O(N log N)</b><span>Типовий efficient comparison sort.</span></div>
-          <div class="review-card"><b>O(N²)</b><span>Часто pairwise work / nested traversal.</span></div>
-          <div class="review-card"><b>Drop constants</b><span>O(2N + 100) → O(N).</span></div>
-          <div class="review-card"><b>Drop dominated terms</b><span>O(N² + N) → O(N²).</span></div>
-          <div class="review-card"><b>Keep N and M</b><span>Independent inputs: O(N + M) або O(NM).</span></div>
-          <div class="review-card"><b>Space too</b><span>Назви auxiliary space окремо від time.</span></div>
-          <div class="review-card"><b>Case matters</b><span>Average vs worst — називай явно, якщо вони відрізняються.</span></div>
-        </div>
-      </section>
+for y in b {
+  use(y)
+}</code></pre>
+          <div class="quiz-options"><button>O(N)</button><button>O(N + M)</button><button>O(NM)</button></div><div class="quiz-feedback"></div>
+        </article>
+        <article class="quiz" data-answer="O(NM)">
+          <h3>6 · Cross product</h3>
+          <pre><code>for x in a {
+  for y in b {
+    compare(x, y)
+  }
+}</code></pre>
+          <div class="quiz-options"><button>O(N + M)</button><button>O(NM)</button><button>O(N²)</button></div><div class="quiz-feedback"></div>
+        </article>
+      </div>
+    </section>
+  </main>
 
-      <section class="practice-only">
-        <div class="hero"><div><div class="kicker">Practice mode</div><h1>Визнач complexity сам.</h1><p>Вибери відповідь. Тут важливіше пояснити <b>чому</b>, ніж просто натиснути правильну кнопку.</p></div><div class="formula-card"><div><strong>read → trace → name</strong><span>Спочатку уяви, як росте робота.</span></div></div></div>
-        <div class="quiz-grid">
-          <article class="quiz" data-answer="O(1)"><h3>1 · Direct access</h3><pre>func first(_ a: [Int]) -> Int? {\n    a.first\n}</pre><div class="quiz-options"><button>O(1)</button><button>O(N)</button><button>O(log N)</button></div><div class="quiz-feedback"></div></article>
-          <article class="quiz" data-answer="O(N)"><h3>2 · Single pass</h3><pre>for value in values {\n    print(value)\n}</pre><div class="quiz-options"><button>O(1)</button><button>O(N)</button><button>O(N²)</button></div><div class="quiz-feedback"></div></article>
-          <article class="quiz" data-answer="O(N²)"><h3>3 · Pair work</h3><pre>for a in values {\n    for b in values {\n        compare(a, b)\n    }\n}</pre><div class="quiz-options"><button>O(N)</button><button>O(N log N)</button><button>O(N²)</button></div><div class="quiz-feedback"></div></article>
-          <article class="quiz" data-answer="O(log N)"><h3>4 · Halving</h3><pre>var n = values.count\nwhile n > 1 {\n    n /= 2\n}</pre><div class="quiz-options"><button>O(log N)</button><button>O(N)</button><button>O(N²)</button></div><div class="quiz-feedback"></div></article>
-          <article class="quiz" data-answer="O(N + M)"><h3>5 · Two independent arrays</h3><pre>for x in a { use(x) }\nfor y in b { use(y) }</pre><div class="quiz-options"><button>O(N)</button><button>O(N + M)</button><button>O(NM)</button></div><div class="quiz-feedback"></div></article>
-          <article class="quiz" data-answer="O(NM)"><h3>6 · Cross product</h3><pre>for x in a {\n    for y in b {\n        compare(x, y)\n    }\n}</pre><div class="quiz-options"><button>O(N + M)</button><button>O(NM)</button><button>O(N²)</button></div><div class="quiz-feedback"></div></article>
-        </div>
-      </section>
-    </main>
-    <a class="home-fab" href="../../index.html">← Knowledge Base</a>
-  </div>
+  <a class="home-fab" href="../../index.html">← Knowledge Base</a>
 
   <script>
     (() => {
-      const theme = document.getElementById('theme');
-      const saved = localStorage.getItem('ios-kb-theme');
-      const systemLight = window.matchMedia?.('(prefers-color-scheme: light)').matches;
-      theme.checked = (saved || (systemLight ? 'light' : 'dark')) === 'light';
-      theme.addEventListener('change', () => localStorage.setItem('ios-kb-theme', theme.checked ? 'light' : 'dark'));
+      const root = document.documentElement;
+      const savedTheme = localStorage.getItem('ios-kb-theme');
+      const systemLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      root.dataset.theme = savedTheme || (systemLight ? 'light' : 'dark');
+
+      const themeButton = document.querySelector('[data-theme-toggle]');
+      const renderThemeIcon = () => {
+        const light = root.dataset.theme === 'light';
+        themeButton.setAttribute('aria-label', light ? 'Увімкнути темну тему' : 'Увімкнути світлу тему');
+        themeButton.innerHTML = light
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 15.3A8.4 8.4 0 0 1 8.7 4a8.5 8.5 0 1 0 11.3 11.3Z"/></svg>';
+      };
+      renderThemeIcon();
+      themeButton.addEventListener('click', () => {
+        root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('ios-kb-theme', root.dataset.theme);
+        renderThemeIcon();
+      });
+
+      const tabs = [...document.querySelectorAll('[data-mode]')];
+      const panels = [...document.querySelectorAll('[data-panel]')];
+      const setMode = mode => {
+        tabs.forEach(tab => {
+          const active = tab.dataset.mode === mode;
+          tab.classList.toggle('active', active);
+          tab.setAttribute('aria-selected', String(active));
+        });
+        panels.forEach(panel => panel.hidden = panel.dataset.panel !== mode);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      };
+      tabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.mode)));
 
       const format = value => {
         if (!Number.isFinite(value)) return '∞';
-        if (value >= 1e15) return value.toExponential(2);
+        if (value >= 1e12) return value.toExponential(2);
         return Math.round(value).toLocaleString('en-US');
       };
-      const factorial = n => { let r = 1; for (let i=2;i<=n;i++){r*=i;if(!Number.isFinite(r)||r>1e100)return Infinity;} return r; };
+      const factorial = n => {
+        let result = 1;
+        for (let i = 2; i <= n; i++) result *= i;
+        return result;
+      };
       const range = document.getElementById('nRange');
       const nValue = document.getElementById('nValue');
       const updateGrowth = () => {
-        const n = Number(range.value); nValue.textContent = n;
-        const values = {one:1,log:Math.log2(Math.max(1,n)),n,nlog:n*Math.log2(Math.max(2,n)),n2:n*n,n3:n*n*n,pow:2**n,fact:factorial(n)};
-        document.querySelectorAll('[data-kind]').forEach(card => card.querySelector('strong').textContent = format(values[card.dataset.kind]));
+        const n = Number(range.value);
+        nValue.textContent = n;
+        const values = {
+          one:1, log:Math.log2(Math.max(1,n)), n,
+          nlog:n*Math.log2(Math.max(2,n)), n2:n*n, n3:n*n*n,
+          pow:2**n, fact:factorial(n)
+        };
+        document.querySelectorAll('[data-kind]').forEach(card => {
+          card.querySelector('strong').textContent = format(values[card.dataset.kind]);
+        });
       };
-      range.addEventListener('input', updateGrowth); updateGrowth();
+      range.addEventListener('input', updateGrowth);
+      updateGrowth();
 
       const expressions = [
         ['O(2N + 10)','O(N)','2 і 10 — constants. Коли N росте, вони не змінюють growth class.'],
         ['O(N² + N + 1)','O(N²)','N² росте швидше за N і constant 1, тому dominant term — N².'],
-        ['O(5N³ + 20N² + 7)','O(N³)','Спочатку drop constants, потім залишаємо найшвидше зростаючий term: N³.'],
-        ['O(N! + log M + 2N + 3)','O(N! + log M)','Для variable N, N! домінує над N. Але M — independent input, тому log M не можна викинути.'],
-        ['O(N × M + N)','O(NM + N)','N і M незалежні. Без додаткового relationship між ними не можна автоматично сказати O(N²).']
+        ['O(5N³ + 20N² + 7)','O(N³)','Drop constants, потім залишаємо найшвидше зростаючий term: N³.'],
+        ['O(N! + log M + 2N + 3)','O(N! + log M)','N! домінує над N, але M — independent input, тому log M лишається.']
       ];
       document.querySelectorAll('[data-expression]').forEach(button => button.addEventListener('click', () => {
-        document.querySelectorAll('[data-expression]').forEach(b => b.classList.toggle('active', b===button));
+        document.querySelectorAll('[data-expression]').forEach(b => b.classList.toggle('active', b === button));
         const [raw,simple,why] = expressions[Number(button.dataset.expression)];
-        document.getElementById('rawExpr').textContent = raw; document.getElementById('simpleExpr').textContent = simple; document.getElementById('whyExpr').textContent = why;
+        document.getElementById('rawExpr').textContent = raw;
+        document.getElementById('simpleExpr').textContent = simple;
+        document.getElementById('whyExpr').textContent = why;
       }));
 
-      const multi = {
-        sequential:{code:'for value in arrayA {\\n    use(value)\\n}\\n\\nfor value in arrayB {\\n    use(value)\\n}',formula:'O(N + M)',why:'Проходимо N елементів, потім M елементів. Робота додається.'},
-        nested:{code:'for a in arrayA {\\n    for b in arrayB {\\n        compare(a, b)\\n    }\\n}',formula:'O(NM)',why:'Для кожного з N елементів виконуємо M внутрішніх операцій. Робота множиться.'}
+      const examples = {
+        sequential: {
+          code:`for value in arrayA {
+  use(value)
+}
+
+for value in arrayB {
+  use(value)
+}`,
+          formula:'O(N + M)',
+          why:'Проходимо N елементів, потім M елементів. Робота додається.'
+        },
+        nested: {
+          code:`for a in arrayA {
+  for b in arrayB {
+    compare(a, b)
+  }
+}`,
+          formula:'O(NM)',
+          why:'Для кожного з N елементів виконуємо M внутрішніх операцій. Робота множиться.'
+        }
       };
       document.querySelectorAll('[data-multi]').forEach(button => button.addEventListener('click', () => {
-        document.querySelectorAll('[data-multi]').forEach(b => b.classList.toggle('active', b===button));
-        const item = multi[button.dataset.multi]; document.getElementById('multiCode').textContent=item.code.replaceAll('\\n','\n'); document.getElementById('multiFormula').textContent=item.formula; document.getElementById('multiWhy').textContent=item.why;
+        document.querySelectorAll('[data-multi]').forEach(b => b.classList.toggle('active', b === button));
+        const item = examples[button.dataset.multi];
+        document.getElementById('multiCode').textContent = item.code;
+        document.getElementById('multiFormula').textContent = item.formula;
+        document.getElementById('multiWhy').textContent = item.why;
       }));
 
       document.querySelectorAll('.quiz').forEach(quiz => {
         quiz.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
           const correct = button.textContent.trim() === quiz.dataset.answer;
-          quiz.classList.remove('correct','wrong'); quiz.classList.add(correct ? 'correct':'wrong');
-          quiz.querySelector('.quiz-feedback').textContent = correct ? 'Правильно. Тепер сформулюй причину одним реченням.' : `Не зовсім. Подивись, скільки разів робота повторюється при рості input.`;
+          quiz.classList.remove('correct','wrong');
+          quiz.classList.add(correct ? 'correct' : 'wrong');
+          quiz.querySelector('.quiz-feedback').textContent = correct
+            ? 'Правильно. Тепер поясни одним реченням, чому.'
+            : 'Не зовсім. Простеж, скільки разів повторюється робота, коли input росте.';
         }));
       });
     })();
   </script>
-  <script src="../../assets/big-o-v2.js"></script>
 </body>
 </html>
