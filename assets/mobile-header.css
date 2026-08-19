@@ -1,0 +1,53 @@
+@media (max-width: 720px) {
+  .topbar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .topbar-inner > .brand {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .topbar-inner > .controls,
+  .topbar-inner > .top-controls,
+  .topbar-inner > .nav-wrap {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .topbar-inner .mode-tabs,
+  .topbar-inner .tabs {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .topbar-inner .mode-tab,
+  .topbar-inner .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 8px;
+    font-size: .78rem;
+  }
+
+  .topbar-inner .theme-toggle,
+  .topbar-inner .theme-label {
+    flex: 0 0 42px;
+    width: 42px;
+  }
+
+  .topbar-inner .brand-copy {
+    min-width: 0;
+  }
+
+  .topbar-inner .brand-copy b {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
