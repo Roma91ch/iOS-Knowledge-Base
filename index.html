@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#08101d">
-  <meta name="description" content="Personal iOS Knowledge Base — visual learning materials for Swift, iOS and Mobile System Design.">
+  <meta name="description" content="Personal iOS Knowledge Base — visual learning materials for Swift, iOS, Algorithms and Mobile System Design.">
   <title>iOS Knowledge Base</title>
   <link rel="stylesheet" href="assets/styles.css">
   <style>
@@ -65,7 +65,7 @@
         <div class="eyebrow">Personal learning hub</div>
         <h1>Теми, до яких хочеться повертатися.</h1>
         <p>
-          Одна база для візуальних матеріалів по Swift, iOS та Mobile System Design.
+          Одна база для візуальних матеріалів по Swift, iOS, Algorithms &amp; Data Structures та Mobile System Design.
           Відкривається однаково з iPhone, iPad і Mac; кожен модуль залишається автономною навчальною сторінкою.
         </p>
         <div class="hero-meta">
@@ -79,7 +79,7 @@
         <div class="orbit-core"><div><b>Knowledge</b><span>learn → review → recall</span></div></div>
         <div class="orbit-chip">Swift</div>
         <div class="orbit-chip">Concurrency</div>
-        <div class="orbit-chip">Combine</div>
+        <div class="orbit-chip">Algorithms</div>
         <div class="orbit-chip">System Design</div>
       </div>
     </section>
@@ -89,7 +89,7 @@
         <div class="eyebrow">Library</div>
         <h2>Навчальні модулі</h2>
       </div>
-      <p>Починай з конкретної теми. Кожна сторінка має власні візуальні моделі, приклади коду, режим повторення та interview drill там, де це доречно.</p>
+      <p>Починай з конкретної теми. Кожна сторінка має власні візуальні моделі, приклади коду, режим повторення та практику там, де це доречно.</p>
     </div>
 
     <div class="toolbar">
@@ -99,7 +99,8 @@
       </div>
       <div class="filters" role="group" aria-label="Категорії">
         <button class="filter active" type="button" data-filter="all">Усі</button>
-        <button class="filter" type="button" data-filter="swift">Swift & iOS</button>
+        <button class="filter" type="button" data-filter="swift">Swift &amp; iOS</button>
+        <button class="filter" type="button" data-filter="algorithms">Algorithms &amp; DS</button>
         <button class="filter" type="button" data-filter="architecture">System Design</button>
       </div>
     </div>
@@ -109,21 +110,28 @@
         <div class="module-top"><div class="module-icon">SC</div><span class="status">Visual Explorer · V2</span></div>
         <h3>Swift Concurrency</h3>
         <p>Task, async/await, structured concurrency, actors, cancellation, isolation та Swift 6 mental models.</p>
-        <div class="module-foot"><span>Swift & iOS</span><span class="open">Відкрити →</span></div>
+        <div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div>
       </a>
 
       <a class="module-card" data-module data-category="swift" href="modules/combine/" style="--card-accent: var(--violet)">
         <div class="module-top"><div class="module-icon">C</div><span class="status">Visual Explorer · V3.4</span></div>
         <h3>Combine</h3>
         <p>Publisher → operators → subscriber, AnyCancellable lifetime, schedulers, debounce, switchToLatest і debugging.</p>
-        <div class="module-foot"><span>Swift & iOS</span><span class="open">Відкрити →</span></div>
+        <div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div>
       </a>
 
-      <a class="module-card wide" data-module data-category="architecture" href="modules/mobile-system-design/" style="--card-accent: var(--green)">
+      <a class="module-card" data-module data-category="algorithms" href="modules/big-o/" style="--card-accent: var(--yellow)">
+        <div class="module-top"><div class="module-icon">O</div><span class="status">Visual Explorer · V1</span></div>
+        <h3>Big O Notation</h3>
+        <p>Growth curves, time vs space, simplification rules, multiple inputs, worst-case nuance та інтерактивні Swift complexity drills.</p>
+        <div class="module-foot"><span>Algorithms &amp; Data Structures</span><span class="open">Відкрити →</span></div>
+      </a>
+
+      <a class="module-card" data-module data-category="architecture" href="modules/mobile-system-design/" style="--card-accent: var(--green)">
         <div class="module-top"><div class="module-icon">MSD</div><span class="status">Playbook · Case Study 01</span></div>
         <h3>Mobile System Design</h3>
         <p>Reusable mobile patterns через Hotel / Reservation App: boundaries, source of truth, cache, offline behavior, availability, idempotent booking, retries та observability.</p>
-        <div class="module-foot"><span>Architecture & System Design</span><span class="open">Відкрити →</span></div>
+        <div class="module-foot"><span>Architecture &amp; System Design</span><span class="open">Відкрити →</span></div>
       </a>
     </section>
 
