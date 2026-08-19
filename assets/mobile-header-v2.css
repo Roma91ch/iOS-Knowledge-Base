@@ -1,0 +1,61 @@
+@media (max-width: 720px) {
+  .topbar-inner {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    justify-items: stretch !important;
+    gap: 8px !important;
+    padding: 10px 0 !important;
+  }
+
+  .topbar-inner > .brand {
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .topbar-inner > .controls,
+  .topbar-inner > .top-controls,
+  .topbar-inner > .nav-wrap {
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .topbar-inner .mode-tabs,
+  .topbar-inner .tabs {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  .topbar-inner .mode-tab,
+  .topbar-inner .tab {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding-inline: 7px !important;
+    font-size: .76rem !important;
+  }
+
+  .topbar-inner .theme-toggle,
+  .topbar-inner .theme-label {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+  }
+
+  .topbar-inner .brand-copy {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .topbar-inner .brand-copy b {
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
