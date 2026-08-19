@@ -1,0 +1,49 @@
+name: Finalize Big O reference chart
+
+on:
+  push:
+    paths:
+      - '.github/workflows/finalize-big-o-reference-chart.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire reference chart asset
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('modules/big-o/index.html')
+          text = path.read_text()
+          old = '<img src="data:image/webp;base64,UklGRjIAAABXRUJQVlA4WAoAAAAQAAAAhwMA1AMASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH5gABAAEAAAAA<bruncated-placeholder>" alt='
+          new = '<img src="" data-chart-image alt='
+          text = text.replace(old, new)
+          marker = "      const root = document.documentElement;\n"
+          loader = """      const chartImage = document.querySelector('[data-chart-image]');
+      fetch('../../assets/big-o-chart-reference.webp.base64.txt')
+        .then(response => {
+          if (!response.ok) throw new Error('Chart asset failed to load');
+          return response.text();
+        })
+        .then(base64 => {
+          chartImage.src = 'data:image/webp;base64,' + base64.trim();
+        })
+        .catch(() => {
+          chartImage.alt = 'Big O reference chart could not be loaded.';
+        });
+
+"""
+          if "data-chart-image" in text and "Chart asset failed to load" not in text:
+              text = text.replace(marker, marker + loader, 1)
+          path.write_text(text)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add modules/big-o/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Use original Big O reference chart"
+          git push
