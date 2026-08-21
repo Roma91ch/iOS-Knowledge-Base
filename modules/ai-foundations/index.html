@@ -102,12 +102,12 @@
     </section>
 
     <section class="panel" data-panel="ios" hidden>
-      <div class="section-head"><div class="eyebrow">04 · Apple platform</div><h2>AI-інженерія на iOS — це насамперед якісний продукт</h2><p>Для інтерв’ю думай через компроміси: приватність, затримка, енергія, офлайн-робота, доступність, cancellation і user control.</p></div>
+      <div class="section-head"><div class="eyebrow">04 · Apple platform</div><h2>Foundation Models на iOS</h2><p>Apple framework, через який застосунок може додати мовну AI-фічу зі Swift: від простого prompt до структурованої відповіді або виклику вашого інструмента.</p></div>
       <div class="grid">
-        <article class="card"><h3>Foundation Models</h3><p><code>LanguageModelSession</code>, structured output і <code>Tool</code> — Swift-орієнтовані примітиви для AI-фіч.</p><span class="tag">Swift API</span></article>
-        <article class="card"><h3>On-device / cloud</h3><p>On-device сильний у приватності та офлайн-роботі; cloud дає більший контекст і складніше reasoning. Відповідь завжди залежить від фічі.</p><span class="tag">trade-offs</span></article>
-        <article class="card"><h3>Swift concurrency</h3><p>Streaming, <code>Task</code>, cancellation, <code>MainActor</code>, actors і не-блокуючий UI — ключ до якісної AI-взаємодії.</p><span class="tag">latency UX</span></article>
-        <article class="card wide"><h3>Мислення про UX</h3><div class="diagram"><div class="step"><b>Намір</b><span>Користувач розуміє, що система пропонує зробити.</span></div><div class="arrow">→</div><div class="step"><b>Прогрес</b><span>Є чесний стан очікування, проміжний результат або уточнення.</span></div><div class="arrow">→</div><div class="step"><b>Контроль</b><span>Людина може скасувати, змінити, перевірити або не погодитися.</span></div></div></article>
+        <article class="card"><h3>LanguageModelSession</h3><p>Об’єкт сесії для взаємодії із системною мовною моделлю: передаєш інструкції та prompt, отримуєш відповідь.</p><span class="tag">prompt → response</span></article>
+        <article class="card"><h3>Structured output</h3><p>Замість вільного тексту просиш модель повернути дані у визначеній Swift-структурі — коли результат має потрапити в UI чи логіку застосунку.</p><span class="tag">typed result</span></article>
+        <article class="card"><h3>Custom Tool</h3><p>Дає моделі контрольовано викликати код вашого застосунку: наприклад, пошукати нотатку або отримати дані з вашого сервісу.</p><span class="tag">app capability</span></article>
+        <article class="card wide"><h3>Мислення про UX</h3><div class="diagram"><div class="step"><b>Намір</b><span>Користувач розуміє, що система пропонує зробити.</span></div><div class="arrow">→</div><div class="step"><b>Результат</b><span>Відповідь легко перевірити, змінити або відхилити.</span></div><div class="arrow">→</div><div class="step"><b>Контроль</b><span>Дія з наслідками не відбувається непомітно.</span></div></div></article>
       </div>
     </section>
 
