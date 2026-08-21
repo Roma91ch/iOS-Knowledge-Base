@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="AI Foundations for iOS developers: models, agents, context, tools, RAG and Apple Foundation Models.">
+  <title>AI Foundations · iOS Knowledge Base</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <style>
+    main { padding-top: 26px; }
+    .crumb { display:flex; gap:9px; align-items:center; color:var(--muted); font-size:.86rem; margin:0 0 22px; }
+    .crumb a { color:var(--accent); text-decoration:none; font-weight:750; }
+    .intro { padding:clamp(24px,5vw,50px); border:1px solid var(--border); border-radius:34px 34px 58px 34px; background:var(--panel); box-shadow:var(--shadow); overflow:hidden; position:relative; }
+    .intro::after { content:""; position:absolute; width:290px; height:290px; right:-110px; top:-135px; border-radius:50%; border:1px solid color-mix(in srgb,var(--violet) 28%,transparent); box-shadow:0 0 0 48px color-mix(in srgb,var(--violet) 5%,transparent),0 0 0 94px color-mix(in srgb,var(--accent) 4%,transparent); }
+    .intro > * { position:relative; z-index:1; }
+    .intro h1 { font-size:clamp(2.55rem,7vw,5.15rem); max-width:800px; margin:10px 0 14px; }
+    .intro p { margin:0; max-width:720px; color:var(--muted); line-height:1.68; font-size:1.07rem; }
+    .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+    .tabs { display:flex; gap:7px; flex-wrap:wrap; margin:28px 0 16px; padding:7px; border:1px solid var(--border); border-radius:18px 18px 25px 18px; background:var(--panel); }
+    .tab { border:0; border-radius:12px 12px 17px 12px; min-height:40px; padding:0 13px; background:transparent; color:var(--muted); cursor:pointer; font-weight:780; }
+    .tab[aria-selected="true"] { background:color-mix(in srgb,var(--accent) 16%,var(--solid)); color:var(--text); }
+    .panel[hidden] { display:none!important; }
+    .section-head { margin:22px 0 13px; }
+    .section-head h2 { margin:6px 0 0; font-size:clamp(1.75rem,4vw,2.6rem); letter-spacing:-.04em; }
+    .section-head p { color:var(--muted); max-width:720px; line-height:1.6; margin:10px 0 0; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:14px; }
+    .card { grid-column:span 4; border:1px solid var(--border); border-radius:24px 24px 34px 24px; padding:21px; background:var(--panel); min-height:190px; }
+    .card.wide { grid-column:span 12; min-height:0; }
+    .card h3 { margin:0 0 8px; font-size:1.2rem; }
+    .card p, .card li { color:var(--muted); line-height:1.55; }
+    .card p { margin:0; }
+    .tag { display:inline-block; margin:10px 5px 0 0; border:1px solid var(--border); border-radius:999px; padding:4px 8px; font-size:.76rem; font-weight:730; color:var(--muted); }
+    .stack { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; }
+    .step { border:1px solid var(--border); border-radius:18px 18px 26px 18px; padding:15px; background:var(--solid); }
+    .step b { display:block; color:var(--accent); margin-bottom:5px; font-size:.86rem; }
+    .step span { color:var(--muted); font-size:.88rem; line-height:1.4; }
+    .diagram { display:grid; grid-template-columns:1fr 34px 1fr 34px 1fr; align-items:stretch; gap:8px; margin-top:12px; }
+    .arrow { display:grid; place-items:center; color:var(--accent); font-size:1.6rem; }
+    .note { margin-top:15px; padding:14px 16px; border-left:4px solid var(--green); background:color-mix(in srgb,var(--green) 8%,var(--solid)); border-radius:0 16px 16px 0; line-height:1.5; }
+    .quiz { display:grid; gap:10px; }
+    .question { border:1px solid var(--border); border-radius:18px; padding:15px; background:var(--panel); }
+    .question summary { cursor:pointer; font-weight:750; }
+    .answer { color:var(--muted); line-height:1.55; padding-top:10px; }
+    code { padding:2px 5px; border-radius:5px; background:var(--solid-2); color:var(--accent); }
+    @media(max-width:760px){ .card{grid-column:span 6}.diagram{grid-template-columns:1fr;gap:5px}.arrow{transform:rotate(90deg);height:22px}.stack{grid-template-columns:1fr 1fr} }
+    @media(max-width:480px){ .card{grid-column:span 12}.stack{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap}.tab{white-space:nowrap}.intro{border-radius:27px 27px 42px 27px} }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="../../" aria-label="iOS Knowledge Base — головна"><div class="brand-mark">iOS</div><div class="brand-copy"><b>iOS Knowledge Base</b><span>Visual learning library</span></div></a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Перемкнути тему"></button>
+    </div>
+  </header>
+  <main class="shell">
+    <div class="crumb"><a href="../../">← Knowledge Base</a><span>/</span><span>AI Foundations</span></div>
+    <section class="intro">
+      <div class="eyebrow">AI for iOS developers</div>
+      <h1>AI Foundations</h1>
+      <p>Ментальні моделі для розмови про LLM, агентів, контекст, tools і Apple-інтеграції — без необхідності ставати ML-дослідником.</p>
+      <div class="meta"><span class="pill">Visual Explorer</span><span class="pill">AI systems</span><span class="pill">iOS context</span><span class="pill">Interview-ready</span></div>
+    </section>
+
+    <nav class="tabs" aria-label="AI Foundations sections">
+      <button class="tab" type="button" data-tab="mental" aria-selected="true">Ментальна модель</button>
+      <button class="tab" type="button" data-tab="context" aria-selected="false">Контекст &amp; RAG</button>
+      <button class="tab" type="button" data-tab="tools" aria-selected="false">Agents &amp; Tools</button>
+      <button class="tab" type="button" data-tab="ios" aria-selected="false">iOS &amp; Apple</button>
+      <button class="tab" type="button" data-tab="review" aria-selected="false">Швидке повторення</button>
+    </nav>
+
+    <section class="panel" data-panel="mental">
+      <div class="section-head"><div class="eyebrow">01 · What is what</div><h2>П’ять шарів, які не варто змішувати</h2><p>Модель — не застосунок; агент — не чат; інструмент — не знання. Якщо ці межі зрозумілі, решта тем лягає набагато простіше.</p></div>
+      <div class="grid">
+        <article class="card"><h3>LLM / модель</h3><p>Модель генерує й інтерпретує текст, код або структуру. Claude, GPT чи Apple Foundation Model — конкретні моделі або сімейства моделей.</p><span class="tag">міркує</span><span class="tag">генерує</span></article>
+        <article class="card"><h3>Чат-інтерфейс</h3><p>UI для обміну повідомленнями. Він може бути просто «запит → відповідь», без доступу до файлів чи автономних дій.</p><span class="tag">розмова</span><span class="tag">стан UI</span></article>
+        <article class="card"><h3>Агентна програма</h3><p>Організовує сесію: контекст, правила, дозволи, виклики інструментів і повторення кроків. Claude Code — приклад такої програми.</p><span class="tag">agentic application</span></article>
+        <article class="card wide"><h3>Агент у межах сесії</h3><div class="diagram"><div class="step"><b>Мета</b><span>«Знайди причину помилки й запропонуй виправлення»</span></div><div class="arrow">→</div><div class="step"><b>Вибір дії</b><span>Модель обирає: прочитати код, запустити тест або поставити питання</span></div><div class="arrow">→</div><div class="step"><b>Результат</b><span>Агент перевіряє результат і вирішує, чи потрібен ще один крок</span></div></div><div class="note"><strong>Коротко:</strong> модель дає «розуміння й мову», а агентна програма дає їй спосіб виконувати послідовну роботу у реальному середовищі.</div></article>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="context" hidden>
+      <div class="section-head"><div class="eyebrow">02 · Context</div><h2>Модель відповідає лише з того, що бачить зараз</h2><p>Контекст — це інструкції, поточний запит, історія діалогу й додаткові дані. RAG потрібен лише тоді, коли треба швидко знайти текстові знання у великому масиві.</p></div>
+      <div class="grid">
+        <article class="card wide"><h3>RAG: пошук перед генерацією</h3><div class="stack"><div class="step"><b>1. Індексація</b><span>Документи діляться на уривки; для них створюються embeddings і зберігаються метадані.</span></div><div class="step"><b>2. Запит</b><span>Запит теж перетворюється на вектор або проходить інший пошук.</span></div><div class="step"><b>3. Retrieval</b><span>Повертаються кілька найрелевантніших уривків, а не вся база.</span></div><div class="step"><b>4. Generation</b><span>LLM отримує запит + уривки і складає відповідь, бажано з джерелами.</span></div></div></article>
+        <article class="card"><h3>Коли RAG доречний</h3><p>«Запитай документацію», корпоративна база знань, великі приватні колекції контенту.</p><span class="tag">текстові знання</span><span class="tag">свіжі дані</span></article>
+        <article class="card"><h3>Коли не RAG</h3><p>Точні структуровані факти: залишок, замовлення, календар. Краще викликати API або SQL-запит.</p><span class="tag">source of truth</span></article>
+        <article class="card"><h3>Ризик</h3><p>RAG не гарантує правду: може знайти не той уривок або не знайти нічого. Потрібні citations, фільтри й evaluation.</p><span class="tag">grounding</span></article>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="tools" hidden>
+      <div class="section-head"><div class="eyebrow">03 · Action</div><h2>Інструмент робить дію; модель вирішує, чи її викликати</h2><p>Tool calling перетворює AI-фічу з текстового генератора на систему, що може отримувати дані або виконувати чітко обмежену дію.</p></div>
+      <div class="grid">
+        <article class="card"><h3>Tool contract</h3><p>Назва, опис, вхідна схема, вихідна схема, помилки й дозволи. Чіткий контракт важливіший за складний prompt.</p><span class="tag">typed input</span><span class="tag">typed output</span></article>
+        <article class="card"><h3>MCP</h3><p>Стандарт підключення агентних програм до інструментів і джерел. Це не RAG і не сама модель.</p><span class="tag">protocol</span><span class="tag">integration</span></article>
+        <article class="card"><h3>Довіра та контроль</h3><p>Перед дією з наслідками показуй намір, проси дозвіл, давай скасування й зрозумілий результат.</p><span class="tag">confirmation</span><span class="tag">undo</span></article>
+        <article class="card wide"><h3>Що має бути в production agent loop</h3><div class="stack"><div class="step"><b>Межі</b><span>Які tools доступні? Які дані можна передавати?</span></div><div class="step"><b>Стан</b><span>Що вже зроблено? Чи можна продовжити або скасувати?</span></div><div class="step"><b>Надійність</b><span>Timeout, retry, idempotency, fallback без приховування помилки.</span></div><div class="step"><b>Observability</b><span>Логи tool calls, latency, task success і безпечні evaluation-сценарії.</span></div></div></article>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="ios" hidden>
+      <div class="section-head"><div class="eyebrow">04 · Apple platform</div><h2>AI-інженерія на iOS — це насамперед якісний продукт</h2><p>Для інтерв’ю думай через компроміси: приватність, затримка, енергія, офлайн-робота, доступність, cancellation і user control.</p></div>
+      <div class="grid">
+        <article class="card"><h3>Foundation Models</h3><p><code>LanguageModelSession</code>, structured output і <code>Tool</code> — Swift-орієнтовані примітиви для AI-фіч.</p><span class="tag">Swift API</span></article>
+        <article class="card"><h3>On-device / cloud</h3><p>On-device сильний у приватності та офлайн-роботі; cloud дає більший контекст і складніше reasoning. Відповідь завжди залежить від фічі.</p><span class="tag">trade-offs</span></article>
+        <article class="card"><h3>Swift concurrency</h3><p>Streaming, <code>Task</code>, cancellation, <code>MainActor</code>, actors і не-блокуючий UI — ключ до якісної AI-взаємодії.</p><span class="tag">latency UX</span></article>
+        <article class="card wide"><h3>Мислення про UX</h3><div class="diagram"><div class="step"><b>Намір</b><span>Користувач розуміє, що система пропонує зробити.</span></div><div class="arrow">→</div><div class="step"><b>Прогрес</b><span>Є чесний стан очікування, проміжний результат або уточнення.</span></div><div class="arrow">→</div><div class="step"><b>Контроль</b><span>Людина може скасувати, змінити, перевірити або не погодитися.</span></div></div></article>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="review" hidden>
+      <div class="section-head"><div class="eyebrow">05 · Recall</div><h2>Перевір себе за дві хвилини</h2><p>Сильна інтерв’ю-відповідь: назви межу системи, ключовий компроміс, поведінку при помилці та спосіб виміряти успіх.</p></div>
+      <div class="quiz">
+        <details class="question"><summary>Чим агент відрізняється від самої моделі?</summary><div class="answer">Модель генерує й міркує. Агентна програма додає ціль, стан, цикл дій, інструменти, політику дозволів і перевірку результату.</div></details>
+        <details class="question"><summary>Коли використати RAG, а коли звичайний API?</summary><div class="answer">RAG — для пошуку релевантних уривків у великій текстовій базі. API або SQL — коли потрібні точні структуровані, актуальні дані.</div></details>
+        <details class="question"><summary>Яка найважливіша UX-вимога до агентної фічі?</summary><div class="answer">Користувач не повинен втрачати контроль: зрозумілий намір, підтвердження дій із наслідками, можливість перервати та чесна поведінка при невпевненості.</div></details>
+        <details class="question"><summary>Що б ти прототипував першим для нової AI-фічі?</summary><div class="answer">Найризикованіший user journey: реальний prompt і дані, latency, failure states, чи розуміє користувач результат, а також як виміряти task success.</div></details>
+      </div>
+    </section>
+  </main>
+  <footer class="footer shell">iOS Knowledge Base · AI Foundations · static GitHub Pages module</footer>
+  <script src="../../assets/app.js"></script>
+  <script>
+    (() => {
+      const buttons = [...document.querySelectorAll('[data-tab]')];
+      const panels = [...document.querySelectorAll('[data-panel]')];
+      buttons.forEach(button => button.addEventListener('click', () => {
+        const tab = button.dataset.tab;
+        buttons.forEach(item => item.setAttribute('aria-selected', String(item === button)));
+        panels.forEach(panel => panel.hidden = panel.dataset.panel !== tab);
+      }));
+    })();
+  </script>
+</body>
+</html>
