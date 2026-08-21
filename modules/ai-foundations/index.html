@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark light">
-  <meta name="description" content="AI Foundations for iOS developers: models, agents, context, tools, RAG and Apple Foundation Models.">
+  <meta name="description" content="AI Foundations: models, agents, context, tools, RAG and agentic systems.">
   <title>AI Foundations · iOS Knowledge Base</title>
   <link rel="stylesheet" href="../../assets/styles.css">
   <style>
@@ -57,17 +57,16 @@
   <main class="shell">
     <div class="crumb"><a href="../../">← Knowledge Base</a><span>/</span><span>AI Foundations</span></div>
     <section class="intro">
-      <div class="eyebrow">AI for iOS developers</div>
+      <div class="eyebrow">AI foundations</div>
       <h1>AI Foundations</h1>
-      <p>Ментальні моделі для розмови про LLM, агентів, контекст, tools і Apple-інтеграції — без необхідності ставати ML-дослідником.</p>
-      <div class="meta"><span class="pill">Visual Explorer</span><span class="pill">AI systems</span><span class="pill">iOS context</span><span class="pill">Interview-ready</span></div>
+      <p>Ментальні моделі для розмови про LLM, агентів, контекст, tools і RAG — без необхідності ставати ML-дослідником.</p>
+      <div class="meta"><span class="pill">Visual Explorer</span><span class="pill">AI systems</span><span class="pill">General concepts</span><span class="pill">Interview-ready</span></div>
     </section>
 
     <nav class="tabs" aria-label="AI Foundations sections">
       <button class="tab" type="button" data-tab="mental" aria-selected="true">Ментальна модель</button>
       <button class="tab" type="button" data-tab="context" aria-selected="false">Контекст &amp; RAG</button>
       <button class="tab" type="button" data-tab="tools" aria-selected="false">Agents &amp; Tools</button>
-      <button class="tab" type="button" data-tab="ios" aria-selected="false">iOS &amp; Apple</button>
       <button class="tab" type="button" data-tab="review" aria-selected="false">Швидке повторення</button>
     </nav>
 
@@ -98,16 +97,6 @@
         <article class="card"><h3>MCP</h3><p>Стандарт підключення агентних програм до інструментів і джерел. Це не RAG і не сама модель.</p><span class="tag">protocol</span><span class="tag">integration</span></article>
         <article class="card"><h3>Довіра та контроль</h3><p>Перед дією з наслідками показуй намір, проси дозвіл, давай скасування й зрозумілий результат.</p><span class="tag">confirmation</span><span class="tag">undo</span></article>
         <article class="card wide"><h3>Що має бути в production agent loop</h3><div class="stack"><div class="step"><b>Межі</b><span>Які tools доступні? Які дані можна передавати?</span></div><div class="step"><b>Стан</b><span>Що вже зроблено? Чи можна продовжити або скасувати?</span></div><div class="step"><b>Надійність</b><span>Timeout, retry, idempotency, fallback без приховування помилки.</span></div><div class="step"><b>Observability</b><span>Логи tool calls, latency, task success і безпечні evaluation-сценарії.</span></div></div></article>
-      </div>
-    </section>
-
-    <section class="panel" data-panel="ios" hidden>
-      <div class="section-head"><div class="eyebrow">04 · Apple platform</div><h2>Foundation Models на iOS</h2><p>Apple framework, через який застосунок може додати мовну AI-фічу зі Swift: від простого prompt до структурованої відповіді або виклику вашого інструмента.</p></div>
-      <div class="grid">
-        <article class="card"><h3>LanguageModelSession</h3><p>Об’єкт сесії для взаємодії із системною мовною моделлю: передаєш інструкції та prompt, отримуєш відповідь.</p><span class="tag">prompt → response</span></article>
-        <article class="card"><h3>Structured output</h3><p>Замість вільного тексту просиш модель повернути дані у визначеній Swift-структурі — коли результат має потрапити в UI чи логіку застосунку.</p><span class="tag">typed result</span></article>
-        <article class="card"><h3>Custom Tool</h3><p>Дає моделі контрольовано викликати код вашого застосунку: наприклад, пошукати нотатку або отримати дані з вашого сервісу.</p><span class="tag">app capability</span></article>
-        <article class="card wide"><h3>Мислення про UX</h3><div class="diagram"><div class="step"><b>Намір</b><span>Користувач розуміє, що система пропонує зробити.</span></div><div class="arrow">→</div><div class="step"><b>Результат</b><span>Відповідь легко перевірити, змінити або відхилити.</span></div><div class="arrow">→</div><div class="step"><b>Контроль</b><span>Дія з наслідками не відбувається непомітно.</span></div></div></article>
       </div>
     </section>
 
