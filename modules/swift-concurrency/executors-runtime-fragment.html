@@ -1,0 +1,351 @@
+<!-- Additive appendix: Actors → Executors → Runtime → Threads -->
+<div class="section-head">
+  <div>
+    <div class="kicker">05A · Executors & runtime</div>
+    <h2>Actor → Executor → Runtime → Thread: хто за що відповідає</h2>
+  </div>
+  <p>
+    Isolation визначає, <em>де логічно</em> має виконуватись код. Executor визначає правила виконання jobs.
+    Swift Concurrency runtime координує scheduling, а фізичний thread — лише ресурс, на якому виконується черговий шматок job.
+  </p>
+</div>
+
+<section class="scene">
+  <div class="important-correction">
+    <b>Головне розділення.</b>
+    <code>Actor</code> ≠ <code>Executor</code> ≠ <code>Thread</code>.
+    Actor — isolation domain для state. Actor має serial executor, який забезпечує взаємне виключення для actor-isolated jobs.
+    Executor не означає «один конкретний thread». Для default actors робота зазвичай отримує threads із
+    <code>globalConcurrentExecutor</code>; custom executors можуть змінити execution semantics.
+    «Scheduler» нижче — це концептуальна роль Swift Concurrency runtime, а не окремий public object, який треба створювати в app code.
+  </div>
+
+  <div class="diagram-legend" aria-label="Умовні позначення для executor diagram">
+    <span class="legend-item"><i class="legend-line hop"></i> actor / executor hop</span>
+    <span class="legend-item"><i class="legend-line"></i> enqueue / execution</span>
+    <span class="legend-item"><i class="legend-line suspend"></i> await / suspension</span>
+  </div>
+
+  <h3 class="scene-title">Велика ментальна модель</h3>
+  <div class="concurrency-map" role="img" aria-label="Flow from call site through actor isolation, executor, Swift runtime and physical thread">
+    <div class="map-node">
+      <div>
+        <b>1 · Call site / Task</b>
+        <span><code>await store.save()</code>, <code>Task {}</code>, <code>Task.detached</code> або звичайний async call.</span>
+      </div>
+    </div>
+    <div class="map-node">
+      <div>
+        <b>2 · Isolation decision</b>
+        <span>Compiler знає: конкретний actor instance, global actor, <code>MainActor</code> чи nonisolated context.</span>
+      </div>
+    </div>
+    <div class="map-node">
+      <div>
+        <b>3 · Executor</b>
+        <span>Actor isolation використовує <code>SerialExecutor</code>. Він визначає exclusive execution context і порядок actor jobs.</span>
+      </div>
+    </div>
+    <div class="map-node">
+      <div>
+        <b>4 · Runtime / TaskExecutor</b>
+        <span>Default generic work використовує <code>globalConcurrentExecutor</code>. Task executor preference або custom executor можуть змінити source of execution.</span>
+      </div>
+    </div>
+    <div class="map-node">
+      <div>
+        <b>5 · Physical thread</b>
+        <span>Runtime виконує job fragment на доступному thread. Після suspension continuation може продовжитись на іншому thread.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="interview-answer">
+    <b>Читай flow так</b>
+    Cross-actor call не «передає thread» іншому actor. Поточний task доходить до isolation boundary,
+    за потреби suspend-иться, continuation enqueue-иться на executor потрібного isolation domain,
+    а runtime забезпечує фактичне виконання. Після <code>await</code> thread identity не є стабільною частиною контракту.
+  </div>
+
+  <h3 class="scene-title" style="margin-top:28px">Три різні actor-моделі</h3>
+  <div class="actor-notes">
+    <div class="actor-note">
+      <b><code>actor MyActor</code></b>
+      Кожен instance — окремий isolation domain. Два <code>MyActor()</code> не ділять один «глобальний actor».
+      Для default actor runtime створює його default serial-executor identity; actor не отримує dedicated thread.
+    </div>
+    <div class="actor-note">
+      <b><code>@MainActor</code></b>
+      Це global actor: усі declarations з цією isolation ділять один global isolation domain.
+      На Apple UI platforms його executor інтегрований з main executor / main thread, тому UI state природно ізолювати тут.
+    </div>
+    <div class="actor-note">
+      <b>Custom global actor</b>
+      Тип, позначений <code>@globalActor</code> і conforming до <code>GlobalActor</code>, надає одну стабільну
+      <code>static shared</code> actor instance. Annotation цього типу потім працює подібно до <code>@MainActor</code>.
+    </div>
+  </div>
+
+  <details class="code-example">
+    <summary>Показати custom GlobalActor</summary>
+    <div class="code-body">
+      <pre><code>@globalActor
+actor ImagePipelineActor: GlobalActor {
+  static let shared = ImagePipelineActor()
+}
+
+@ImagePipelineActor
+final class ImagePipeline {
+  private var cache: [URL: Image] = [:]
+
+  func image(for url: URL) async throws -&gt; Image {
+    // Isolated to ImagePipelineActor.shared.
+    // Not MainActor and not a dedicated thread.
+    ...
+  }
+}</code></pre>
+      <div class="code-note">
+        <div class="code-note-text">
+          <code>@globalActor</code> — attribute, який робить тип global-actor type;
+          <code>GlobalActor</code> — protocol. Ключова властивість protocol — стабільна <code>static shared</code> actor instance.
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <h3 class="scene-title" style="margin-top:28px">Що відбувається при cross-actor call</h3>
+  <div class="isolation-flow">
+    <div class="isolation-flow-node">
+      <div>
+        <b>Caller isolation</b>
+        <span>Наприклад <code>@MainActor</code> або інший actor.</span>
+      </div>
+    </div>
+    <div class="isolation-flow-arrow">→</div>
+    <div class="isolation-flow-node">
+      <div>
+        <b><code>await actor.method()</code></b>
+        <span>Crosses isolation boundary; task може suspend, а continuation enqueue-иться до target actor.</span>
+      </div>
+    </div>
+    <div class="isolation-flow-arrow">→</div>
+    <div class="isolation-flow-node">
+      <div>
+        <b>Target actor executor</b>
+        <span>Actor-isolated body виконується з exclusive access до state. Після return caller відновлює потрібну isolation.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="actor-notes">
+    <div class="actor-note">
+      <b>Всередині того самого actor</b>
+      Synchronous actor-isolated method можна викликати без <code>await</code>, бо caller уже має потрібну isolation.
+    </div>
+    <div class="actor-note">
+      <b>Ззовні actor</b>
+      Навіть synchronous actor method стає asynchronous cross-actor access: caller пише <code>await</code>, щоб дозволити hop.
+    </div>
+    <div class="actor-note">
+      <b><code>await</code> ≠ guaranteed hop</b>
+      <code>await</code> позначає потенційний suspension point. Якщо isolation уже правильна або operation не suspend-иться,
+      фізичного thread switch може не бути.
+    </div>
+  </div>
+
+  <h3 class="scene-title" style="margin-top:28px">Task, Task.detached і executor context</h3>
+  <div class="actor-notes">
+    <div class="actor-note">
+      <b><code>Task {}</code></b>
+      Коли closure формується в actor-isolated context, вона успадковує цю actor isolation.
+      Наприклад, Task усередині <code>@MainActor</code> method може синхронно звертатись до MainActor-isolated state.
+    </div>
+    <div class="actor-note">
+      <b><code>Task.detached {}</code></b>
+      Навмисно відрізає actor isolation і task-local context. Якщо detached work треба назад на actor —
+      зроби explicit hop, наприклад <code>await MainActor.run { ... }</code> або actor method call.
+    </div>
+    <div class="actor-note">
+      <b>Task executor preference</b>
+      Починаючи зі Swift 6 API може задавати <code>TaskExecutor</code> preference.
+      Це окрема вісь від actor isolation: serial executor відповідає за actor exclusivity, task executor — за execution source.
+    </div>
+  </div>
+
+  <details class="code-example">
+    <summary>Показати Task inheritance та explicit hop</summary>
+    <div class="code-body">
+      <div class="code-pair">
+        <div class="code-panel good">
+          <div class="code-panel-title">Actor context inherited</div>
+          <pre><code>@MainActor
+final class ViewModel {
+  var title = ""
+
+  func refresh() {
+    Task {
+      // Closure is MainActor-isolated.
+      title = "Loading…"
+      let value = await service.load()
+      title = value
+    }
+  }
+}</code></pre>
+        </div>
+
+        <div class="code-panel bad">
+          <div class="code-panel-title">Detached: hop back explicitly</div>
+          <pre><code>@MainActor
+func refresh() {
+  Task.detached {
+    let value = await loadValue()
+
+    await MainActor.run {
+      updateUI(value)
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <h3 class="scene-title" style="margin-top:28px"><code>nonisolated</code>: isolation opt-out, не «background executor»</h3>
+  <div class="important-correction">
+    <b>Swift 6.2 nuance.</b>
+    <code>nonisolated</code> статично забороняє функції напряму використовувати actor-isolated state,
+    але execution semantics async-функції залежать від language/features.
+    У Swift 6.2 з <code>NonisolatedNonsendingByDefault</code> звичайна nonisolated async function за замовчуванням
+    має caller-executor behavior (<code>nonisolated(nonsending)</code> semantics).
+    Якщо потрібно явно виконуватись concurrent/off-actor, використовуй <code>@concurrent</code>.
+  </div>
+
+  <div class="actor-notes">
+    <div class="actor-note">
+      <b>Sync <code>nonisolated</code></b>
+      Немає actor hop усередині synchronous call. Функція просто не має права напряму торкатися isolated state.
+    </div>
+    <div class="actor-note">
+      <b>Async Swift 6.2+</b>
+      Caller-executor behavior не робить function actor-isolated статично. Це важлива різниця між
+      «де зараз виконується» та «до якого state compiler дозволяє direct access».
+    </div>
+    <div class="actor-note">
+      <b>Task inside nonisolated function</b>
+      Новий unstructured <code>Task {}</code> не успадковує динамічну caller actor isolation лише через те,
+      що <code>nonisolated(nonsending)</code> function зараз виконується на caller executor.
+    </div>
+  </div>
+
+  <details class="code-example">
+    <summary>Показати nonisolated + MainActor bridge + @concurrent</summary>
+    <div class="code-body">
+      <pre><code>@MainActor
+final class ProfileViewModel {
+  var status = "idle"
+
+  nonisolated func analyticsName() -&gt; String {
+    // No direct access to MainActor-isolated 'status'.
+    "profile"
+  }
+
+  nonisolated func reportLoaded() async {
+    await MainActor.run {
+      status = "loaded"
+    }
+  }
+}
+
+@concurrent
+func heavyIndependentWork() async {
+  // Explicitly runs off the caller's actor on the generic executor.
+  ...
+}</code></pre>
+      <div class="code-note">
+        <div class="code-note-text">
+          Якщо module має default <code>MainActor</code> isolation, declarations усередині explicit <code>actor</code> type
+          все одно ізольовані до <code>self</code> actor, а не автоматично до MainActor.
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <h3 class="scene-title" style="margin-top:28px">Що реально відбувається з threads</h3>
+  <div class="timeline">
+    <div class="timeline-step">
+      <div class="timeline-dot">1</div>
+      <div class="timeline-copy">
+        <b>Job starts on an executor</b>
+        <span>Default generic work зазвичай отримує thread із global concurrent executor pool; MainActor має main-executor integration.</span>
+      </div>
+    </div>
+    <div class="timeline-step await">
+      <div class="timeline-dot">2</div>
+      <div class="timeline-copy">
+        <b><code>await</code> suspends continuation</b>
+        <span>Task не блокує thread просто очікуючи network/timer/інший async result. Thread може виконувати іншу роботу.</span>
+      </div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot">3</div>
+      <div class="timeline-copy">
+        <b>Continuation becomes runnable</b>
+        <span>Runtime знову enqueue-ить її відповідно до required actor / executor context.</span>
+      </div>
+    </div>
+    <div class="timeline-step changed">
+      <div class="timeline-dot">4</div>
+      <div class="timeline-copy">
+        <b>May resume on another physical thread</b>
+        <span>Для default concurrent execution thread affinity не гарантується. Правильність має спиратися на isolation, а не thread ID.</span>
+      </div>
+    </div>
+  </div>
+
+  <details class="code-example">
+    <summary>Mermaid source: повна схема</summary>
+    <div class="code-body">
+      <pre><code>flowchart TD
+    A["Call site / current Task"] --&gt; B{"Required isolation?"}
+
+    B -- "actor instance" --&gt; C["Actor SerialExecutor"]
+    B -- "@MainActor" --&gt; M["MainActor executor"]
+    B -- "custom @GlobalActor" --&gt; GA["shared actor SerialExecutor"]
+    B -- "nonisolated / @concurrent" --&gt; G["Generic execution"]
+
+    C --&gt; R["Swift Concurrency runtime"]
+    GA --&gt; R
+    G --&gt; T["TaskExecutor / globalConcurrentExecutor"]
+    T --&gt; R
+
+    M --&gt; MT["Main executor / main thread"]
+    R --&gt; P["Available worker thread(s)"]
+    P --&gt; X["Run job fragment"]
+
+    X --&gt; W{"await suspends?"}
+    W -- "no" --&gt; X
+    W -- "yes" --&gt; S["Store continuation; release thread"]
+    S --&gt; Q["Continuation becomes runnable"]
+    Q --&gt; B
+
+    C -. "serial isolation, not thread ownership" .-&gt; R
+    T -. "execution source / preference" .-&gt; R</code></pre>
+      <div class="code-note">
+        <div class="code-note-text">
+          Mermaid навмисно показує <code>SerialExecutor</code> і <code>TaskExecutor</code> окремо:
+          перший моделює exclusive actor execution, другий може бути source of threads для task hierarchy.
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <div class="interview-answer">
+    <b>45-second interview answer</b>
+    Actor — це isolation domain. Кожен звичайний actor instance має власну serial-executor identity,
+    але не власний thread. Cross-actor call через <code>await</code> може suspend current task і enqueue continuation
+    на executor target actor. Default execution використовує Swift global concurrent executor та його thread pool;
+    <code>MainActor</code> — special global actor, інтегрований з main executor. <code>Task {}</code> може успадковувати
+    lexical actor isolation, <code>Task.detached</code> — ні. <code>nonisolated</code> описує isolation contract, не background thread;
+    у Swift 6.2 async nonisolated execution має додаткову caller-executor nuance, а <code>@concurrent</code> явно означає off-actor concurrent execution.
+  </div>
+</section>
