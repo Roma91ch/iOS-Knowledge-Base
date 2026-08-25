@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <meta name="description" content="Clean Architecture for Swift and iOS: dependency direction, responsibilities, MVVM and SwiftUI Model-View, code examples, folder structure and migration guidance.">
+  <title>Clean Architecture — Swift / iOS</title>
+  <style>
+    :root{color-scheme:dark;--bg:#08101d;--panel:rgba(15,25,43,.86);--solid:#111c2f;--solid2:#16243a;--text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;--accent2:#2bb7f3;--violet:#a292ff;--green:#64dda9;--yellow:#ffdb78;--red:#ff8989;--orange:#ffad6b;--code:#091321;--shadow:0 24px 70px rgba(0,0,0,.25);--max:1180px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 8% -8%,rgba(43,183,243,.15),transparent 32%),radial-gradient(circle at 95% 8%,rgba(100,221,169,.12),transparent 34%),linear-gradient(180deg,var(--bg),#07101c 52%,#08121f);overflow-x:hidden}.state{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.app{min-height:100vh;color:var(--text)}#theme:checked~.app{color-scheme:light;--bg:#f5f8fc;--panel:rgba(255,255,255,.93);--solid:#fff;--solid2:#f2f6fa;--text:#132033;--muted:#617087;--border:#d8e3ed;--accent:#087fc2;--accent2:#006ea8;--violet:#6656c8;--green:#087a52;--yellow:#946200;--red:#bd3030;--orange:#aa5b19;--code:#f3f7fb;--shadow:0 22px 55px rgba(46,67,92,.12);background:radial-gradient(circle at 8% -8%,rgba(10,136,201,.09),transparent 32%),radial-gradient(circle at 95% 10%,rgba(8,122,82,.08),transparent 34%),linear-gradient(180deg,#fbfdff,#f5f8fc 58%,#edf3f8)}.shell{width:min(var(--max),calc(100% - 30px));margin:0 auto}.topbar{position:sticky;top:0;z-index:40;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.topbar-inner{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);min-width:0}.brand-mark{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--green) 34%,var(--border));border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--green) 12%,var(--solid));color:var(--green);font-weight:900}.brand-copy b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-copy span{display:block;color:var(--muted);font-size:.76rem}.controls{display:flex;gap:8px;align-items:center}.mode-tabs{display:flex;gap:4px;padding:5px;border:1px solid var(--border);border-radius:17px 17px 23px 17px;background:var(--panel)}.mode-tab,.theme-toggle{min-height:42px;display:grid;place-items:center;padding:0 14px;border-radius:12px 12px 17px 12px;color:var(--muted);cursor:pointer;font-weight:780;user-select:none;-webkit-tap-highlight-color:transparent}.theme-toggle{width:44px;padding:0;border:1px solid var(--border);background:var(--panel);color:var(--text)}#mode-learn:checked~.app label[for=mode-learn],#mode-review:checked~.app label[for=mode-review],#mode-interview:checked~.app label[for=mode-interview]{color:#07111b;background:linear-gradient(135deg,#8adfff,#66e0aa)}.theme-toggle .sun{display:none}#theme:checked~.app .theme-toggle .moon{display:none}#theme:checked~.app .theme-toggle .sun{display:block}.review-only,.interview-only{display:none}#mode-review:checked~.app .learn-only,#mode-review:checked~.app .interview-only,#mode-interview:checked~.app .learn-only,#mode-interview:checked~.app .review-only{display:none}#mode-review:checked~.app .review-only,#mode-interview:checked~.app .interview-only{display:block}main{padding:42px 0 90px}.hero{position:relative;display:grid;grid-template-columns:1.04fr .96fr;gap:34px;align-items:center;min-height:520px;padding:44px;overflow:hidden;border:1px solid var(--border);border-radius:38px 38px 70px 38px;background:var(--panel);box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:390px;height:390px;right:-150px;top:-200px;border-radius:50%;border:1px solid color-mix(in srgb,var(--green) 25%,transparent);box-shadow:0 0 0 52px color-mix(in srgb,var(--green) 4%,transparent),0 0 0 104px color-mix(in srgb,var(--accent) 3%,transparent)}.kicker{color:var(--green);font-size:.78rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:12px 0 16px;font-size:clamp(2.5rem,7vw,5rem);line-height:.95;letter-spacing:-.055em}.hero p{margin:0;color:var(--muted);font-size:1.05rem;line-height:1.7}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.pill{padding:8px 11px;border:1px solid var(--border);border-radius:999px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:720}.layer-stack{display:grid;gap:10px;position:relative;z-index:1}.layer{padding:18px;border:1px solid var(--border);border-radius:22px 22px 30px 22px;background:var(--solid);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.08)}.layer b{display:block}.layer span{display:block;margin-top:4px;color:var(--muted);font-size:.78rem}.layer.presentation{border-color:color-mix(in srgb,var(--accent) 38%,var(--border))}.layer.domain{border-color:color-mix(in srgb,var(--green) 48%,var(--border));background:color-mix(in srgb,var(--green) 7%,var(--solid));transform:scale(.93)}.layer.data{border-color:color-mix(in srgb,var(--violet) 38%,var(--border));transform:scale(.965)}.inward{font-weight:900;color:var(--green);text-align:center;font-size:.83rem;letter-spacing:.03em}.route{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}.route a{padding:9px 12px;border:1px solid var(--border);border-radius:14px 14px 20px 14px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:760;text-decoration:none}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:54px 0 18px}.section-head h2{margin:7px 0 0;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:-.04em}.section-head p{margin:0;max-width:530px;color:var(--muted);line-height:1.55}.scene{padding:28px;border:1px solid var(--border);border-radius:32px 32px 50px 32px;background:var(--panel);box-shadow:0 16px 50px rgba(0,0,0,.11)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{padding:20px;border:1px solid var(--border);border-radius:26px 26px 38px 26px;background:var(--solid)}.card h3{margin:0 0 10px}.card p,.card li{color:var(--muted);line-height:1.55}.card ul{margin:10px 0 0;padding-left:19px}.good{border-color:color-mix(in srgb,var(--green) 34%,var(--border))}.warn{border-color:color-mix(in srgb,var(--yellow) 34%,var(--border))}.bad{border-color:color-mix(in srgb,var(--red) 32%,var(--border))}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}.node{min-height:112px;padding:16px 12px;display:grid;place-items:center;text-align:center;border:1px solid var(--border);border-radius:24px 24px 34px 24px;background:var(--solid)}.node b{display:block;margin-bottom:4px}.node span{color:var(--muted);font-size:.76rem;line-height:1.35}.node.hot{border-color:color-mix(in srgb,var(--green) 40%,var(--border));background:color-mix(in srgb,var(--green) 7%,var(--solid))}.node.violet{border-color:color-mix(in srgb,var(--violet) 40%,var(--border))}.flow-arrow{text-align:center;color:var(--muted);font-weight:900}.rule{margin-top:18px;padding:16px 18px;border:1px solid color-mix(in srgb,var(--green) 28%,var(--border));border-radius:20px 20px 28px 20px;background:color-mix(in srgb,var(--green) 7%,transparent);color:var(--muted);line-height:1.55}.rule b{color:var(--text)}.note{margin-top:16px;padding:14px 16px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);color:var(--muted);line-height:1.55}.note b{color:var(--text)}details.code{margin-top:18px;border:1px solid var(--border);border-radius:20px 20px 28px 20px;background:var(--solid);overflow:hidden}details.code summary{padding:15px 17px;cursor:pointer;font-weight:800}details.code pre{margin:0;padding:18px;overflow-x:auto;background:var(--code);font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2}.tree{margin:0;padding:18px;overflow-x:auto;border:1px solid var(--border);border-radius:20px;background:var(--code);font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.responsibility{display:grid;grid-template-columns:180px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}.responsibility:last-child{border-bottom:0}.responsibility b{color:var(--text)}.responsibility span{color:var(--muted);line-height:1.5}.compare{width:100%;border-collapse:collapse;overflow:hidden}.compare th,.compare td{padding:14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}.compare th{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.compare td{color:var(--muted);line-height:1.45}.compare td:first-child{color:var(--text);font-weight:780}.steps{display:grid;gap:10px}.step{display:flex;gap:12px;align-items:flex-start;padding:13px;border:1px solid var(--border);border-radius:18px;background:var(--solid)}.step i{font-style:normal;width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border-radius:50%;background:var(--solid2);color:var(--green);font-size:.75rem;font-weight:850}.step b{display:block;margin:1px 0 3px}.step span{display:block;color:var(--muted);font-size:.86rem;line-height:1.45}.checklist{display:grid;gap:10px}.check{display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border:1px solid var(--border);border-radius:18px;background:var(--solid)}.check strong{color:var(--green)}.check span{color:var(--muted);line-height:1.45}.review-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.orb{min-height:165px;padding:18px;border:1px solid var(--border);border-radius:50% 44% 49% 46%;background:var(--solid);display:grid;place-items:center;text-align:center}.orb b{display:block}.orb span{display:block;margin-top:5px;color:var(--muted);font-size:.76rem;line-height:1.4}.interview-deck{display:grid;gap:12px}.interview-card{border:1px solid var(--border);border-radius:22px 22px 30px 22px;background:var(--solid);overflow:hidden}.interview-card summary{padding:18px;cursor:pointer;font-weight:820}.interview-card p{margin:0;padding:0 18px 18px;color:var(--muted);line-height:1.6}.home-fab{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;padding:10px 13px;border:1px solid var(--border);border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--solid) 92%,transparent);color:var(--text);text-decoration:none;font-size:.8rem;font-weight:800;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}.grid2,.grid3{grid-template-columns:1fr}.review-strip{grid-template-columns:1fr 1fr}.section-head{align-items:start;flex-direction:column}.responsibility{grid-template-columns:1fr}.compare{font-size:.9rem}}
+    @media(max-width:720px){.mode-tab{padding:0 10px;font-size:.77rem}.brand-copy span{display:none}.hero{padding:27px 22px;border-radius:28px 28px 44px 28px}.hero h1{font-size:clamp(2.55rem,14vw,4rem)}main{padding-top:24px}.scene{padding:20px}.review-strip{grid-template-columns:1fr}.topbar-inner{gap:8px}.brand-mark{width:40px;height:40px;flex-basis:40px}.controls{gap:5px}.theme-toggle{width:40px}.compare{display:block;overflow-x:auto;white-space:normal}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+  </style>
+  <link rel="stylesheet" href="../../assets/mobile-header-v2.css">
+</head>
+<body>
+  <input class="state" type="radio" name="mode" id="mode-learn" checked>
+  <input class="state" type="radio" name="mode" id="mode-review">
+  <input class="state" type="radio" name="mode" id="mode-interview">
+  <input class="state" type="checkbox" id="theme">
+  <div class="app">
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="../../index.html">
+          <div class="brand-mark">CA</div>
+          <div class="brand-copy"><b>Clean Architecture for iOS</b><span>Swift · MVVM · SwiftUI Model–View</span></div>
+        </a>
+        <div class="controls">
+          <div class="mode-tabs" role="group" aria-label="Mode">
+            <label class="mode-tab" for="mode-learn">Learning</label>
+            <label class="mode-tab" for="mode-review">Review</label>
+            <label class="mode-tab" for="mode-interview">Interview</label>
+          </div>
+          <label class="theme-toggle" for="theme" aria-label="Toggle theme"><span class="moon">☾</span><span class="sun">☀</span></label>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="learn-only">
+        <div class="hero" id="mental-model">
+          <div>
+            <div class="kicker">The dependency rule</div>
+            <h1>Architecture is about direction, not folders.</h1>
+            <p>
+              Clean Architecture keeps business rules independent from SwiftUI, UIKit, networking, persistence and vendor frameworks.
+              MVVM or Model–View decides how the presentation layer is organized; Clean Architecture decides which layer may know about which other layer.
+            </p>
+            <div class="pills">
+              <span class="pill">Dependency inversion</span>
+              <span class="pill">Testable business rules</span>
+              <span class="pill">Replaceable infrastructure</span>
+              <span class="pill">Feature-first structure</span>
+            </div>
+            <div class="route">
+              <a href="#dependency-rule">Dependency rule</a>
+              <a href="#responsibilities">Responsibilities</a>
+              <a href="#folder-structure">Folders</a>
+              <a href="#mvvm">MVVM</a>
+              <a href="#mv">Model–View</a>
+              <a href="#migration">Migration</a>
+              <a href="#testing">Testing</a>
+              <a href="#anti-patterns">Anti-patterns</a>
+            </div>
+          </div>
+          <div class="layer-stack" aria-label="Clean Architecture layers">
+            <div class="layer presentation"><b>Presentation</b><span>SwiftUI / UIKit · screen state · user events</span></div>
+            <div class="inward">dependencies point inward ↓</div>
+            <div class="layer domain"><b>Domain</b><span>entities · business rules · use cases · repository contracts</span></div>
+            <div class="inward">↑ infrastructure implements domain contracts</div>
+            <div class="layer data"><b>Data / Infrastructure</b><span>URLSession · SwiftData/Core Data · DTOs · repository implementations</span></div>
+          </div>
+        </div>
+
+        <div class="section-head" id="dependency-rule">
+          <div><div class="kicker">01 · Core idea</div><h2>The dependency rule</h2></div>
+          <p>Source-code dependencies should point toward the business policy. Framework details stay at the outside edge.</p>
+        </div>
+        <div class="scene">
+          <div class="flow">
+            <div class="node"><div><b>Presentation</b><span>renders state and translates user intent</span></div></div>
+            <div class="flow-arrow">→</div>
+            <div class="node hot"><div><b>Domain</b><span>owns app-specific rules and abstractions</span></div></div>
+            <div class="flow-arrow">←</div>
+            <div class="node violet"><div><b>Data</b><span>implements domain-owned ports using concrete technology</span></div></div>
+          </div>
+          <div class="rule"><b>The important part:</b> Presentation can depend on Domain. Data can depend on Domain. Domain should not import SwiftUI, UIKit, SwiftData, Core Data, URLSession clients, analytics SDKs, or concrete databases.</div>
+          <div class="note"><b>Dependency direction is not runtime data flow.</b> At runtime the UI may call a use case, which calls a repository implementation, which calls the network. In source code, the repository implementation conforms to a protocol owned by the inner layer, so the compile-time dependency still points inward.</div>
+        </div>
+
+        <div class="section-head" id="responsibilities">
+          <div><div class="kicker">02 · Boundaries</div><h2>What should live where?</h2></div>
+          <p>Use layers because responsibilities differ, not because a template says every feature must contain the same number of files.</p>
+        </div>
+        <div class="scene">
+          <div class="grid3">
+            <article class="card good">
+              <h3>Domain</h3>
+              <p>Pure business meaning. Ideally framework-light and easy to test without launching the app.</p>
+              <ul>
+                <li>Entities and value types</li>
+                <li>Business invariants and policies</li>
+                <li>Use cases when they express real behavior</li>
+                <li>Repository/service protocols needed by business rules</li>
+                <li>Domain errors</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h3>Presentation</h3>
+              <p>Turns domain results into UI state and turns gestures into application actions.</p>
+              <ul>
+                <li>SwiftUI Views / UIKit controllers</li>
+                <li>ViewModels in MVVM</li>
+                <li>Screen state and presentation-only models</li>
+                <li>Navigation state</li>
+                <li>Formatting that is truly UI-specific</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h3>Data / Infrastructure</h3>
+              <p>Technology details and translation between external representations and domain models.</p>
+              <ul>
+                <li>API clients and DTOs</li>
+                <li>SwiftData/Core Data models</li>
+                <li>Cache and persistence stores</li>
+                <li>Repository implementations</li>
+                <li>Mappers, analytics, file system, keychain</li>
+              </ul>
+            </article>
+          </div>
+          <details class="code">
+            <summary>Show a minimal Domain + Data boundary in Swift</summary>
+            <pre><code>// DOMAIN
+struct Product: Identifiable, Equatable, Sendable {
+  let id: UUID
+  let name: String
+  let price: Decimal
+}
+
+protocol ProductRepository: Sendable {
+  func products() async throws -&gt; [Product]
+}
+
+struct LoadProducts: Sendable {
+  let repository: any ProductRepository
+
+  func callAsFunction() async throws -&gt; [Product] {
+    try await repository.products()
+      .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+  }
+}
+
+// DATA / INFRASTRUCTURE
+struct ProductDTO: Decodable {
+  let id: UUID
+  let title: String
+  let amount: Decimal
+}
+
+struct APIProductRepository: ProductRepository {
+  let client: APIClient
+
+  func products() async throws -&gt; [Product] {
+    let dtos: [ProductDTO] = try await client.get("/products")
+    return dtos.map { Product(id: $0.id, name: $0.title, price: $0.amount) }
+  }
+}</code></pre>
+          </details>
+        </div>
+
+        <div class="section-head" id="folder-structure">
+          <div><div class="kicker">03 · Project organization</div><h2>Prefer feature-first, then layer inside the feature.</h2></div>
+          <p>Large global folders named Views, ViewModels and Services become hard to navigate. Feature boundaries keep related code close while preserving dependency rules.</p>
+        </div>
+        <div class="scene">
+          <pre class="tree"><code>App/
+├── Composition/
+│   ├── AppContainer.swift
+│   └── AppRoot.swift
+├── Core/
+│   ├── Networking/
+│   ├── Persistence/
+│   └── DesignSystem/
+└── Features/
+    └── Products/
+        ├── Domain/
+        │   ├── Product.swift
+        │   ├── ProductRepository.swift
+        │   └── LoadProducts.swift
+        ├── Data/
+        │   ├── ProductDTO.swift
+        │   ├── ProductMapper.swift
+        │   └── APIProductRepository.swift
+        └── Presentation/
+            ├── ProductListView.swift
+            ├── ProductRow.swift
+            └── ProductListViewModel.swift   // MVVM only</code></pre>
+          <div style="margin-top:20px">
+            <div class="responsibility"><b>App / Composition</b><span>The composition root creates concrete dependencies and wires protocols to implementations. It is allowed to know both inner abstractions and outer concrete types.</span></div>
+            <div class="responsibility"><b>Core</b><span>Cross-feature infrastructure or UI primitives with stable ownership. Avoid turning Core into a dumping ground for unrelated helpers.</span></div>
+            <div class="responsibility"><b>Feature / Domain</b><span>What the feature means and what operations it supports. Keep framework details out.</span></div>
+            <div class="responsibility"><b>Feature / Data</b><span>How this feature obtains and persists data. DTOs and persistence models should not leak upward.</span></div>
+            <div class="responsibility"><b>Feature / Presentation</b><span>How users see and manipulate the feature. MVVM and Model–View differ here; the Domain and Data layers do not need to change.</span></div>
+          </div>
+          <div class="rule"><b>Folder structure is optional evidence, not architecture itself.</b> A small app may use fewer folders and still obey Clean Architecture. A huge folder tree can still violate it if Domain imports concrete infrastructure.</div>
+        </div>
+
+        <div class="section-head" id="mvvm">
+          <div><div class="kicker">04 · Presentation option A</div><h2>Clean Architecture + MVVM</h2></div>
+          <p>The ViewModel belongs to Presentation. It may call domain use cases, but it should not become a substitute for the Domain layer.</p>
+        </div>
+        <div class="scene">
+          <div class="flow">
+            <div class="node"><div><b>SwiftUI View</b><span>render state, send events</span></div></div>
+            <div class="flow-arrow">→</div>
+            <div class="node"><div><b>ViewModel</b><span>screen state + orchestration</span></div></div>
+            <div class="flow-arrow">→</div>
+            <div class="node hot"><div><b>Use Case</b><span>domain behavior</span></div></div>
+          </div>
+          <details class="code" open>
+            <summary>MVVM example with Observation</summary>
+            <pre><code>import Observation
+import SwiftUI
+
+@MainActor
+@Observable
+final class ProductListViewModel {
+  enum State: Equatable {
+    case idle
+    case loading
+    case loaded([Product])
+    case failed(String)
+  }
+
+  private let loadProducts: LoadProducts
+  var state: State = .idle
+
+  init(loadProducts: LoadProducts) {
+    self.loadProducts = loadProducts
+  }
+
+  func load() async {
+    state = .loading
+    do {
+      state = .loaded(try await loadProducts())
+    } catch is CancellationError {
+      // Cancellation is expected lifecycle behavior.
+    } catch {
+      state = .failed("Could not load products")
+    }
+  }
+}
+
+struct ProductListView: View {
+  @State private var model: ProductListViewModel
+
+  init(loadProducts: LoadProducts) {
+    _model = State(initialValue: ProductListViewModel(loadProducts: loadProducts))
+  }
+
+  var body: some View {
+    Group {
+      switch model.state {
+      case .idle, .loading:
+        ProgressView()
+      case .loaded(let products):
+        List(products) { ProductRow(product: $0) }
+      case .failed(let message):
+        ContentUnavailableView("Error", systemImage: "exclamationmark.triangle", description: Text(message))
+      }
+    }
+    .task { await model.load() }
+  }
+}</code></pre>
+          </details>
+          <div class="grid2" style="margin-top:18px">
+            <article class="card good"><h3>Good ViewModel responsibility</h3><p>Own screen-level observable state, coordinate user events, call use cases, translate domain outcomes into presentation state.</p></article>
+            <article class="card bad"><h3>ViewModel smell</h3><p>Building SQL predicates, decoding JSON, implementing pricing rules, doing cache invalidation, or becoming a 1,500-line “everything object.” Those belong elsewhere.</p></article>
+          </div>
+        </div>
+
+        <div class="section-head" id="mv">
+          <div><div class="kicker">05 · Presentation option B</div><h2>Clean Architecture + SwiftUI Model–View</h2></div>
+          <p>SwiftUI does not require a ViewModel for every screen. A View can own presentation state and call a domain use case directly without violating Clean Architecture.</p>
+        </div>
+        <div class="scene">
+          <div class="flow">
+            <div class="node"><div><b>SwiftUI View</b><span>render + local screen state + task lifecycle</span></div></div>
+            <div class="flow-arrow">→</div>
+            <div class="node hot"><div><b>Use Case</b><span>domain behavior</span></div></div>
+            <div class="flow-arrow">→</div>
+            <div class="node violet"><div><b>Repository</b><span>domain contract, data implementation</span></div></div>
+          </div>
+          <details class="code" open>
+            <summary>Model–View example without a ViewModel</summary>
+            <pre><code>import SwiftUI
+
+struct ProductListView: View {
+  enum State: Equatable {
+    case idle
+    case loading
+    case loaded([Product])
+    case failed(String)
+  }
+
+  let loadProducts: LoadProducts
+  @State private var state: State = .idle
+
+  var body: some View {
+    Group {
+      switch state {
+      case .idle, .loading:
+        ProgressView()
+      case .loaded(let products):
+        List(products) { ProductRow(product: $0) }
+      case .failed(let message):
+        ContentUnavailableView("Error", systemImage: "exclamationmark.triangle", description: Text(message))
+      }
+    }
+    .task { await load() }
+  }
+
+  private func load() async {
+    state = .loading
+    do {
+      state = .loaded(try await loadProducts())
+    } catch is CancellationError {
+      // The View disappeared or the task was replaced.
+    } catch {
+      state = .failed("Could not load products")
+    }
+  }
+}</code></pre>
+          </details>
+          <div class="note"><b>Here “Model–View” means SwiftUI’s view-centric design:</b> the View owns UI state and lifecycle orchestration, while business rules still live in Domain types/use cases and data access still lives behind repository boundaries. “No ViewModel” must not become “put all business logic in the View.”</div>
+          <div class="grid2" style="margin-top:18px">
+            <article class="card good"><h3>Model–View fits well when…</h3><p>The screen has straightforward state, SwiftUI already gives the lifecycle you need, and most important behavior is cleanly modeled in Domain services/use cases.</p></article>
+            <article class="card warn"><h3>Add a state model when…</h3><p>State transitions become complex, several sibling views need the same screen state, orchestration is substantial, or isolating presentation behavior materially improves tests and readability.</p></article>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div><div class="kicker">06 · Choosing presentation style</div><h2>MVVM vs Model–View is not an architecture war.</h2></div>
+          <p>Both can respect the same Domain/Data boundaries. Choose the amount of presentation abstraction that makes the feature easier to change and reason about.</p>
+        </div>
+        <div class="scene">
+          <table class="compare">
+            <thead><tr><th>Concern</th><th>MVVM</th><th>SwiftUI Model–View</th></tr></thead>
+            <tbody>
+              <tr><td>Screen state</td><td>Usually owned by @Observable ViewModel</td><td>Usually @State / bindings in the View or a focused state object</td></tr>
+              <tr><td>User events</td><td>View forwards to ViewModel methods</td><td>View handles presentation event then calls a use case/service</td></tr>
+              <tr><td>Business rules</td><td colspan="2">Domain in both designs — not the ViewModel and not the View</td></tr>
+              <tr><td>Data access</td><td colspan="2">Repository abstraction + Data implementation in both designs</td></tr>
+              <tr><td>Best fit</td><td>Complex orchestration, shared screen state, presentation state-machine testing</td><td>Native SwiftUI lifecycle, simple-to-medium screens, less indirection</td></tr>
+              <tr><td>Main risk</td><td>Massive ViewModels that absorb Domain/Data responsibilities</td><td>Massive Views with hidden business logic and tangled side effects</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-head" id="migration">
+          <div><div class="kicker">07 · Migration</div><h2>Move between MVVM and MV without touching the inner layers.</h2></div>
+          <p>If Clean Architecture boundaries are healthy, changing presentation pattern should mostly be a Presentation-layer refactor.</p>
+        </div>
+        <div class="scene">
+          <div class="grid2">
+            <article class="card">
+              <h3>MVVM → Model–View</h3>
+              <div class="steps">
+                <div class="step"><i>1</i><div><b>Freeze Domain and Data</b><span>Do not move use cases or repositories into the View just because the ViewModel is going away.</span></div></div>
+                <div class="step"><i>2</i><div><b>Classify ViewModel code</b><span>Business rules → Domain. DTO/network/persistence → Data. Pure screen state/orchestration → Presentation.</span></div></div>
+                <div class="step"><i>3</i><div><b>Move simple screen state into the View</b><span>Use @State, bindings, .task(id:), onChange and small presentation helpers.</span></div></div>
+                <div class="step"><i>4</i><div><b>Inject use cases/services</b><span>The View calls stable Domain-facing interfaces; concrete implementations are still assembled at the composition root.</span></div></div>
+                <div class="step"><i>5</i><div><b>Delete the ViewModel only if it no longer adds value</b><span>If a substantial state machine remains, keeping a focused @Observable model may still be the cleaner design.</span></div></div>
+              </div>
+            </article>
+            <article class="card">
+              <h3>Model–View → MVVM</h3>
+              <div class="steps">
+                <div class="step"><i>1</i><div><b>Identify presentation complexity</b><span>Look for many related @State properties, repeated event orchestration, sibling coordination, or difficult state-transition tests.</span></div></div>
+                <div class="step"><i>2</i><div><b>Extract one screen state owner</b><span>Create an @MainActor @Observable ViewModel with UI state and intent methods.</span></div></div>
+                <div class="step"><i>3</i><div><b>Move only presentation behavior</b><span>Formatting/state transitions can move. Business rules stay in Domain; persistence/networking stay in Data.</span></div></div>
+                <div class="step"><i>4</i><div><b>Keep the View declarative</b><span>The View renders ViewModel state and forwards events without knowing implementation details.</span></div></div>
+                <div class="step"><i>5</i><div><b>Preserve dependency injection</b><span>The ViewModel receives use cases/protocols, not singleton networking clients or concrete databases.</span></div></div>
+              </div>
+            </article>
+          </div>
+          <details class="code">
+            <summary>Migration heuristic: classify code before moving it</summary>
+            <pre><code>// If this code answers...                         Put it in...
+// ------------------------------------------------------------
+// "What is valid in our business?"                 Domain
+// "What operation does this feature perform?"      Domain / Use Case
+// "How do we fetch/store it?"                      Data / Infrastructure
+// "What should this screen show right now?"        Presentation
+// "How does a tap change screen state?"            Presentation
+// "Which concrete implementation do we construct?" App / Composition</code></pre>
+          </details>
+        </div>
+
+        <div class="section-head" id="testing">
+          <div><div class="kicker">08 · Testing</div><h2>Test at the boundary that owns the behavior.</h2></div>
+          <p>Clean Architecture is useful when tests become simpler and more targeted — not when every type gets a mock just because it can.</p>
+        </div>
+        <div class="scene">
+          <div class="grid3">
+            <article class="card good"><h3>Domain tests</h3><p>Business rules, use cases, ordering, validation, pricing, eligibility and error semantics. Usually fast and framework-free.</p></article>
+            <article class="card"><h3>Data tests</h3><p>DTO mapping, repository behavior, cache/network policies, persistence translation and integration with concrete infrastructure.</p></article>
+            <article class="card"><h3>Presentation tests</h3><p>State transitions when complexity warrants them. In MVVM test the ViewModel; in Model–View prefer domain tests plus focused UI/snapshot tests rather than recreating SwiftUI in unit tests.</p></article>
+          </div>
+          <details class="code">
+            <summary>Use-case test without UI or networking</summary>
+            <pre><code>struct ProductRepositoryStub: ProductRepository {
+  let result: Result&lt;[Product], Error&gt;
+  func products() async throws -&gt; [Product] { try result.get() }
+}
+
+@Test
+func productsAreSortedByName() async throws {
+  let repository = ProductRepositoryStub(result: .success([
+    Product(id: UUID(), name: "Zest", price: 3),
+    Product(id: UUID(), name: "Apple", price: 2)
+  ]))
+
+  let products = try await LoadProducts(repository: repository)()
+
+  #expect(products.map(\.name) == ["Apple", "Zest"])
+}</code></pre>
+          </details>
+        </div>
+
+        <div class="section-head" id="anti-patterns">
+          <div><div class="kicker">09 · Failure modes</div><h2>Common “Clean Architecture” mistakes</h2></div>
+          <p>The goal is independent change, not ceremony. These smells often create more coupling while looking architecturally sophisticated.</p>
+        </div>
+        <div class="scene">
+          <div class="grid2">
+            <article class="card bad"><h3>Domain imports infrastructure frameworks</h3><p>If a Domain entity is a SwiftData @Model, NSManagedObject, API DTO or SwiftUI ObservableObject, the inner layer now depends on an outer detail.</p></article>
+            <article class="card bad"><h3>Use case for every trivial getter</h3><p>Use cases should encode meaningful application behavior or a useful boundary. Wrapping every repository call in a one-line type can add ceremony without clarity.</p></article>
+            <article class="card bad"><h3>Protocol for every concrete type</h3><p>Abstract at architectural seams and where substitution matters. “Protocol-oriented” does not mean an interface for every helper.</p></article>
+            <article class="card bad"><h3>ViewModel as a dumping ground</h3><p>A ViewModel that owns networking, persistence, caching, analytics, business rules and navigation is not clean just because the View is small.</p></article>
+            <article class="card bad"><h3>DTOs leak into Presentation</h3><p>External API shape should not define UI or business semantics. Map it at the Data boundary.</p></article>
+            <article class="card bad"><h3>Global service locator everywhere</h3><p>A giant environment/container accessed from every layer hides dependencies. Prefer explicit feature-level dependencies and keep composition at the edge.</p></article>
+            <article class="card bad"><h3>@MainActor on everything</h3><p>Presentation state commonly belongs on MainActor. Network/data/domain work should not be globally main-actor isolated just to silence concurrency warnings.</p></article>
+            <article class="card bad"><h3>Folder purity over feature cohesion</h3><p>One global Views folder and one global ViewModels folder may satisfy a diagram while making ownership and feature changes harder.</p></article>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div><div class="kicker">10 · Practical checklist</div><h2>How to apply it correctly</h2></div>
+          <p>A lightweight review list for a new feature or architecture refactor.</p>
+        </div>
+        <div class="scene">
+          <div class="checklist">
+            <div class="check"><strong>✓</strong><span>Can Domain compile conceptually without SwiftUI/UIKit, networking and persistence details?</span></div>
+            <div class="check"><strong>✓</strong><span>Are repository/service abstractions owned by the layer that needs them, with concrete implementations on the outside?</span></div>
+            <div class="check"><strong>✓</strong><span>Are DTOs and persistence models translated before crossing into Domain/Presentation?</span></div>
+            <div class="check"><strong>✓</strong><span>Does the composition root decide concrete implementations instead of feature code constructing them ad hoc?</span></div>
+            <div class="check"><strong>✓</strong><span>Does MVVM contain presentation orchestration rather than business/data logic?</span></div>
+            <div class="check"><strong>✓</strong><span>If using Model–View, is the View still thin enough that business rules remain outside SwiftUI?</span></div>
+            <div class="check"><strong>✓</strong><span>Can the presentation pattern change without rewriting repositories and business rules?</span></div>
+            <div class="check"><strong>✓</strong><span>Are boundaries buying testability, replaceability or clarity — rather than existing only for symmetry?</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="review-only">
+        <div class="section-head"><div><div class="kicker">Review mode</div><h2>Memory anchors</h2></div><p>Five things to remember when the details fade.</p></div>
+        <div class="scene">
+          <div class="review-strip">
+            <div class="orb"><div><b>Dependencies inward</b><span>Presentation → Domain ← Data implementation.</span></div></div>
+            <div class="orb"><div><b>Domain owns policy</b><span>Business meaning should not know SwiftUI, REST or databases.</span></div></div>
+            <div class="orb"><div><b>MVVM is presentation</b><span>A ViewModel does not replace Domain.</span></div></div>
+            <div class="orb"><div><b>MV is also valid</b><span>A SwiftUI View may call a use case directly if business logic stays outside.</span></div></div>
+            <div class="orb"><div><b>Change patterns cheaply</b><span>MVVM ↔ MV should mostly affect Presentation when boundaries are healthy.</span></div></div>
+          </div>
+          <div class="rule"><b>One-sentence definition:</b> Clean Architecture organizes dependencies so app-specific policy is insulated from UI and infrastructure details; MVVM or Model–View is simply how the outer Presentation layer is shaped.</div>
+        </div>
+      </section>
+
+      <section class="interview-only">
+        <div class="section-head"><div><div class="kicker">Interview mode</div><h2>Senior-level questions</h2></div><p>Open each card only after answering aloud.</p></div>
+        <div class="scene interview-deck">
+          <details class="interview-card"><summary>What is the most important rule in Clean Architecture?</summary><p>The dependency rule: source dependencies point toward policy. UI and infrastructure can depend on domain abstractions, but the Domain should not depend on concrete UI, network, database or vendor-framework details.</p></details>
+          <details class="interview-card"><summary>Where should repository protocols live?</summary><p>Usually with the inner layer that consumes the abstraction — commonly Domain/Application. The Data layer then implements that protocol. This is dependency inversion: the policy defines what it needs; infrastructure adapts to it.</p></details>
+          <details class="interview-card"><summary>Can a SwiftUI app use Clean Architecture without ViewModels?</summary><p>Yes. Clean Architecture and MVVM solve different problems. A SwiftUI View can own local presentation state and call a domain use case directly. The design stays clean as long as business rules and data-access details remain behind appropriate boundaries.</p></details>
+          <details class="interview-card"><summary>When would you prefer MVVM over a Model–View approach?</summary><p>When screen orchestration/state transitions are substantial, multiple child views share the same screen state, presentation behavior needs focused unit tests, or a dedicated state owner materially improves readability. I would not add a ViewModel automatically to every SwiftUI screen.</p></details>
+          <details class="interview-card"><summary>What are signs of over-engineered Clean Architecture?</summary><p>One-line use cases for every getter, protocols for every type, duplicated models with no boundary benefit, enormous DI containers, and layers that only forward calls. Each abstraction should buy independent change, testability, ownership clarity or a meaningful policy boundary.</p></details>
+          <details class="interview-card"><summary>How would you migrate an MVVM feature to SwiftUI Model–View?</summary><p>First classify the ViewModel code. Keep business rules in Domain and data work in Data. Move only simple screen state and lifecycle orchestration into the View, continue injecting the same use cases, and retain a separate state model if the remaining presentation complexity still justifies it.</p></details>
+          <details class="interview-card"><summary>How does Clean Architecture help with replacing Core Data with SwiftData or changing an API client?</summary><p>If persistence and networking are outer implementations behind stable domain-facing contracts, replacement should mostly affect the Data/Infrastructure layer and composition root. Domain and most Presentation code should remain unchanged.</p></details>
+          <details class="interview-card"><summary>Is a folder named Domain enough to make the code clean?</summary><p>No. Architecture is defined by responsibilities and dependency direction, not names. If files inside Domain import SwiftUI, concrete persistence types, API DTOs or infrastructure implementations, the boundary is already broken.</p></details>
+        </div>
+      </section>
+    </main>
+
+    <a class="home-fab" href="../../index.html">← Library</a>
+  </div>
+</body>
+</html>

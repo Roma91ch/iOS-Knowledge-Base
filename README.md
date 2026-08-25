@@ -7,6 +7,7 @@ A static, mobile-first personal learning hub for Swift, iOS and Mobile System De
 - `modules/swift-concurrency/` — Swift Concurrency Visual Explorer V2
 - `modules/combine/` — Combine Visual Explorer V3.4
 - `modules/mobile-system-design/` — Mobile System Design Playbook, Hotel / Reservation App case study
+- `modules/clean-architecture/` — Clean Architecture for Swift/iOS, including Domain/Data/Presentation boundaries, MVVM, SwiftUI Model–View and migration guidance
 
 ## Run locally
 
