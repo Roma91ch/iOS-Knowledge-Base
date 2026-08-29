@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <title>Concurrency vs Parallelism — Swift Concurrency</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08101d;
+      --panel: rgba(15, 25, 43, .88);
+      --solid: #111c2f;
+      --solid-2: #16243a;
+      --text: #f4f8ff;
+      --muted: #9eabc0;
+      --border: rgba(154, 174, 210, .18);
+      --accent: #75d5ff;
+      --violet: #a292ff;
+      --green: #64dda9;
+      --yellow: #ffdb78;
+      --red: #ff8989;
+      --code: #091321;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .25);
+      --max: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% -8%, rgba(43, 183, 243, .15), transparent 32%),
+        radial-gradient(circle at 95% 8%, rgba(162, 146, 255, .13), transparent 34%),
+        linear-gradient(180deg, var(--bg), #07101c 52%, #08121f);
+    }
+
+    a { color: inherit; }
+    .shell { width: min(var(--max), calc(100% - 30px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8, 16, 29, .88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .topbar-inner { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .mark { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 15px 15px 20px 15px; background: var(--solid); font-weight: 900; color: var(--accent); }
+    .brand b { display: block; }
+    .brand span { display: block; color: var(--muted); font-size: .76rem; }
+    .back { color: var(--muted); text-decoration: none; font-weight: 750; }
+
+    main { padding: 42px 0 90px; }
+    .hero, .scene {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .hero { padding: 44px; border-radius: 38px 38px 70px 38px; }
+    .eyebrow, .kicker { color: var(--accent); font-size: .78rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    h1 { margin: 15px 0 18px; max-width: 850px; font-size: clamp(2.7rem, 7vw, 5.4rem); line-height: .96; letter-spacing: -.055em; }
+    h2 { margin: 6px 0 0; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1; letter-spacing: -.045em; }
+    h3 { margin: 0 0 14px; }
+    p { color: var(--muted); line-height: 1.68; }
+    .hero p { max-width: 790px; font-size: 1.08rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .chip { padding: 9px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--solid); color: var(--muted); font-size: .82rem; }
+
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 22px; margin: 72px 0 22px; }
+    .section-head > p { max-width: 440px; margin: 0; }
+    .scene { padding: 30px; border-radius: 36px 36px 60px 36px; overflow: hidden; }
+
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card { padding: 24px; border: 1px solid var(--border); border-radius: 28px 22px 32px 22px; background: var(--solid); }
+    .card strong { display: block; margin-bottom: 8px; font-size: 1.18rem; }
+    .card p { margin: 0; }
+    .good { border-color: color-mix(in srgb, var(--green) 35%, var(--border)); }
+    .warn { border-color: color-mix(in srgb, var(--yellow) 35%, var(--border)); }
+
+    .timeline { display: grid; gap: 16px; margin-top: 20px; }
+    .lane { display: grid; grid-template-columns: 115px 1fr; gap: 14px; align-items: center; }
+    .lane-label { color: var(--muted); font-weight: 800; font-size: .85rem; }
+    .track { position: relative; min-height: 52px; border: 1px solid var(--border); border-radius: 16px; background: #0a1525; overflow: hidden; }
+    .work { position: absolute; top: 8px; bottom: 8px; display: grid; place-items: center; border-radius: 11px; font-size: .78rem; font-weight: 850; color: #07111b; }
+    .work.a { left: 3%; width: 64%; background: var(--accent); }
+    .work.b { left: 8%; width: 68%; background: var(--violet); }
+    .work.serial-b { left: 50%; width: 46%; }
+
+    pre { margin: 0; overflow-x: auto; padding: 22px; border: 1px solid var(--border); border-radius: 22px; background: var(--code); color: var(--text); line-height: 1.55; font: 500 .9rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .code-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .code-title { margin: 0 0 10px; color: var(--muted); font-weight: 850; }
+    .note { margin-top: 18px; padding: 18px 20px; border-left: 4px solid var(--accent); border-radius: 8px 18px 18px 8px; background: color-mix(in srgb, var(--accent) 8%, var(--solid)); color: var(--muted); line-height: 1.6; }
+    .note b { color: var(--text); }
+    .rule { display: grid; gap: 12px; }
+    .rule-row { display: grid; grid-template-columns: 170px 1fr; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .rule-row:last-child { border-bottom: 0; }
+    .rule-row b { color: var(--text); }
+    .rule-row span { color: var(--muted); line-height: 1.55; }
+    .answer { padding: 24px; border: 1px solid color-mix(in srgb, var(--green) 38%, var(--border)); border-radius: 28px; background: color-mix(in srgb, var(--green) 7%, var(--solid)); line-height: 1.7; }
+    .answer b { display: block; margin-bottom: 7px; }
+
+    @media (max-width: 760px) {
+      .hero { padding: 28px; }
+      .section-head { display: block; }
+      .section-head > p { margin-top: 14px; }
+      .compare, .code-grid { grid-template-columns: 1fr; }
+      .scene { padding: 22px; }
+      .lane { grid-template-columns: 80px 1fr; }
+      .rule-row { grid-template-columns: 1fr; gap: 6px; }
+      .brand span { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="../../">
+        <div class="mark">SC</div>
+        <div><b>Swift Concurrency</b><span>Concurrency vs Parallelism</span></div>
+      </a>
+      <a class="back" href="./">← Visual Explorer</a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">Deep dive · CPU execution</div>
+      <h1>Concurrency ≠ Parallelism</h1>
+      <p>
+        <b>Concurrency</b> означає, що кілька задач можуть бути in progress в один проміжок часу.
+        <b>Parallelism</b> означає, що два шматки CPU work фізично виконуються одночасно — наприклад, на різних worker threads / CPU cores.
+        Swift Concurrency дає structured way організувати tasks; фактичне розміщення jobs на threads вирішує runtime.
+      </p>
+      <div class="chips">
+        <span class="chip">async let</span>
+        <span class="chip">TaskGroup</span>
+        <span class="chip">@concurrent</span>
+        <span class="chip">generic executor</span>
+        <span class="chip">CPU-bound work</span>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="kicker">01 · Mental model</div><h2>Одночасно “в процесі” чи одночасно “на CPU”?</h2></div>
+      <p>Network calls — чудовий приклад concurrency, але вони не доводять CPU parallelism: більшу частину часу task suspended і не займає thread.</p>
+    </div>
+
+    <section class="scene">
+      <div class="compare">
+        <div class="card warn">
+          <strong>Concurrent, але не обов’язково parallel</strong>
+          <p>Два tasks можуть interleave на одному executor/thread: A виконується, suspend-иться, потім B, потім знов A.</p>
+        </div>
+        <div class="card good">
+          <strong>Parallel</strong>
+          <p>Дві CPU-bound jobs runnable одночасно й runtime має кілька worker threads — тоді вони можуть реально виконуватися одночасно.</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:30px">Візуально</h3>
+      <div class="timeline">
+        <div class="lane">
+          <div class="lane-label">Worker 1</div>
+          <div class="track"><div class="work a">CPU work A</div></div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">Worker 2</div>
+          <div class="track"><div class="work b">CPU work B</div></div>
+        </div>
+      </div>
+      <div class="note"><b>Це і є actual parallel execution.</b> Але Swift не обіцяє, що A завжди піде на “thread 4”, B на “thread 7”, або що вони будуть pinned до конкретних cores.</div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="kicker">02 · Concrete example</div><h2>CPU-heavy tasks, які можуть бігти паралельно</h2></div>
+      <p>У Swift 6.2 <code>@concurrent</code> явно відриває async function від caller actor і виконує її на generic executor. <code>async let</code> створює дві structured child tasks.</p>
+    </div>
+
+    <section class="scene">
+      <pre><code>@concurrent
+func countPrimes(upTo limit: Int) async throws -&gt; Int {
+    var count = 0
+
+    for number in 2...limit {
+        if number.isMultiple(of: 4_096) {
+            try Task.checkCancellation()
+        }
+
+        if isPrime(number) {
+            count += 1
+        }
+    }
+
+    return count
+}
+
+func calculate() async throws -&gt; (Int, Int) {
+    async let first = countPrimes(upTo: 900_000)
+    async let second = countPrimes(upTo: 1_000_000)
+
+    return try await (first, second)
+}</code></pre>
+
+      <div class="note">
+        <b>Що тут відбувається:</b> <code>async let</code> створює двох siblings; обидва викликають <code>@concurrent</code> CPU-bound work на generic executor. Якщо є доступні worker threads/cores, runtime може виконувати ці jobs фізично паралельно.
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="kicker">03 · Counterexample</div><h2>async let сам по собі не означає parallel</h2></div>
+      <p>Actor isolation може навмисно серіалізувати роботу. Structured child tasks не обходять правила isolation.</p>
+    </div>
+
+    <section class="scene">
+      <div class="code-grid">
+        <div>
+          <div class="code-title">Serialized on MainActor</div>
+          <pre><code>@MainActor
+func expensiveA() -&gt; Int {
+    heavySynchronousWork()
+}
+
+@MainActor
+func expensiveB() -&gt; Int {
+    otherHeavyWork()
+}
+
+@MainActor
+func run() async -&gt; (Int, Int) {
+    async let a = expensiveA()
+    async let b = expensiveB()
+
+    return await (a, b)
+}</code></pre>
+        </div>
+
+        <div>
+          <div class="code-title">Eligible for parallel execution</div>
+          <pre><code>@concurrent
+func expensiveA() async -&gt; Int {
+    heavySynchronousWork()
+}
+
+@concurrent
+func expensiveB() async -&gt; Int {
+    otherHeavyWork()
+}
+
+func run() async -&gt; (Int, Int) {
+    async let a = expensiveA()
+    async let b = expensiveB()
+
+    return await (a, b)
+}</code></pre>
+        </div>
+      </div>
+      <div class="note"><b>Ключ:</b> parallelism потребує не лише кількох tasks, а й execution context, який дозволяє кільком jobs виконуватись одночасно. Один actor executor гарантує serial access до actor-isolated work.</div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="kicker">04 · async let vs TaskGroup</div><h2>Два способи зробити fan-out</h2></div>
+      <p>Вибір між ними — про форму structured concurrency, а не про “рівень parallelism”.</p>
+    </div>
+
+    <section class="scene">
+      <div class="rule">
+        <div class="rule-row"><b><code>async let</code></b><span>Коли кількість незалежних child operations відома під час написання коду. Наприклад: profile + feed.</span></div>
+        <div class="rule-row"><b><code>TaskGroup</code></b><span>Коли кількість child tasks динамічна: масив images, files, chunks, IDs тощо.</span></div>
+        <div class="rule-row"><b>Actor</b><span>Дає isolation і serial execution для actor-isolated jobs. Не інструмент для CPU parallelism усередині одного actor.</span></div>
+        <div class="rule-row"><b><code>@concurrent</code></b><span>Swift 6.2+: явний спосіб сказати, що async function повинна виконуватись поза caller actor на generic executor.</span></div>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="kicker">05 · Dynamic fan-out</div><h2>Parallel candidates через TaskGroup</h2></div>
+      <p>Цей pattern корисний для CPU-bound batch work. Не створюй тисячі heavy jobs без bounded concurrency — overhead і contention можуть зробити все повільнішим.</p>
+    </div>
+
+    <section class="scene">
+      <pre><code>@concurrent
+func process(_ chunk: Chunk) async throws -&gt; ResultChunk {
+    try Task.checkCancellation()
+    return expensiveTransform(chunk)
+}
+
+func processAll(_ chunks: [Chunk]) async throws -&gt; [ResultChunk] {
+    try await withThrowingTaskGroup(of: ResultChunk.self) { group in
+        for chunk in chunks {
+            group.addTask {
+                try await process(chunk)
+            }
+        }
+
+        var results: [ResultChunk] = []
+        for try await result in group {
+            results.append(result)
+        }
+        return results
+    }
+}</code></pre>
+      <div class="note"><b>Production nuance:</b> для великого масиву краще обмежити кількість одночасно runnable CPU tasks приблизно до корисного рівня parallelism, замість blind fan-out на кожен item.</div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="kicker">06 · Interview answer</div><h2>Як це пояснити за 30 секунд</h2></div>
+    </div>
+
+    <section class="scene">
+      <div class="answer">
+        <b>Concurrency is about task structure; parallelism is about physical execution.</b>
+        <span>
+          <code>async let</code> and <code>TaskGroup</code> let me start independent child tasks concurrently. If those tasks contain CPU-bound work that is allowed to run on the generic concurrent executor — for example via <code>@concurrent</code> in Swift 6.2 — the runtime may schedule them on different worker threads and they can execute in parallel. But Swift Concurrency does not guarantee a particular thread or CPU core, and actor-isolated work remains serialized by that actor's executor.
+        </span>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="kicker">07 · Remember</div><h2>Чотири правила</h2></div>
+    </div>
+
+    <section class="scene">
+      <div class="rule">
+        <div class="rule-row"><b>1</b><span><code>async/await</code> не означає background thread.</span></div>
+        <div class="rule-row"><b>2</b><span><code>async let</code> / <code>TaskGroup</code> створюють concurrent child tasks, але самі по собі не гарантують physical parallelism.</span></div>
+        <div class="rule-row"><b>3</b><span>CPU-heavy independent jobs на generic concurrent executor можуть реально виконуватись паралельно, якщо runtime має доступний parallel capacity.</span></div>
+        <div class="rule-row"><b>4</b><span>Не покладайся на thread identity. Думай в термінах tasks, isolation, executors і suspension points.</span></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
