@@ -9,40 +9,11 @@
   <title>iOS Knowledge Base</title>
   <link rel="stylesheet" href="assets/styles.css">
   <style>
-    .module-card {
-      display: flex;
-      flex-direction: column;
-      height: auto;
-    }
-    .module-card > * {
-      position: relative;
-      z-index: 1;
-    }
-    .module-card::after {
-      z-index: 0;
-      pointer-events: none;
-    }
-    .module-foot {
-      position: relative;
-      left: auto;
-      right: auto;
-      bottom: auto;
-      margin-top: auto;
-      padding-top: 24px;
-      flex: 0 0 auto;
-    }
-    @media (max-width: 560px) {
-      .module-card,
-      .module-card.wide {
-        min-height: 0;
-      }
-      .module-foot {
-        left: auto;
-        right: auto;
-        bottom: auto;
-        padding-top: 26px;
-      }
-    }
+    .module-card { display: flex; flex-direction: column; height: auto; }
+    .module-card > * { position: relative; z-index: 1; }
+    .module-card::after { z-index: 0; pointer-events: none; }
+    .module-foot { position: relative; left: auto; right: auto; bottom: auto; margin-top: auto; padding-top: 24px; flex: 0 0 auto; }
+    @media (max-width: 560px) { .module-card,.module-card.wide { min-height: 0; } .module-foot { left:auto;right:auto;bottom:auto;padding-top:26px; } }
   </style>
 </head>
 <body>
@@ -50,10 +21,7 @@
     <div class="shell topbar-inner">
       <a class="brand" href="./" aria-label="iOS Knowledge Base — головна">
         <div class="brand-mark">iOS</div>
-        <div class="brand-copy">
-          <b>iOS Knowledge Base</b>
-          <span>Visual learning library</span>
-        </div>
+        <div class="brand-copy"><b>iOS Knowledge Base</b><span>Visual learning library</span></div>
       </a>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="Перемкнути тему"></button>
     </div>
@@ -64,109 +32,44 @@
       <div class="hero-copy">
         <div class="eyebrow">Personal learning hub</div>
         <h1>Теми, до яких хочеться повертатися.</h1>
-        <p>
-          Одна база для візуальних матеріалів по Swift, iOS, AI, Algorithms &amp; Data Structures та Mobile System Design.
-          Відкривається однаково з iPhone, iPad і Mac; кожен модуль залишається автономною навчальною сторінкою.
-        </p>
-        <div class="hero-meta">
-          <span class="pill">Responsive</span>
-          <span class="pill">Light / Dark</span>
-          <span class="pill">GitHub Pages ready</span>
-          <span class="pill">No build step</span>
-        </div>
+        <p>Одна база для візуальних матеріалів по Swift, iOS, AI, Algorithms &amp; Data Structures та Mobile System Design. Відкривається однаково з iPhone, iPad і Mac; кожен модуль залишається автономною навчальною сторінкою.</p>
+        <div class="hero-meta"><span class="pill">Responsive</span><span class="pill">Light / Dark</span><span class="pill">GitHub Pages ready</span><span class="pill">No build step</span></div>
       </div>
       <div class="hero-orbit" aria-hidden="true">
         <div class="orbit-core"><div><b>Knowledge</b><span>learn → review → recall</span></div></div>
-        <div class="orbit-chip">Swift</div>
-        <div class="orbit-chip">Concurrency</div>
-        <div class="orbit-chip">Algorithms</div>
-        <div class="orbit-chip">AI Systems</div>
+        <div class="orbit-chip">Swift</div><div class="orbit-chip">Concurrency</div><div class="orbit-chip">Algorithms</div><div class="orbit-chip">AI Systems</div>
       </div>
     </section>
 
-    <div class="library-head">
-      <div>
-        <div class="eyebrow">Library</div>
-        <h2>Навчальні модулі</h2>
-      </div>
-      <p>Починай з конкретної теми. Кожна сторінка має власні візуальні моделі, приклади коду, режим повторення та практику там, де це доречно.</p>
-    </div>
+    <div class="library-head"><div><div class="eyebrow">Library</div><h2>Навчальні модулі</h2></div><p>Починай з конкретної теми. Кожна сторінка має власні візуальні моделі, приклади коду, режим повторення та практику там, де це доречно.</p></div>
 
     <div class="toolbar">
-      <div class="search-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
-        <input class="search" type="search" placeholder="Знайти тему…" data-search aria-label="Пошук по модулях">
-      </div>
-      <div class="filters" role="group" aria-label="Категорії">
-        <button class="filter active" type="button" data-filter="all">Усі</button>
-        <button class="filter" type="button" data-filter="swift">Swift &amp; iOS</button>
-        <button class="filter" type="button" data-filter="algorithms">Algorithms &amp; DS</button>
-        <button class="filter" type="button" data-filter="architecture">System Design</button>
-        <button class="filter" type="button" data-filter="ai">AI &amp; iOS</button>
-      </div>
+      <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><input class="search" type="search" placeholder="Знайти тему…" data-search aria-label="Пошук по модулях"></div>
+      <div class="filters" role="group" aria-label="Категорії"><button class="filter active" type="button" data-filter="all">Усі</button><button class="filter" type="button" data-filter="swift">Swift &amp; iOS</button><button class="filter" type="button" data-filter="algorithms">Algorithms &amp; DS</button><button class="filter" type="button" data-filter="architecture">System Design</button><button class="filter" type="button" data-filter="ai">AI &amp; iOS</button></div>
     </div>
 
     <section class="modules" aria-label="Навчальні модулі">
-      <a class="module-card" data-module data-category="swift" href="modules/swift-concurrency/" style="--card-accent: var(--accent)">
-        <div class="module-top"><div class="module-icon">SC</div><span class="status">Visual Explorer · V2</span></div>
-        <h3>Swift Concurrency</h3>
-        <p>Task, async/await, structured concurrency, actors, cancellation, isolation та Swift 6 mental models.</p>
-        <div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="swift" href="modules/swift-concurrency/" style="--card-accent: var(--accent)"><div class="module-top"><div class="module-icon">SC</div><span class="status">Visual Explorer · V2</span></div><h3>Swift Concurrency</h3><p>Task, async/await, structured concurrency, actors, cancellation, isolation та Swift 6 mental models.</p><div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div></a>
 
-      <a class="module-card" data-module data-category="swift" href="modules/swift-concurrency/parallelism.html" style="--card-accent: var(--green)">
-        <div class="module-top"><div class="module-icon">∥</div><span class="status">Deep Dive · Swift 6.2</span></div>
-        <h3>Concurrency vs Parallelism</h3>
-        <p>Коли concurrent tasks реально можуть виконуватись паралельно: CPU-bound work, async let, TaskGroup, @concurrent, generic executor та actor serialization.</p>
-        <div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="swift" href="modules/swift-concurrency/parallelism.html" style="--card-accent: var(--green)"><div class="module-top"><div class="module-icon">∥</div><span class="status">Deep Dive · Swift 6.2</span></div><h3>Concurrency vs Parallelism</h3><p>Concurrent vs physical parallel execution: CPU-bound work, async let, TaskGroup, @concurrent, generic executor, actor serialization та scheduling guarantees.</p><div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div></a>
 
-      <a class="module-card" data-module data-category="swift" href="modules/combine/" style="--card-accent: var(--violet)">
-        <div class="module-top"><div class="module-icon">C</div><span class="status">Visual Explorer · V3.4</span></div>
-        <h3>Combine</h3>
-        <p>Publisher → operators → subscriber, AnyCancellable lifetime, schedulers, debounce, switchToLatest і debugging.</p>
-        <div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="swift" href="modules/gcd/" style="--card-accent: var(--orange)"><div class="module-top"><div class="module-icon">GCD</div><span class="status">Execution Guide · New</span></div><h3>Grand Central Dispatch</h3><p>Dispatch queues, serial vs concurrent, sync/async, QoS, groups, barriers, work items, concurrentPerform, deadlocks, execution control та parallelism.</p><div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div></a>
 
-      <a class="module-card" data-module data-category="algorithms" href="modules/big-o/" style="--card-accent: var(--yellow)">
-        <div class="module-top"><div class="module-icon">O</div><span class="status">Visual Explorer · V1</span></div>
-        <h3>Big O Notation</h3>
-        <p>Growth curves, time vs space, simplification rules, multiple inputs, worst-case nuance та інтерактивні Swift complexity drills.</p>
-        <div class="module-foot"><span>Algorithms &amp; Data Structures</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="swift" href="modules/combine/" style="--card-accent: var(--violet)"><div class="module-top"><div class="module-icon">C</div><span class="status">Visual Explorer · V3.4</span></div><h3>Combine</h3><p>Publisher → operators → subscriber, AnyCancellable lifetime, schedulers, debounce, switchToLatest і debugging.</p><div class="module-foot"><span>Swift &amp; iOS</span><span class="open">Відкрити →</span></div></a>
 
-      <a class="module-card" data-module data-category="algorithms" href="modules/logarithms/" style="--card-accent: var(--violet)">
-        <div class="module-top"><div class="module-icon">log</div><span class="status">Visual Explorer · Bilingual</span></div>
-        <h3>Logarithms</h3>
-        <p>log₍b₎(x) = y ⇔ bʸ = x, base-2 interview intuition, doubling vs halving, O(log N), binary search, balanced trees і heap operations. UA / EN.</p>
-        <div class="module-foot"><span>Algorithms &amp; Data Structures</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="algorithms" href="modules/big-o/" style="--card-accent: var(--yellow)"><div class="module-top"><div class="module-icon">O</div><span class="status">Visual Explorer · V1</span></div><h3>Big O Notation</h3><p>Growth curves, time vs space, simplification rules, multiple inputs, worst-case nuance та інтерактивні Swift complexity drills.</p><div class="module-foot"><span>Algorithms &amp; Data Structures</span><span class="open">Відкрити →</span></div></a>
 
-      <a class="module-card" data-module data-category="architecture" href="modules/mobile-system-design/" style="--card-accent: var(--green)">
-        <div class="module-top"><div class="module-icon">MSD</div><span class="status">Playbook · Case Study 01</span></div>
-        <h3>Mobile System Design</h3>
-        <p>Reusable mobile patterns через Hotel / Reservation App: boundaries, source of truth, cache, offline behavior, availability, idempotent booking, retries та observability.</p>
-        <div class="module-foot"><span>Architecture &amp; System Design</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="algorithms" href="modules/logarithms/" style="--card-accent: var(--violet)"><div class="module-top"><div class="module-icon">log</div><span class="status">Visual Explorer · Bilingual</span></div><h3>Logarithms</h3><p>log₍b₎(x) = y ⇔ bʸ = x, base-2 interview intuition, doubling vs halving, O(log N), binary search, balanced trees і heap operations. UA / EN.</p><div class="module-foot"><span>Algorithms &amp; Data Structures</span><span class="open">Відкрити →</span></div></a>
 
-      <a class="module-card" data-module data-category="architecture" href="modules/clean-architecture/" style="--card-accent: var(--accent)">
-        <div class="module-top"><div class="module-icon">CA</div><span class="status">Guide · MVVM + Model–View</span></div>
-        <h3>Clean Architecture</h3>
-        <p>Dependency rule, Domain/Data/Presentation responsibilities, feature-first folders, Swift examples, MVVM vs SwiftUI Model–View та migration між ними.</p>
-        <div class="module-foot"><span>Architecture &amp; System Design</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="architecture" href="modules/mobile-system-design/" style="--card-accent: var(--green)"><div class="module-top"><div class="module-icon">MSD</div><span class="status">Playbook · Case Study 01</span></div><h3>Mobile System Design</h3><p>Reusable mobile patterns через Hotel / Reservation App: boundaries, source of truth, cache, offline behavior, availability, idempotent booking, retries та observability.</p><div class="module-foot"><span>Architecture &amp; System Design</span><span class="open">Відкрити →</span></div></a>
 
-      <a class="module-card wide" data-module data-category="ai" href="modules/ai-foundations/" style="--card-accent: var(--violet)">
-        <div class="module-top"><div class="module-icon">AI</div><span class="status">Visual Explorer · New</span></div>
-        <h3>AI Foundations</h3>
-        <p>LLM, models, agentic applications, context, RAG, MCP, tool calling, Foundation Models та AI UX — mental models для iOS-розробника й підготовки до agentic roles.</p>
-        <div class="module-foot"><span>AI &amp; iOS</span><span class="open">Відкрити →</span></div>
-      </a>
+      <a class="module-card" data-module data-category="architecture" href="modules/clean-architecture/" style="--card-accent: var(--accent)"><div class="module-top"><div class="module-icon">CA</div><span class="status">Guide · MVVM + Model–View</span></div><h3>Clean Architecture</h3><p>Dependency rule, Domain/Data/Presentation responsibilities, feature-first folders, Swift examples, MVVM vs SwiftUI Model–View та migration між ними.</p><div class="module-foot"><span>Architecture &amp; System Design</span><span class="open">Відкрити →</span></div></a>
+
+      <a class="module-card wide" data-module data-category="ai" href="modules/ai-foundations/" style="--card-accent: var(--violet)"><div class="module-top"><div class="module-icon">AI</div><span class="status">Visual Explorer · New</span></div><h3>AI Foundations</h3><p>LLM, models, agentic applications, context, RAG, MCP, tool calling, Foundation Models та AI UX — mental models для iOS-розробника й підготовки до agentic roles.</p><div class="module-foot"><span>AI &amp; iOS</span><span class="open">Відкрити →</span></div></a>
     </section>
 
     <div class="empty" data-empty>Нічого не знайдено. Спробуй іншу назву або категорію.</div>
   </main>
-
   <footer class="footer shell">iOS Knowledge Base · static site · works on GitHub Pages</footer>
   <script src="assets/app.js"></script>
 </body>
