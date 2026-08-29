@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <title>GCD / Grand Central Dispatch — iOS Knowledge Base</title>
+  <style>
+    :root{color-scheme:dark;--bg:#08101d;--panel:rgba(15,25,43,.88);--solid:#111c2f;--text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;--green:#64dda9;--yellow:#ffdb78;--red:#ff8989;--violet:#a292ff;--orange:#ffad6b;--code:#091321;--max:1160px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 8% -8%,rgba(43,183,243,.15),transparent 32%),radial-gradient(circle at 95% 8%,rgba(162,146,255,.12),transparent 34%),linear-gradient(180deg,var(--bg),#07101c 52%,#08121f);line-height:1.62}.shell{width:min(var(--max),calc(100% - 30px));margin:auto}.topbar{position:sticky;top:0;z-index:30;background:rgba(8,16,29,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}.topbar-inner{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand,.back,.pill{color:inherit;text-decoration:none}.brand b{display:block}.brand span{display:block;color:var(--muted);font-size:.76rem}main{padding:44px 0 90px}.hero,.card{border:1px solid var(--border);background:var(--panel);border-radius:30px;padding:30px;margin-bottom:22px}.hero h1{font-size:clamp(2.7rem,6vw,5.2rem);line-height:.98;letter-spacing:-.055em;margin:14px 0 18px}.hero p{font-size:1.06rem;max-width:820px}.eyebrow{color:var(--accent);font-size:.78rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.triple{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.mini{border:1px solid var(--border);background:var(--solid);border-radius:22px;padding:20px}.mini h3{margin:0 0 8px}.good{border-color:color-mix(in srgb,var(--green) 40%,var(--border))}.warn{border-color:color-mix(in srgb,var(--yellow) 42%,var(--border))}.bad{border-color:color-mix(in srgb,var(--red) 42%,var(--border))}.violet{border-color:color-mix(in srgb,var(--violet) 42%,var(--border))}pre{overflow:auto;background:var(--code);padding:20px;border-radius:18px;border:1px solid var(--border);font-size:.9rem}code{font-family:"SFMono-Regular",Consolas,monospace}.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.node{padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--solid);font-weight:750}.arrow{color:var(--muted)}.timeline{font-family:"SFMono-Regular",monospace;background:var(--code);border:1px solid var(--border);border-radius:18px;padding:20px;overflow:auto;white-space:pre}.callout{padding:18px 20px;border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--solid));border-radius:14px}.danger{border-left-color:var(--red);background:color-mix(in srgb,var(--red) 7%,var(--solid))}.links{display:flex;gap:10px;flex-wrap:wrap}.pill{padding:9px 12px;border:1px solid var(--border);border-radius:999px;background:var(--solid)}table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:16px}th,td{padding:13px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}th{color:var(--accent)}@media(max-width:760px){.grid,.triple{grid-template-columns:1fr}.hero,.card{padding:22px}table{font-size:.9rem}}
+  </style>
+</head>
+<body>
+<header class="topbar"><div class="shell topbar-inner"><a class="brand" href="./"><b>GCD / Dispatch</b><span>Execution, queues, synchronization & parallelism</span></a><a class="back" href="../../">← Knowledge Base</a></div></header>
+<main class="shell">
+  <section class="hero">
+    <div class="eyebrow">Grand Central Dispatch</div>
+    <h1>Queue work. Let the system schedule threads.</h1>
+    <p class="muted">GCD — системна abstraction над thread management. Ти описуєш work items, queue semantics, QoS і synchronization points; система керує pool of threads і вирішує, де фактично виконувати роботу.</p>
+    <div class="links"><a class="pill" href="../swift-concurrency/parallelism.html">Swift Concurrency: Parallelism →</a></div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">01 · Mental model</div>
+    <h2>Queue ≠ thread</h2>
+    <div class="flow"><div class="node">Work item / closure</div><div class="arrow">→</div><div class="node">DispatchQueue</div><div class="arrow">→</div><div class="node">libdispatch / GCD</div><div class="arrow">→</div><div class="node">system-managed threads</div><div class="arrow">→</div><div class="node">OS scheduler / CPU cores</div></div>
+    <div class="callout"><b>Core idea:</b> queue визначає ordering / concurrency semantics, але за винятком main queue не прив’язана до конкретного thread. GCD використовує system-managed pool of threads.</div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">02 · Serial vs concurrent queues</div>
+    <h2>Queue type відповідає на питання: чи можуть work items overlap?</h2>
+    <div class="grid">
+      <div class="mini good"><h3>Serial queue</h3><p>Один work item за раз. Зручно для protecting mutable state або enforcing order.</p><div class="timeline">A ━━━━━
+      B ━━━━━
+            C ━━━━━</div></div>
+      <div class="mini violet"><h3>Concurrent queue</h3><p>Кілька work items можуть виконуватись concurrently. Start order пов’язаний з queue ordering, completion order не гарантований.</p><div class="timeline">A ━━━━━━━━━
+B   ━━━━━━━
+C      ━━━━━━━━━</div></div>
+    </div>
+    <pre><code>let serial = DispatchQueue(label: "com.app.state")
+let concurrent = DispatchQueue(label: "com.app.processing", attributes: .concurrent)</code></pre>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">03 · Main and global queues</div>
+    <div class="triple">
+      <div class="mini"><h3>Main queue</h3><p>Serial queue bound to the app’s main thread. UI work традиційно dispatch-иться сюди.</p><pre><code>DispatchQueue.main.async {
+    label.text = "Done"
+}</code></pre></div>
+      <div class="mini"><h3>Global queues</h3><p>System-provided concurrent queues backed by the global thread pool.</p><pre><code>DispatchQueue.global(qos: .userInitiated).async {
+    compute()
+}</code></pre></div>
+      <div class="mini"><h3>Custom queues</h3><p>Дають власний label, QoS, serial/concurrent semantics, autorelease policy та target queue configuration.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">04 · sync vs async</div>
+    <h2>Це про caller waiting, а не про serial vs concurrent</h2>
+    <table><thead><tr><th></th><th><code>sync</code></th><th><code>async</code></th></tr></thead><tbody><tr><td>Caller</td><td>Блокується до завершення work item</td><td>Повертається одразу</td></tr><tr><td>Queue type</td><td>Може бути serial або concurrent</td><td>Може бути serial або concurrent</td></tr><tr><td>Result</td><td>Можна повернути прямо з closure</td><td>Результат приходить пізніше / через інший mechanism</td></tr></tbody></table>
+    <pre><code>let value = queue.sync {
+    calculateValue()
+}
+
+queue.async {
+    calculateAndStore()
+}</code></pre>
+    <div class="callout danger"><b>Classic deadlock:</b> synchronous dispatch на queue, яка вже виконує caller і не може почати новий item. Найвідоміший випадок — <code>DispatchQueue.main.sync</code> з main thread.</div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">05 · QoS</div>
+    <h2>Priority intent, не гарантія часу виконання</h2>
+    <div class="triple">
+      <div class="mini"><h3><code>.userInteractive</code></h3><p>Робота напряму пов’язана з immediate UI responsiveness.</p></div>
+      <div class="mini"><h3><code>.userInitiated</code></h3><p>User чекає результат для продовження flow.</p></div>
+      <div class="mini"><h3><code>.utility</code> / <code>.background</code></h3><p>Longer-running або deferrable work, де latency менш критична.</p></div>
+    </div>
+    <p class="muted">QoS — сигнал scheduler-у про importance / latency expectations. Це не reserved thread і не reserved CPU core.</p>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">06 · DispatchGroup</div>
+    <h2>Fan-out / fan-in для кількох asynchronous GCD operations</h2>
+    <pre><code>let group = DispatchGroup()
+
+queue.async(group: group) { loadA() }
+queue.async(group: group) { loadB() }
+
+ group.notify(queue: .main) {
+    renderFinishedState()
+}</code></pre>
+    <p>Group не задає queue semantics. Він просто дозволяє відслідковувати completion набору work items як одного unit.</p>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">07 · Barrier</div>
+    <h2>Concurrent reads + exclusive writes</h2>
+    <pre><code>final class Store {
+    private let queue = DispatchQueue(label: "store", attributes: .concurrent)
+    private var values: [String: Int] = [:]
+
+    func value(for key: String) -> Int? {
+        queue.sync { values[key] }
+    }
+
+    func set(_ value: Int, for key: String) {
+        queue.async(flags: .barrier) {
+            self.values[key] = value
+        }
+    }
+}</code></pre>
+    <div class="timeline">read A ━━━━━━━
+read B   ━━━━━━━
+                 WRITE BARRIER ━━━━━
+                                      read C ━━━━━</div>
+    <p>Barrier чекає попередні items, виконується exclusive щодо інших items на цій custom concurrent queue, а наступні items починаються після нього.</p>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">08 · DispatchWorkItem</div>
+    <h2>Encapsulated work + flags + cooperative cancellation state</h2>
+    <pre><code>let item = DispatchWorkItem {
+    guard !DispatchWorkItem.currentIsCancelled else { return }
+    doExpensiveWork()
+}
+
+queue.async(execute: item)
+item.cancel()</code></pre>
+    <p class="muted">Cancellation не магічно зупиняє executing code. Work має перевіряти cancellation state / бути спроєктований так, щоб завершитись cooperatively.</p>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">09 · Delayed execution</div>
+    <pre><code>DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+    showHint()
+}</code></pre>
+    <p><code>asyncAfter</code> означає “не раніше приблизного deadline”. Це не real-time timer і не гарантія точної наносекунди виконання.</p>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">10 · Parallel CPU work</div>
+    <h2><code>concurrentPerform</code> — найбільш явний GCD tool для data parallelism</h2>
+    <pre><code>DispatchQueue.concurrentPerform(iterations: chunks.count) { index in
+    process(chunks[index])
+}</code></pre>
+    <div class="grid">
+      <div class="mini good"><h3>Intent</h3><p>Iteration body незалежний; система може розподілити iterations між кількома workers і реально використати кілька CPU cores.</p></div>
+      <div class="mini warn"><h3>Still no hard guarantee</h3><p>API не обіцяє N iterations = N threads = N cores. Actual degree of parallelism залежить від system resources і scheduler.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">11 · What does .concurrent actually guarantee?</div>
+    <h2>Permission for overlap, not physical simultaneity</h2>
+    <pre><code>let queue = DispatchQueue(label: "work", attributes: .concurrent)
+queue.async { heavyA() }
+queue.async { heavyB() }</code></pre>
+    <div class="callout"><code>.concurrent</code> означає, що queue не серіалізує всі items один за одним. GCD може виконувати кілька items concurrently, але system-managed threads і OS scheduler визначають, чи буде реальний simultaneous execution на різних cores.</div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">12 · Common failures</div>
+    <div class="grid">
+      <div class="mini bad"><h3>Deadlock</h3><pre><code>DispatchQueue.main.sync {
+    // from main thread
+}</code></pre><p>Caller чекає queue, queue чекає caller.</p></div>
+      <div class="mini bad"><h3>Thread explosion / blocking</h3><p>Багато blocking tasks на concurrent queues можуть змусити system створювати більше threads і погіршити performance.</p></div>
+      <div class="mini warn"><h3>Shared mutable state</h3><p>Concurrent queue сама по собі не робить shared state safe. Потрібні serial confinement, barriers, locks або інша synchronization strategy.</p></div>
+      <div class="mini warn"><h3>Priority inversion</h3><p>High-priority work може чекати resource, який утримує lower-priority work. QoS треба вибирати узгоджено.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">13 · Execution control</div>
+    <h2>Що реально контролює developer</h2>
+    <table><thead><tr><th>Ти контролюєш</th><th>Система контролює</th></tr></thead><tbody><tr><td>Serial vs concurrent queue</td><td>Конкретний worker thread</td></tr><tr><td><code>sync</code> vs <code>async</code></td><td>Exact start time</td></tr><tr><td>QoS intent</td><td>CPU core assignment</td></tr><tr><td>Barrier / group / semaphore strategy</td><td>Actual degree of parallelism</td></tr><tr><td>Work granularity</td><td>Thread pool scheduling details</td></tr></tbody></table>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">14 · GCD vs Swift Concurrency</div>
+    <table><thead><tr><th>GCD</th><th>Swift Concurrency</th></tr></thead><tbody><tr><td>Queue-centric model</td><td>Task + actor + executor model</td></tr><tr><td>Closures submitted to queues</td><td>Structured tasks and async functions</td></tr><tr><td>Manual groups / callbacks</td><td><code>async let</code>, TaskGroup, <code>await</code></td></tr><tr><td>Barrier / serial queue often used for state safety</td><td>Actors provide language-level isolation</td></tr><tr><td>Cancellation mostly manual/cooperative</td><td>Structured cancellation propagation</td></tr><tr><td>Queue / QoS control is explicit</td><td>Runtime owns more scheduling details</td></tr><tr><td>No hard core/thread parallelism guarantee</td><td>No hard core/thread parallelism guarantee</td></tr></tbody></table>
+    <div class="callout"><b>Modern iOS rule of thumb:</b> prefer Swift Concurrency for new asynchronous application code. GCD remains essential to understand because existing UIKit codebases, third-party APIs, locks/queues, callbacks and lower-level synchronization patterns still use it heavily.</div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">15 · Interview recap</div>
+    <div class="triple">
+      <div class="mini"><h3>Queue ≠ thread</h3><p>Queue describes scheduling semantics; threads are managed by the system.</p></div>
+      <div class="mini"><h3><code>sync</code> ≠ serial</h3><p><code>sync</code> means caller waits. Serial/concurrent is a property of queue behavior.</p></div>
+      <div class="mini"><h3>Concurrent ≠ guaranteed parallel</h3><p>Multiple work items may overlap; physical simultaneous execution depends on resources and scheduling.</p></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
