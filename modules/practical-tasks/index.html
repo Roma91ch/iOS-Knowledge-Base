@@ -323,20 +323,15 @@
       {
         id: 'capacity',
         title: 'The cache has a hard capacity',
-        prompt: 'Reject new keys when the cache is full; overwrites remain allowed.',
-        path: ['Baseline', 'Read-heavy', 'Capacity'],
-        requirements: ['The cache may hold at most N keys.', 'Overwriting an existing key is allowed even when full.', 'A new key is rejected when capacity is reached.'],
-        design: 'Add a capacity invariant and enforce it inside the same exclusive write barrier so count-check + insertion is atomic with respect to other writers.',
-        complexity: 'set / get / remove: O(1) average',
-        notes: '<strong>Failure is meaningful here:</strong> set returns false when a new key cannot be inserted, so the caller should explicitly handle that result. Capacity validation uses a failable initializer rather than crashing.',
+        prompt: 'The cache can hold at most N entries. What should happen when a new key arrives at capacity?',
+        path: ['Baseline', 'Read-heavy', 'Hard capacity'],
+        requirements: ['The cache may hold at most N keys.', 'The caller should keep using a simple set(key:value:) API.', 'The eviction behavior has not been specified yet.'],
+        design: '<strong>Capacity is an invariant, not a complete insertion policy.</strong> Before implementing the full-cache branch, ask which existing entry should be evicted. Keep that policy inside the cache rather than returning insertion success to the caller.',
+        complexity: 'Design checkpoint · eviction policy required',
+        notes: '<strong>Clarifying question:</strong> “When the cache is full and a new key is inserted, which item should be evicted — LRU, FIFO, LFU, or something else?” Do not invent a rejection + Bool API unless the product requirement explicitly says cache admission can fail.',
         code: `final class MemoryCache<Key: Hashable, Value> {
     private var storage: [Key: Value] = [:]
     private let capacity: Int
-
-    private let queue = DispatchQueue(
-        label: "memory.cache",
-        attributes: .concurrent
-    )
 
     init?(capacity: Int) {
         guard capacity > 0 else {
@@ -346,42 +341,25 @@
         self.capacity = capacity
     }
 
-    func set(key: Key, value: Value) -> Bool {
-        queue.sync(flags: .barrier) {
-            if storage[key] != nil {
-                storage[key] = value
-                return true
-            }
-
-            guard storage.count < capacity else {
-                return false
-            }
-
-            storage[key] = value
-            return true
-        }
-    }
-
-    func get(valueFor key: Key) -> Value? {
-        queue.sync { storage[key] }
-    }
-
-    func remove(valueFor key: Key) {
-        queue.sync(flags: .barrier) {
-            storage.removeValue(forKey: key)
-        }
+    func set(key: Key, value: Value) {
+        // Existing key → overwrite.
+        // Space available → insert.
+        // Full + new key → eviction policy is required.
+        //
+        // Keep this decision inside the cache. The caller should not
+        // need to branch on whether a cache insertion succeeded.
     }
 }`
       },
       {
         id: 'strict-lru',
         title: 'Evict the least recently used item',
-        prompt: 'Keep get, set and eviction O(1) average with strict recency.',
-        path: ['Baseline', 'Capacity', 'Strict LRU'],
-        requirements: ['Successful get makes an item most-recently-used.', 'Updating an existing key also refreshes recency.', 'When full, evict the least-recently-used item.'],
-        design: 'Combine a <strong>Dictionary&lt;Key, Node&gt;</strong> with a <strong>doubly linked list</strong>. The dictionary locates a node in O(1); the list moves/removes it in O(1). Strict LRU makes successful get a mutation.',
+        prompt: 'The eviction policy is now LRU. Keep get, set and eviction O(1) average.',
+        path: ['Baseline', 'Hard capacity', 'Eviction policy: LRU'],
+        requirements: ['Successful get makes an item most-recently-used.', 'Updating an existing key also refreshes recency.', 'When full, the cache evicts the least-recently-used item internally.'],
+        design: 'Combine a <strong>Dictionary&lt;Key, Node&gt;</strong> with a <strong>doubly linked list</strong>. The dictionary locates a node in O(1); the list moves/removes it in O(1). The cache owns eviction, so set remains a Void API.',
         complexity: 'get / set / eviction: O(1) average',
-        notes: '<strong>Read-heavy consequence:</strong> strict LRU turns every cache hit into metadata mutation. The barrier below is correct, but it serializes successful reads. set does not return Bool because reaching capacity triggers eviction rather than failure.',
+        notes: '<strong>Abstraction boundary:</strong> callers only call set. They do not need to know whether an eviction happened. <strong>Read-heavy consequence:</strong> strict LRU turns every cache hit into metadata mutation, so successful reads are serialized by the barrier.',
         code: `final class LRUCache<Key: Hashable, Value> {
     private final class Node {
         let key: Key
@@ -428,13 +406,13 @@
                 return
             }
 
+            if nodes.count == capacity {
+                evictTail()
+            }
+
             let node = Node(key: key, value: value)
             nodes[key] = node
             addToHead(node)
-
-            if nodes.count > capacity {
-                evictTail()
-            }
         }
     }
 
@@ -472,7 +450,7 @@
         id: 'approx-lru',
         title: 'Read throughput matters more than perfect LRU order',
         prompt: 'Keep value lookup concurrent and allow slightly stale recency metadata.',
-        path: ['Baseline', 'Read-heavy', 'Capacity', 'Approximate LRU'],
+        path: ['Baseline', 'Read-heavy', 'Hard capacity', 'LRU', 'Approximate LRU'],
         requirements: ['A cache hit should not wait for LRU metadata mutation.', 'Slightly stale eviction ordering is acceptable.'],
         design: 'Read the value concurrently, then enqueue the recency update as an <strong>asynchronous barrier</strong>. Re-check node identity before moving it because it may have been evicted or replaced.',
         complexity: 'read lookup: O(1) average; recency update deferred',
