@@ -170,3 +170,161 @@ h1 { margin: 12px 0 16px; max-width: 780px; font-size: clamp(2.5rem, 7vw, 5.25re
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+/* Practical Tasks — module-specific responsive safeguards.
+   Kept here so the static module stays build-step free while sharing the global theme. */
+.task-layout,
+.task-card,
+.task-card .workspace,
+.task-card .workspace-bar,
+.task-card .variation-rail,
+.task-card .variation-button,
+.task-card .variation-copy,
+.task-card .change-panel,
+.task-card .change-box,
+.task-card .code-frame,
+.task-card pre {
+  min-width: 0;
+  max-width: 100%;
+}
+
+:root[data-theme="light"] .task-card .code-frame {
+  background: #f7f9fc;
+  border-color: #d8e3ed;
+}
+:root[data-theme="light"] .task-card .code-toolbar {
+  background: #eef3f8;
+  color: #617087;
+  border-bottom-color: #d8e3ed;
+}
+:root[data-theme="light"] .task-card pre,
+:root[data-theme="light"] .task-card pre code {
+  background: #f7f9fc;
+  color: #172235;
+}
+:root[data-theme="light"] .task-card .copy-code,
+:root[data-theme="light"] .task-card .reveal-solution {
+  background: #ffffff;
+  color: #172235;
+  border-color: #d8e3ed;
+}
+
+@media (max-width: 900px) {
+  body .task-layout {
+    display: block;
+    width: 100%;
+  }
+  body .task-sidebar {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow: visible;
+  }
+  body .task-link {
+    width: 100%;
+    min-width: 0;
+  }
+  body .task-card {
+    width: 100%;
+  }
+  body .task-card .workspace-bar {
+    display: block;
+  }
+  body .task-card .mode-switch {
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 12px;
+  }
+  body .task-card .mode-button {
+    width: 100%;
+    min-width: 0;
+  }
+  body .task-card .variation-button {
+    grid-template-columns: 28px minmax(0, 1fr);
+    width: 100%;
+  }
+  body .task-card .variation-arrow {
+    display: none;
+  }
+  body .task-card .variation-copy b,
+  body .task-card .variation-copy span,
+  body .task-card .change-box,
+  body .task-card .requirements li {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  body .task-card .requirements,
+  body .task-card .change-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  body main.shell {
+    width: min(calc(100% - 18px), var(--max));
+    padding-bottom: 118px;
+  }
+  body .page-hero {
+    padding: 24px 18px;
+  }
+  body .task-sidebar {
+    padding: 10px;
+    border-radius: 20px 20px 28px 20px;
+  }
+  body .task-sidebar .task-link.placeholder {
+    display: none;
+  }
+  body .task-card {
+    padding: 18px;
+    border-radius: 24px 24px 34px 24px;
+  }
+  body .task-card .requirements {
+    gap: 8px;
+  }
+  body .task-card .requirements li {
+    padding: 10px 11px;
+    font-size: .84rem;
+  }
+  body .task-card .variation-button {
+    padding: 11px 12px;
+    gap: 9px;
+  }
+  body .task-card .variation-copy b {
+    font-size: .86rem;
+    line-height: 1.3;
+  }
+  body .task-card .variation-copy span {
+    font-size: .75rem;
+    line-height: 1.4;
+  }
+  body .task-card .change-box {
+    padding: 14px;
+  }
+  body .task-card .solution-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+  body .task-card .code-toolbar {
+    position: static;
+  }
+  body .task-card pre {
+    padding: 16px;
+    font-size: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  body .home-fab {
+    left: 12px;
+    right: 12px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: auto;
+    text-align: center;
+  }
+}
