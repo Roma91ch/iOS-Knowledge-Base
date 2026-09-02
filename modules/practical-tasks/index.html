@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <meta name="description" content="Practical iOS interview tasks with baseline solutions and interactive follow-up variations.">
+  <title>Practical Tasks — iOS Knowledge Base</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <style>
+    .page-hero{min-height:0;grid-template-columns:1fr;padding:38px 42px}.page-hero h1{font-size:clamp(2.5rem,6vw,4.8rem)}
+    .page-hero .hero-copy p{max-width:760px}.task-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:22px;margin-top:28px;align-items:start}
+    .task-sidebar{position:sticky;top:92px;padding:16px;border:1px solid var(--border);border-radius:24px 24px 34px 24px;background:var(--panel)}
+    .task-sidebar h2{margin:2px 8px 12px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .task-link{display:block;width:100%;padding:13px 14px;border:1px solid transparent;border-radius:16px 16px 21px 16px;background:transparent;color:var(--muted);text-align:left;font-weight:780}
+    .task-link.active{border-color:color-mix(in srgb,var(--accent) 30%,var(--border));background:color-mix(in srgb,var(--accent) 9%,var(--solid));color:var(--text)}
+    .task-link small{display:block;margin-top:4px;color:var(--muted);font-weight:600}.task-link.placeholder{opacity:.58}
+    .task-card{padding:28px;border:1px solid var(--border);border-radius:32px 32px 50px 32px;background:var(--panel);box-shadow:0 16px 50px rgba(0,0,0,.1)}
+    .task-kicker{color:var(--green);font-size:.76rem;font-weight:850;letter-spacing:.11em;text-transform:uppercase}.task-card h2{margin:8px 0 10px;font-size:clamp(1.9rem,4vw,3rem);letter-spacing:-.04em}
+    .task-card>p{margin:0;color:var(--muted);line-height:1.65}.requirements{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:20px 0 0;padding:0;list-style:none}
+    .requirements li{padding:11px 13px;border:1px solid var(--border);border-radius:15px;background:var(--solid);color:var(--muted);font-size:.88rem}.requirements li::before{content:'✓';margin-right:8px;color:var(--green);font-weight:900}
+    .workspace{margin-top:22px}.workspace-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.workspace-title{font-size:.78rem;font-weight:850;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+    .mode-switch{display:flex;gap:5px;padding:5px;border:1px solid var(--border);border-radius:16px;background:var(--solid)}.mode-button{border:0;padding:8px 12px;border-radius:11px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer}.mode-button.active{background:linear-gradient(135deg,#8adfff,#66e0aa);color:#07111b}
+    .variation-rail{display:grid;gap:8px}.variation-button{width:100%;display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:11px;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:17px 17px 23px 17px;background:var(--solid);color:var(--text);text-align:left;cursor:pointer}
+    .variation-button:hover{border-color:color-mix(in srgb,var(--accent) 38%,var(--border))}.variation-button.active{border-color:color-mix(in srgb,var(--green) 48%,var(--border));background:color-mix(in srgb,var(--green) 7%,var(--solid))}
+    .variation-step{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--solid-2);color:var(--accent);font-size:.72rem;font-weight:900}.variation-copy b{display:block;font-size:.9rem}.variation-copy span{display:block;margin-top:3px;color:var(--muted);font-size:.78rem;line-height:1.35}.variation-arrow{color:var(--muted);font-weight:900}
+    .breadcrumb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:18px 0 10px;color:var(--muted);font-size:.78rem}.breadcrumb b{color:var(--text)}.breadcrumb .sep{opacity:.55}
+    .change-panel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 14px}.change-box{padding:16px;border:1px solid var(--border);border-radius:20px 20px 27px 20px;background:var(--solid)}.change-box h3{margin:0 0 9px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .change-box ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.55}.change-box p{margin:0;color:var(--muted);line-height:1.55}.change-box strong{color:var(--text)}
+    .solution-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 9px}.solution-head h3{margin:0;font-size:1rem}.complexity{color:var(--muted);font-size:.78rem}
+    .code-frame{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:21px 21px 29px 21px;background:#091321}.code-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(154,174,210,.18);background:#0d1828;color:#9eabc0;font-size:.76rem;font-weight:780}.copy-code,.reveal-solution{border:1px solid rgba(154,174,210,.2);border-radius:10px;background:#132238;color:#dfeaff;padding:7px 10px;font-weight:780;cursor:pointer}
+    pre{margin:0;padding:20px;overflow:auto;color:#e8f2ff;font:13px/1.58 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;tab-size:4}.notes{margin-top:12px;padding:14px 16px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);color:var(--muted);line-height:1.55}.notes strong{color:var(--text)}
+    .practice-prompt{display:none;padding:28px;border:1px dashed var(--border);border-radius:21px;background:var(--solid);text-align:center}.practice-prompt p{margin:0 0 14px;color:var(--muted);line-height:1.55}.practice-mode .practice-prompt{display:block}.practice-mode .solution-content{display:none}.practice-mode.revealed .practice-prompt{display:none}.practice-mode.revealed .solution-content{display:block}
+    .home-fab{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;padding:10px 13px;border:1px solid var(--border);border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--solid) 92%,transparent);color:var(--text);text-decoration:none;font-size:.8rem;font-weight:800;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    @media(max-width:900px){.task-layout{grid-template-columns:1fr}.task-sidebar{position:static;display:flex;gap:8px;overflow:auto}.task-sidebar h2{display:none}.task-link{min-width:210px}.requirements,.change-panel{grid-template-columns:1fr}}
+    @media(max-width:560px){.page-hero{padding:25px 21px}.task-card{padding:20px}.variation-button{grid-template-columns:29px minmax(0,1fr)}.variation-arrow{display:none}.workspace-bar{align-items:flex-start}.mode-switch{width:100%}.mode-button{flex:1}.code-toolbar{position:sticky;left:0}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="../../" aria-label="iOS Knowledge Base — home"><div class="brand-mark">PT</div><div class="brand-copy"><b>Practical Tasks</b><span>requirement → design → code</span></div></a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero page-hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Interview practice</div>
+        <h1>Practical Tasks</h1>
+        <p>Start from a small working solution, then evolve it as an interviewer changes the requirements. Each variation shows the design consequence before the implementation.</p>
+        <div class="hero-meta"><span class="pill">Swift</span><span class="pill">Senior / Lead</span><span class="pill">Interactive follow-ups</span><span class="pill">Learn + Practice</span></div>
+      </div>
+    </section>
+
+    <div class="task-layout">
+      <aside class="task-sidebar" aria-label="Practical tasks">
+        <h2>Tasks</h2>
+        <button class="task-link active" type="button">In-Memory Cache<small>Concurrency · TTL · LRU</small></button>
+        <button class="task-link placeholder" type="button" disabled>More tasks<small>Coming next</small></button>
+      </aside>
+
+      <section class="task-card">
+        <div class="task-kicker">Task 01 · Cache</div>
+        <h2>Build an in-memory cache</h2>
+        <p>Implement a generic cache in Swift. Begin with the smallest correct design. Then react to changing requirements without losing sight of the access pattern and performance trade-offs.</p>
+        <ul class="requirements">
+          <li>Generic <code>Hashable</code> keys and any value type</li>
+          <li><code>set</code> overwrites an existing value</li>
+          <li><code>get</code> returns an optional value</li>
+          <li><code>remove</code> deletes an entry</li>
+        </ul>
+
+        <div class="workspace" id="workspace">
+          <div class="workspace-bar">
+            <div class="workspace-title">Follow-up variations</div>
+            <div class="mode-switch" role="group" aria-label="Learning mode">
+              <button class="mode-button active" type="button" data-mode="learn">Learn</button>
+              <button class="mode-button" type="button" data-mode="practice">Practice</button>
+            </div>
+          </div>
+
+          <div class="variation-rail" id="variationRail"></div>
+          <div class="breadcrumb" id="breadcrumb"></div>
+
+          <div class="change-panel">
+            <div class="change-box"><h3>Changed requirements</h3><ul id="requirementsChanged"></ul></div>
+            <div class="change-box"><h3>Design change</h3><p id="designChange"></p></div>
+          </div>
+
+          <div class="solution-head"><h3 id="solutionTitle">Solution</h3><span class="complexity" id="complexity"></span></div>
+          <div class="practice-prompt"><p>Try to implement this variation before revealing the reference solution.</p><button class="reveal-solution" type="button" id="revealSolution">Reveal solution</button></div>
+          <div class="solution-content">
+            <div class="code-frame">
+              <div class="code-toolbar"><span id="codeLabel">Swift</span><button class="copy-code" type="button" id="copyCode">Copy</button></div>
+              <pre><code id="solutionCode"></code></pre>
+            </div>
+            <div class="notes" id="notes"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <a class="home-fab" href="../../">← Knowledge Base</a>
+  <footer class="footer shell">Practical Tasks · iOS Knowledge Base</footer>
+
+  <script src="../../assets/app.js"></script>
+  <script>
+    const variations = [
+      {
+        id: 'baseline',
+        title: 'Baseline',
+        prompt: 'Implement set / get / remove efficiently.',
+        path: ['Baseline'],
+        requirements: ['No concurrency requirement yet.', 'No expiration or capacity policy.'],
+        design: '<strong>Dictionary&lt;Key, Value&gt;</strong> gives O(1) average lookup, insertion and removal with the smallest API surface.',
+        complexity: 'get / set / remove: O(1) average',
+        notes: '<strong>Interview signal:</strong> start simple. Do not introduce an actor, lock or eviction structure until a requirement justifies it.',
+        code: `final class MemoryCache<Key: Hashable, Value> {
+    private var storage: [Key: Value] = [:]
+
+    func set(key: Key, value: Value) {
+        storage[key] = value
+    }
+
+    func get(valueFor key: Key) -> Value? {
+        storage[key]
+    }
+
+    func remove(valueFor key: Key) {
+        storage.removeValue(forKey: key)
+    }
+}`
+      },
+      {
+        id: 'actor',
+        title: 'Multiple tasks can access the cache',
+        prompt: 'Make access data-race safe with the simplest Swift Concurrency model.',
+        path: ['Baseline', 'Thread-safe'],
+        requirements: ['The cache may be called concurrently from multiple tasks.', 'Correctness is more important than parallel read throughput.'],
+        design: 'Move mutable state behind an <strong>actor</strong>. Actor isolation serializes access to the dictionary and prevents data races.',
+        complexity: 'O(1) average + actor serialization',
+        notes: '<strong>Trade-off:</strong> callers can be concurrent, but accesses to this actor-isolated dictionary execute one at a time. This is simple and safe, but not ideal for a heavily read cache.',
+        code: `actor MemoryCache<Key: Hashable & Sendable, Value: Sendable> {
+    private var storage: [Key: Value] = [:]
+
+    func set(key: Key, value: Value) {
+        storage[key] = value
+    }
+
+    func get(valueFor key: Key) -> Value? {
+        storage[key]
+    }
+
+    func remove(valueFor key: Key) {
+        storage.removeValue(forKey: key)
+    }
+}`
+      },
+      {
+        id: 'read-heavy',
+        title: 'Reads are extremely frequent',
+        prompt: 'Allow multiple reads in parallel while keeping writes exclusive.',
+        path: ['Baseline', 'Thread-safe', 'Read-heavy'],
+        requirements: ['Multiple reads should be able to execute concurrently.', 'set and remove must remain exclusive mutations.'],
+        design: 'Use a private <strong>concurrent DispatchQueue</strong>. Reads use sync; writes use <strong>barrier</strong> sync for reader/writer semantics.',
+        complexity: 'O(1) average; concurrent reads',
+        notes: '<strong>Key distinction:</strong> sync means the caller waits for the value; it does not make the queue serial. The queue is concurrent, so read blocks may overlap.',
+        code: `final class MemoryCache<Key: Hashable, Value> {
+    private var storage: [Key: Value] = [:]
+
+    private let queue = DispatchQueue(
+        label: "memory.cache",
+        attributes: .concurrent
+    )
+
+    func set(key: Key, value: Value) {
+        queue.sync(flags: .barrier) {
+            storage[key] = value
+        }
+    }
+
+    func get(valueFor key: Key) -> Value? {
+        queue.sync {
+            storage[key]
+        }
+    }
+
+    func remove(valueFor key: Key) {
+        queue.sync(flags: .barrier) {
+            storage.removeValue(forKey: key)
+        }
+    }
+}`
+      },
+      {
+        id: 'ttl',
+        title: 'Each item can expire independently',
+        prompt: 'Add per-item TTL without returning stale values.',
+        path: ['Baseline', 'Read-heavy', 'TTL'],
+        requirements: ['set accepts an optional TTL per entry.', 'Expired values must never be returned.'],
+        design: 'Store an <strong>Entry</strong> containing the value and a ContinuousClock expiration instant. Check expiration lazily in get; removal requires a barrier.',
+        complexity: 'get: O(1) average; lazy cleanup on access',
+        notes: '<strong>Why ContinuousClock:</strong> TTL measures elapsed time, so a monotonic clock is a better model than wall-clock Date. Re-check under the barrier before removing in case another writer replaced the key.',
+        code: `final class MemoryCache<Key: Hashable, Value> {
+    private struct Entry {
+        let value: Value
+        let expiresAt: ContinuousClock.Instant?
+    }
+
+    private var storage: [Key: Entry] = [:]
+    private let queue = DispatchQueue(
+        label: "memory.cache",
+        attributes: .concurrent
+    )
+    private let clock = ContinuousClock()
+
+    func set(key: Key, value: Value, ttl: Duration? = nil) {
+        let entry = Entry(
+            value: value,
+            expiresAt: ttl.map { clock.now.advanced(by: $0) }
+        )
+
+        queue.sync(flags: .barrier) {
+            storage[key] = entry
+        }
+    }
+
+    func get(valueFor key: Key) -> Value? {
+        let entry = queue.sync { storage[key] }
+        guard let entry else { return nil }
+
+        guard let expiresAt = entry.expiresAt else {
+            return entry.value
+        }
+
+        guard clock.now >= expiresAt else {
+            return entry.value
+        }
+
+        queue.sync(flags: .barrier) {
+            guard let current = storage[key],
+                  let currentExpiration = current.expiresAt,
+                  clock.now >= currentExpiration else { return }
+
+            storage.removeValue(forKey: key)
+        }
+
+        return nil
+    }
+
+    func remove(valueFor key: Key) {
+        queue.sync(flags: .barrier) {
+            storage.removeValue(forKey: key)
+        }
+    }
+}`
+      },
+      {
+        id: 'cleanup',
+        title: 'Expired items should not occupy memory indefinitely',
+        prompt: 'Keep lazy correctness and add proactive cleanup.',
+        path: ['Baseline', 'Read-heavy', 'TTL', 'Proactive cleanup'],
+        requirements: ['Expired entries should be removed even if nobody reads them again.', 'Do not create one sleeping task per cache entry.'],
+        design: 'Keep lazy expiration for correctness, then add <strong>one periodic cleanup trigger</strong>. Cleanup itself is a barrier mutation over the shared dictionary.',
+        complexity: 'Periodic cleanup: O(n) scan',
+        notes: '<strong>Separation of concerns:</strong> lazy expiration guarantees no stale value is returned; proactive cleanup manages memory. For a very large cache, the O(n) scan becomes the next optimization target.',
+        code: `final class MemoryCache<Key: Hashable, Value> {
+    private struct Entry {
+        let value: Value
+        let expiresAt: ContinuousClock.Instant?
+    }
+
+    private var storage: [Key: Entry] = [:]
+    private let queue = DispatchQueue(
+        label: "memory.cache",
+        attributes: .concurrent
+    )
+    private let cleanupQueue = DispatchQueue(label: "memory.cache.cleanup")
+    private var cleanupTimer: DispatchSourceTimer?
+    private let clock = ContinuousClock()
+
+    func startCleanup(every interval: TimeInterval) {
+        cleanupQueue.sync {
+            cleanupTimer?.cancel()
+
+            let timer = DispatchSource.makeTimerSource(queue: cleanupQueue)
+            timer.schedule(deadline: .now() + interval, repeating: interval)
+            timer.setEventHandler { [weak self] in
+                self?.removeExpiredEntries()
+            }
+            cleanupTimer = timer
+            timer.resume()
+        }
+    }
+
+    func stopCleanup() {
+        cleanupQueue.sync {
+            cleanupTimer?.cancel()
+            cleanupTimer = nil
+        }
+    }
+
+    private func removeExpiredEntries() {
+        let now = clock.now
+
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self else { return }
+
+            storage = storage.filter { _, entry in
+                guard let expiresAt = entry.expiresAt else { return true }
+                return expiresAt > now
+            }
+        }
+    }
+
+    // set/get/remove remain the same as the lazy-TTL variation.
+}`
+      },
+      {
+        id: 'capacity',
+        title: 'The cache has a hard capacity',
+        prompt: 'Reject new keys when the cache is full; overwrites remain allowed.',
+        path: ['Baseline', 'Read-heavy', 'Capacity'],
+        requirements: ['The cache may hold at most N keys.', 'Overwriting an existing key is allowed even when full.', 'A new key is rejected when capacity is reached.'],
+        design: 'Add a capacity invariant and enforce it inside the same exclusive write barrier so count-check + insertion is atomic with respect to other writers.',
+        complexity: 'set / get / remove: O(1) average',
+        notes: '<strong>Why this variation exists:</strong> capacity and eviction policy are separate decisions. First make the bounded invariant correct; then introduce LRU when the interviewer specifies what to evict.',
+        code: `final class MemoryCache<Key: Hashable, Value> {
+    private var storage: [Key: Value] = [:]
+    private let capacity: Int
+
+    private let queue = DispatchQueue(
+        label: "memory.cache",
+        attributes: .concurrent
+    )
+
+    init(capacity: Int) {
+        precondition(capacity > 0)
+        self.capacity = capacity
+    }
+
+    @discardableResult
+    func set(key: Key, value: Value) -> Bool {
+        queue.sync(flags: .barrier) {
+            if storage[key] != nil {
+                storage[key] = value
+                return true
+            }
+
+            guard storage.count < capacity else {
+                return false
+            }
+
+            storage[key] = value
+            return true
+        }
+    }
+
+    func get(valueFor key: Key) -> Value? {
+        queue.sync { storage[key] }
+    }
+
+    func remove(valueFor key: Key) {
+        queue.sync(flags: .barrier) {
+            storage.removeValue(forKey: key)
+        }
+    }
+}`
+      },
+      {
+        id: 'strict-lru',
+        title: 'Evict the least recently used item',
+        prompt: 'Keep get, set and eviction O(1) average with strict recency.',
+        path: ['Baseline', 'Capacity', 'Strict LRU'],
+        requirements: ['Successful get makes an item most-recently-used.', 'Updating an existing key also refreshes recency.', 'When full, evict the least-recently-used item.'],
+        design: 'Combine a <strong>Dictionary&lt;Key, Node&gt;</strong> with a <strong>doubly linked list</strong>. The dictionary locates a node in O(1); the list moves/removes it in O(1). Strict LRU makes successful get a mutation.',
+        complexity: 'get / set / eviction: O(1) average',
+        notes: '<strong>Read-heavy consequence:</strong> strict LRU turns every cache hit into metadata mutation. The barrier below is correct, but it serializes successful reads.',
+        code: `final class LRUCache<Key: Hashable, Value> {
+    private final class Node {
+        let key: Key
+        var value: Value
+        var prev: Node?
+        var next: Node?
+
+        init(key: Key, value: Value) {
+            self.key = key
+            self.value = value
+        }
+    }
+
+    private var nodes: [Key: Node] = [:]
+    private var head: Node?
+    private var tail: Node?
+    private let capacity: Int
+    private let queue = DispatchQueue(
+        label: "lru.cache",
+        attributes: .concurrent
+    )
+
+    init(capacity: Int) {
+        precondition(capacity > 0)
+        self.capacity = capacity
+    }
+
+    func get(_ key: Key) -> Value? {
+        queue.sync(flags: .barrier) {
+            guard let node = nodes[key] else { return nil }
+            moveToHead(node)
+            return node.value
+        }
+    }
+
+    func set(_ key: Key, value: Value) {
+        queue.sync(flags: .barrier) {
+            if let node = nodes[key] {
+                node.value = value
+                moveToHead(node)
+                return
+            }
+
+            let node = Node(key: key, value: value)
+            nodes[key] = node
+            addToHead(node)
+
+            if nodes.count > capacity {
+                evictTail()
+            }
+        }
+    }
+
+    private func addToHead(_ node: Node) {
+        node.prev = nil
+        node.next = head
+        head?.prev = node
+        head = node
+        if tail == nil { tail = node }
+    }
+
+    private func removeNode(_ node: Node) {
+        node.prev?.next = node.next
+        node.next?.prev = node.prev
+        if head === node { head = node.next }
+        if tail === node { tail = node.prev }
+        node.prev = nil
+        node.next = nil
+    }
+
+    private func moveToHead(_ node: Node) {
+        guard head !== node else { return }
+        removeNode(node)
+        addToHead(node)
+    }
+
+    private func evictTail() {
+        guard let tail else { return }
+        nodes.removeValue(forKey: tail.key)
+        removeNode(tail)
+    }
+}`
+      },
+      {
+        id: 'approx-lru',
+        title: 'Read throughput matters more than perfect LRU order',
+        prompt: 'Keep value lookup concurrent and allow slightly stale recency metadata.',
+        path: ['Baseline', 'Read-heavy', 'Capacity', 'Approximate LRU'],
+        requirements: ['A cache hit should not wait for LRU metadata mutation.', 'Slightly stale eviction ordering is acceptable.'],
+        design: 'Read the value concurrently, then enqueue the recency update as an <strong>asynchronous barrier</strong>. Re-check node identity before moving it because it may have been evicted or replaced.',
+        complexity: 'read lookup: O(1) average; recency update deferred',
+        notes: '<strong>Next bottleneck:</strong> one async barrier per hit can create a serialized backlog. For very high read rates, coalesce touched keys and apply them in batches.',
+        code: `func get(_ key: Key) -> Value? {
+    let result: (value: Value, node: Node)? = queue.sync {
+        guard let node = nodes[key] else { return nil }
+        return (node.value, node)
+    }
+
+    guard let result else { return nil }
+
+    queue.async(flags: .barrier) { [weak self, node = result.node] in
+        guard let self,
+              self.nodes[key] === node else {
+            return
+        }
+
+        self.moveToHead(node)
+    }
+
+    return result.value
+}
+
+// The rest of the Dictionary + doubly-linked-list implementation
+// remains the same as Strict LRU.`
+      }
+    ];
+
+    const rail = document.getElementById('variationRail');
+    const breadcrumb = document.getElementById('breadcrumb');
+    const requirementsChanged = document.getElementById('requirementsChanged');
+    const designChange = document.getElementById('designChange');
+    const solutionTitle = document.getElementById('solutionTitle');
+    const complexity = document.getElementById('complexity');
+    const solutionCode = document.getElementById('solutionCode');
+    const notes = document.getElementById('notes');
+    const workspace = document.getElementById('workspace');
+    const copyButton = document.getElementById('copyCode');
+    const revealButton = document.getElementById('revealSolution');
+    const modeButtons = [...document.querySelectorAll('[data-mode]')];
+
+    let selected = 'baseline';
+
+    variations.forEach((variation, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'variation-button';
+      button.dataset.variation = variation.id;
+      button.innerHTML = `<span class="variation-step">${index}</span><span class="variation-copy"><b></b><span></span></span><span class="variation-arrow">→</span>`;
+      button.querySelector('b').textContent = variation.title;
+      button.querySelector('.variation-copy span').textContent = variation.prompt;
+      button.addEventListener('click', () => selectVariation(variation.id));
+      rail.appendChild(button);
+    });
+
+    function selectVariation(id) {
+      selected = id;
+      const variation = variations.find(item => item.id === id);
+      if (!variation) return;
+
+      document.querySelectorAll('[data-variation]').forEach(button => {
+        button.classList.toggle('active', button.dataset.variation === id);
+      });
+
+      breadcrumb.replaceChildren();
+      variation.path.forEach((item, index) => {
+        const label = document.createElement(index === variation.path.length - 1 ? 'b' : 'span');
+        label.textContent = item;
+        breadcrumb.appendChild(label);
+        if (index < variation.path.length - 1) {
+          const separator = document.createElement('span');
+          separator.className = 'sep';
+          separator.textContent = '→';
+          breadcrumb.appendChild(separator);
+        }
+      });
+
+      requirementsChanged.replaceChildren();
+      variation.requirements.forEach(requirement => {
+        const li = document.createElement('li');
+        li.textContent = requirement;
+        requirementsChanged.appendChild(li);
+      });
+
+      designChange.innerHTML = variation.design;
+      solutionTitle.textContent = `${variation.title} — reference solution`;
+      complexity.textContent = variation.complexity;
+      solutionCode.textContent = variation.code;
+      notes.innerHTML = variation.notes;
+      workspace.classList.remove('revealed');
+    }
+
+    modeButtons.forEach(button => button.addEventListener('click', () => {
+      const practice = button.dataset.mode === 'practice';
+      modeButtons.forEach(item => item.classList.toggle('active', item === button));
+      workspace.classList.toggle('practice-mode', practice);
+      workspace.classList.remove('revealed');
+    }));
+
+    revealButton.addEventListener('click', () => workspace.classList.add('revealed'));
+
+    copyButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(solutionCode.textContent);
+        copyButton.textContent = 'Copied';
+        setTimeout(() => copyButton.textContent = 'Copy', 1200);
+      } catch {
+        copyButton.textContent = 'Select code';
+      }
+    });
+
+    selectVariation(selected);
+  </script>
+</body>
+</html>
