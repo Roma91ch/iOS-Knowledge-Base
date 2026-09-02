@@ -328,7 +328,7 @@
         requirements: ['The cache may hold at most N keys.', 'Overwriting an existing key is allowed even when full.', 'A new key is rejected when capacity is reached.'],
         design: 'Add a capacity invariant and enforce it inside the same exclusive write barrier so count-check + insertion is atomic with respect to other writers.',
         complexity: 'set / get / remove: O(1) average',
-        notes: '<strong>Why this variation exists:</strong> capacity and eviction policy are separate decisions. First make the bounded invariant correct; then introduce LRU when the interviewer specifies what to evict.',
+        notes: '<strong>Failure is meaningful here:</strong> set returns false when a new key cannot be inserted, so the caller should explicitly handle that result. Capacity validation uses a failable initializer rather than crashing.',
         code: `final class MemoryCache<Key: Hashable, Value> {
     private var storage: [Key: Value] = [:]
     private let capacity: Int
@@ -338,12 +338,14 @@
         attributes: .concurrent
     )
 
-    init(capacity: Int) {
-        precondition(capacity > 0)
+    init?(capacity: Int) {
+        guard capacity > 0 else {
+            return nil
+        }
+
         self.capacity = capacity
     }
 
-    @discardableResult
     func set(key: Key, value: Value) -> Bool {
         queue.sync(flags: .barrier) {
             if storage[key] != nil {
@@ -379,7 +381,7 @@
         requirements: ['Successful get makes an item most-recently-used.', 'Updating an existing key also refreshes recency.', 'When full, evict the least-recently-used item.'],
         design: 'Combine a <strong>Dictionary&lt;Key, Node&gt;</strong> with a <strong>doubly linked list</strong>. The dictionary locates a node in O(1); the list moves/removes it in O(1). Strict LRU makes successful get a mutation.',
         complexity: 'get / set / eviction: O(1) average',
-        notes: '<strong>Read-heavy consequence:</strong> strict LRU turns every cache hit into metadata mutation. The barrier below is correct, but it serializes successful reads.',
+        notes: '<strong>Read-heavy consequence:</strong> strict LRU turns every cache hit into metadata mutation. The barrier below is correct, but it serializes successful reads. set does not return Bool because reaching capacity triggers eviction rather than failure.',
         code: `final class LRUCache<Key: Hashable, Value> {
     private final class Node {
         let key: Key
@@ -402,8 +404,11 @@
         attributes: .concurrent
     )
 
-    init(capacity: Int) {
-        precondition(capacity > 0)
+    init?(capacity: Int) {
+        guard capacity > 0 else {
+            return nil
+        }
+
         self.capacity = capacity
     }
 
