@@ -357,15 +357,15 @@
         prompt: 'The eviction policy is now LRU. Keep get, set and eviction O(1) average.',
         path: ['Baseline', 'Hard capacity', 'Eviction policy: LRU'],
         requirements: ['Successful get makes an item most-recently-used.', 'Updating an existing key also refreshes recency.', 'When full, the cache evicts the least-recently-used item internally.'],
-        design: 'Combine a <strong>Dictionary&lt;Key, Node&gt;</strong> with a <strong>doubly linked list</strong>. The dictionary locates a node in O(1); the list moves/removes it in O(1). The cache owns eviction, so set remains a Void API.',
+        design: 'Combine a <strong>Dictionary&lt;Key, Node&gt;</strong> with a <strong>doubly linked list</strong>. The dictionary locates a node in O(1); the list moves/removes it in O(1). <strong>Most recently used (head)</strong> is the first node; <strong>least recently used (tail)</strong> is the last. Follow next from most recently used to least recently used; prev goes in the opposite direction. The first node has prev = nil; the last has next = nil. Successful get and set move an item to most recently used; eviction removes least recently used. The cache owns eviction, so set remains a Void API.',
         complexity: 'get / set / eviction: O(1) average',
         notes: '<strong>Abstraction boundary:</strong> callers only call set. They do not need to know whether an eviction happened. <strong>Read-heavy consequence:</strong> strict LRU turns every cache hit into metadata mutation, so successful reads are serialized by the barrier.',
         code: `final class LRUCache<Key: Hashable, Value> {
     private final class Node {
         let key: Key
         var value: Value
-        var prev: Node?
-        var next: Node?
+        var prev: Node? // Toward most recently used (head)
+        var next: Node? // Toward least recently used (tail)
 
         init(key: Key, value: Value) {
             self.key = key
@@ -374,8 +374,8 @@
     }
 
     private var nodes: [Key: Node] = [:]
-    private var head: Node?
-    private var tail: Node?
+    private var mostRecentlyUsed: Node? // Most recently used (head)
+    private var leastRecentlyUsed: Node? // Least recently used (tail)
     private let capacity: Int
     private let queue = DispatchQueue(
         label: "lru.cache",
@@ -393,7 +393,7 @@
     func get(_ key: Key) -> Value? {
         queue.sync(flags: .barrier) {
             guard let node = nodes[key] else { return nil }
-            moveToHead(node)
+            moveToMostRecentlyUsed(node)
             return node.value
         }
     }
@@ -402,47 +402,47 @@
         queue.sync(flags: .barrier) {
             if let node = nodes[key] {
                 node.value = value
-                moveToHead(node)
+                moveToMostRecentlyUsed(node)
                 return
             }
 
             if nodes.count == capacity {
-                evictTail()
+                evictLeastRecentlyUsed()
             }
 
             let node = Node(key: key, value: value)
             nodes[key] = node
-            addToHead(node)
+            addToMostRecentlyUsed(node)
         }
     }
 
-    private func addToHead(_ node: Node) {
+    private func addToMostRecentlyUsed(_ node: Node) {
         node.prev = nil
-        node.next = head
-        head?.prev = node
-        head = node
-        if tail == nil { tail = node }
+        node.next = mostRecentlyUsed
+        mostRecentlyUsed?.prev = node
+        mostRecentlyUsed = node
+        if leastRecentlyUsed == nil { leastRecentlyUsed = node }
     }
 
     private func removeNode(_ node: Node) {
         node.prev?.next = node.next
         node.next?.prev = node.prev
-        if head === node { head = node.next }
-        if tail === node { tail = node.prev }
+        if mostRecentlyUsed === node { mostRecentlyUsed = node.next }
+        if leastRecentlyUsed === node { leastRecentlyUsed = node.prev }
         node.prev = nil
         node.next = nil
     }
 
-    private func moveToHead(_ node: Node) {
-        guard head !== node else { return }
+    private func moveToMostRecentlyUsed(_ node: Node) {
+        guard mostRecentlyUsed !== node else { return }
         removeNode(node)
-        addToHead(node)
+        addToMostRecentlyUsed(node)
     }
 
-    private func evictTail() {
-        guard let tail else { return }
-        nodes.removeValue(forKey: tail.key)
-        removeNode(tail)
+    private func evictLeastRecentlyUsed() {
+        guard let leastRecentlyUsed else { return }
+        nodes.removeValue(forKey: leastRecentlyUsed.key)
+        removeNode(leastRecentlyUsed)
     }
 }`
       },
@@ -469,7 +469,7 @@
             return
         }
 
-        self.moveToHead(node)
+        self.moveToMostRecentlyUsed(node)
     }
 
     return result.value
