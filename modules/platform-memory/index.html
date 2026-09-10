@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <meta name="description" content="Stack vs heap, process virtual memory, Swift allocation, ARC, and interview-ready explanations.">
+  <title>Stack & Heap Memory — iOS Knowledge Base</title>
+  <style>
+    :root{color-scheme:dark;--bg:#08101d;--panel:rgba(15,25,43,.88);--solid:#111c2f;--text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;--green:#64dda9;--yellow:#ffdb78;--red:#ff8989;--violet:#a292ff;--code:#091321;--max:1040px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 8% -8%,rgba(43,183,243,.15),transparent 32%),radial-gradient(circle at 95% 8%,rgba(162,146,255,.12),transparent 34%),linear-gradient(180deg,var(--bg),#07101c 52%,#08121f);line-height:1.62}.shell{width:min(var(--max),calc(100% - 30px));margin:auto}.topbar{position:sticky;top:0;z-index:30;background:rgba(8,16,29,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}.topbar-inner{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand,.back,.pill{color:inherit;text-decoration:none}.brand b{display:block}.brand span{display:block;color:var(--muted);font-size:.76rem}main{padding:44px 0 90px}.hero,.card{border:1px solid var(--border);background:var(--panel);border-radius:30px;padding:30px;margin-bottom:22px}.hero h1{font-size:clamp(2.7rem,6vw,5rem);line-height:.98;letter-spacing:-.055em;margin:14px 0 18px}.hero p{font-size:1.06rem;max-width:820px}.eyebrow{color:var(--accent);font-size:.78rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.mini{border:1px solid var(--border);background:var(--solid);border-radius:22px;padding:20px}.mini h3{margin:0 0 8px}.good{border-color:color-mix(in srgb,var(--green) 40%,var(--border))}.warn{border-color:color-mix(in srgb,var(--yellow) 42%,var(--border))}.danger{border-color:color-mix(in srgb,var(--red) 42%,var(--border))}.violet{border-color:color-mix(in srgb,var(--violet) 42%,var(--border))}pre{overflow:auto;background:var(--code);padding:20px;border-radius:18px;border:1px solid var(--border);font-size:.9rem;white-space:pre-wrap}code{font-family:"SFMono-Regular",Consolas,monospace}.callout{padding:18px 20px;border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--solid));border-radius:14px}.callout.warn{border-left-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 7%,var(--solid))}.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.node{padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--solid);font-weight:750}.arrow{color:var(--muted)}.links{display:flex;gap:10px;flex-wrap:wrap}.pill{padding:9px 12px;border:1px solid var(--border);border-radius:999px;background:var(--solid)}table{width:100%;border-collapse:collapse}th,td{padding:13px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}th{color:var(--accent)}.quote{font-size:1.04rem;line-height:1.75}.short{font-size:1.12rem;font-weight:650}.tag{display:inline-flex;padding:5px 9px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.78rem;margin-right:6px}.diagram{padding:22px;border:1px solid var(--border);border-radius:22px;background:var(--code);overflow:auto}.memory-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-width:580px}.memory-column{border:1px solid var(--border);border-radius:18px;padding:18px;background:var(--solid)}.memory-column b{display:block;margin-bottom:10px}.block{padding:11px 12px;border:1px solid var(--border);border-radius:12px;margin-top:8px}.footer{color:var(--muted);padding:0 0 46px}.source{word-break:break-word}@media(max-width:760px){.grid{grid-template-columns:1fr}.hero,.card{padding:22px}.hero h1{font-size:clamp(2.4rem,12vw,4rem)}table{font-size:.9rem}.topbar-inner{align-items:flex-start;padding:12px 0}.back{white-space:nowrap}}
+  </style>
+</head>
+<body>
+<header class="topbar"><div class="shell topbar-inner"><a class="brand" href="./"><b>Stack &amp; Heap Memory</b><span>Platform · Swift runtime mental model</span></a><a class="back" href="../../">← Knowledge Base</a></div></header>
+<main class="shell">
+  <section class="hero">
+    <div class="eyebrow">Platform · Memory</div>
+    <h1>Stack, heap, and process memory.</h1>
+    <p class="muted">An interview-ready mental model for where Swift data lives, why lifetime matters, and why <code>struct = stack</code> / <code>class = heap</code> is useful only as a first approximation.</p>
+    <div><span class="tag">Virtual memory</span><span class="tag">Allocation</span><span class="tag">ARC</span><span class="tag">Swift</span></div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">01 · Core definition</div>
+    <h2>What are stack and heap?</h2>
+    <div class="callout quote"><b>The stack and the heap are two different regions of a process's virtual memory, used for different allocation and lifetime patterns.</b></div>
+    <p>A process does not directly reason in terms of raw physical RAM addresses. It works inside its own virtual address space. The operating system and hardware memory-management unit map virtual memory pages to physical memory as needed.</p>
+    <div class="flow"><div class="node">Process</div><div class="arrow">→</div><div class="node">Virtual address space</div><div class="arrow">→</div><div class="node">Stack / Heap / Code / other regions</div><div class="arrow">→</div><div class="node">OS + MMU</div><div class="arrow">→</div><div class="node">Physical memory</div></div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">02 · Stack</div>
+    <h2>Fast, scoped, call-oriented storage</h2>
+    <p><b>The stack</b> is mainly used for function call frames, parameters, return information, and short-lived local data. It follows a last-in, first-out discipline at the call-frame level.</p>
+    <div class="grid">
+      <div class="mini good"><h3>Why it is fast</h3><p>Allocation and deallocation are typically just adjustments of the stack pointer as functions are entered and exited. No general-purpose search for a free memory block is required.</p></div>
+      <div class="mini"><h3>Lifetime constraint</h3><p>Stack storage works best when the compiler can prove that the value does not need to outlive its scope or call frame.</p></div>
+    </div>
+    <pre><code>func calculate() -&gt; Int {
+    let a = 10
+    let b = 20
+    return a + b
+}
+
+// Conceptually, short-lived local state can live in the
+// current call frame and disappear when the function returns.</code></pre>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">03 · Heap</div>
+    <h2>Dynamic storage with flexible lifetime</h2>
+    <p><b>The heap</b> is used for dynamically allocated data whose lifetime is not tied to one function call. Heap allocations can be created at one point in time and released much later.</p>
+    <div class="grid">
+      <div class="mini violet"><h3>Why it is flexible</h3><p>Data can survive after the function that created it returns, and multiple references can point to the same allocation.</p></div>
+      <div class="mini warn"><h3>Why it costs more</h3><p>General-purpose heap allocation requires bookkeeping and synchronization. Reference-counted Swift objects also incur retain/release work.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">04 · Swift mental model</div>
+    <h2>Do not memorize “struct = stack, class = heap” as a rule</h2>
+    <div class="callout warn"><b>Interview trap:</b> a Swift <code>struct</code> is a value type, not a “stack type.” A <code>class</code> is a reference type, not merely a “heap type.” Semantics and storage location are related, but they are not the same concept.</div>
+    <p>Class instances generally require heap allocation because they have reference identity and can have lifetimes independent of a specific call frame. A local variable that references the class instance may itself be stored in a stack frame or register.</p>
+    <p>Value types can often be stored inline or on the stack, but that is not a universal guarantee. A struct can be stored as part of a heap-allocated object, inside heap-backed collection storage, captured by an escaping closure, or transformed by compiler optimizations.</p>
+    <pre><code>struct Point {
+    var x: Double
+    var y: Double
+}
+
+final class Box {
+    var point: Point
+
+    init(point: Point) {
+        self.point = point
+    }
+}
+
+let box = Box(point: Point(x: 1, y: 2))
+
+// Box has reference identity and its instance is heap allocated.
+// Point is still a value type, but here its stored value lives
+// inline as part of the Box object's storage.</code></pre>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">05 · ARC and lifetime</div>
+    <h2>Heap lifetime is not bound to lexical scope</h2>
+    <p>Swift manages ordinary class-instance lifetime using Automatic Reference Counting. Retains increase ownership and releases decrease it; when the strong reference count reaches zero, the object can be deallocated.</p>
+    <div class="diagram">
+      <div class="memory-layout">
+        <div class="memory-column"><b>Stack / current call frame</b><div class="block">reference → 0x1234</div><div class="block">local value</div><div class="block">return / frame state</div></div>
+        <div class="memory-column"><b>Heap</b><div class="block">0x1234 · class instance</div><div class="block">stored properties</div><div class="block">reference-counting metadata</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">06 · Full interview answer</div>
+    <h2>A strong 30–45 second answer</h2>
+    <div class="callout quote">
+      <p><b>“The stack and the heap are two different regions of a process's virtual memory, used for different allocation and lifetime patterns.</b></p>
+      <p><b>The stack</b> is mainly used for function call frames, parameters, return information, and short-lived local data. It follows a LIFO model, and allocation and deallocation are very fast because they happen automatically as functions are entered and exited.</p>
+      <p><b>The heap</b> is used for dynamically allocated data whose lifetime is not tied to a particular function call. Heap allocations can live for an arbitrary amount of time and require some form of lifetime management, such as ARC in Swift.</p>
+      <p>The operating system maps this virtual memory to physical memory such as RAM.”</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">07 · Swift follow-up</div>
+    <h2>If they ask about structs and classes</h2>
+    <div class="callout quote">“It's an oversimplification to say structs are always on the stack and classes are always on the heap. Classes generally require heap allocation because they have reference identity, while value types may be stored on the stack, inline inside another object, or optimized differently by the compiler.”</div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">08 · Short version</div>
+    <h2>15-second interview answer</h2>
+    <div class="callout short">“Stack and heap are regions of a process's virtual memory. The stack is optimized for short-lived, LIFO allocations such as function call frames, while the heap is used for dynamically allocated data with more flexible lifetimes.”</div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">09 · Apple references</div>
+    <h2>Primary sources</h2>
+    <div class="links">
+      <a class="pill source" href="https://developer.apple.com/videos/play/wwdc2016/416/" target="_blank" rel="noreferrer">Apple · Understanding Swift Performance (WWDC16) ↗</a>
+      <a class="pill source" href="https://developer.apple.com/library/archive/documentation/Performance/Conceptual/ManagingMemory/Articles/AboutMemory.html" target="_blank" rel="noreferrer">Apple · About the Virtual Memory System ↗</a>
+      <a class="pill source" href="https://developer.apple.com/videos/play/wwdc2024/10217/" target="_blank" rel="noreferrer">Apple · Explore Swift performance (WWDC24) ↗</a>
+    </div>
+    <p class="muted">The WWDC16 session is especially useful for the stack-vs-heap model in Swift: allocation begins around 3:30, with struct and class examples immediately after. The virtual-memory document explains how each process gets a logical address space that is mapped to hardware memory.</p>
+  </section>
+</main>
+<footer class="footer shell">iOS Knowledge Base · Platform / Memory</footer>
+</body>
+</html>
