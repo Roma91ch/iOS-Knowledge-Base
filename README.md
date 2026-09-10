@@ -5,6 +5,8 @@ A static, mobile-first personal learning hub for Swift, iOS and Mobile System De
 ## Included modules
 
 - `modules/swift-concurrency/` — Swift Concurrency Visual Explorer V2
+- `modules/gcd/` — Grand Central Dispatch execution guide
+- `modules/platform-memory/` — Platform memory guide: process virtual memory, stack vs heap, ARC, and Swift allocation mental models
 - `modules/combine/` — Combine Visual Explorer V3.4
 - `modules/mobile-system-design/` — Mobile System Design Playbook, Hotel / Reservation App case study
 - `modules/clean-architecture/` — Clean Architecture for Swift/iOS, including Domain/Data/Presentation boundaries, MVVM, SwiftUI Model–View and migration guidance
