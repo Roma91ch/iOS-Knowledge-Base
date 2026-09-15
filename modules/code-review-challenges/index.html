@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <meta name="description" content="Interactive iOS code review challenges for fast interview preparation across SwiftUI, UIKit, concurrency, memory, reliability, and accessibility.">
+  <title>Code Review Challenges — iOS Knowledge Base</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="../../" aria-label="iOS Knowledge Base — home">
+        <div class="brand-mark">CR</div>
+        <div class="brand-copy"><b>Code Review Challenges</b><span>spot → explain → fix</span></div>
+      </a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero review-hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Interview quick review</div>
+        <h1>Spot the issues.</h1>
+        <p>Read the clean snippet first. Name the risk, impact, and fix out loud—then reveal concise comments exactly where a reviewer should notice the problem.</p>
+        <div class="hero-meta">
+          <span class="pill">18 challenges</span>
+          <span class="pill">UIKit + SwiftUI</span>
+          <span class="pill">Concurrency + Memory</span>
+          <span class="pill">Inline explanations</span>
+        </div>
+      </div>
+      <div class="review-loop" aria-label="Suggested review loop">
+        <div class="loop-step"><span>01</span><b>Scan</b><small>What feels unsafe?</small></div>
+        <div class="loop-arrow" aria-hidden="true">→</div>
+        <div class="loop-step"><span>02</span><b>Explain</b><small>What can happen?</small></div>
+        <div class="loop-arrow" aria-hidden="true">→</div>
+        <div class="loop-step"><span>03</span><b>Reveal</b><small>Compare your review.</small></div>
+      </div>
+    </section>
+
+    <section class="review-controls" aria-labelledby="challenges-heading">
+      <div class="review-heading">
+        <div>
+          <div class="eyebrow">Challenge deck</div>
+          <h2 id="challenges-heading">Common interview traps</h2>
+        </div>
+        <p><span id="visibleCount">18</span> shown · answers start hidden</p>
+      </div>
+
+      <div class="challenge-toolbar">
+        <label class="challenge-search">
+          <span class="sr-only">Search challenges</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+          <input id="challengeSearch" type="search" placeholder="Search traps, APIs, or symptoms…" autocomplete="off">
+        </label>
+        <div class="challenge-filters" role="group" aria-label="Filter challenges by topic">
+          <button class="challenge-filter active" type="button" data-challenge-filter="all" aria-pressed="true">All</button>
+          <button class="challenge-filter" type="button" data-challenge-filter="swiftui" aria-pressed="false">SwiftUI</button>
+          <button class="challenge-filter" type="button" data-challenge-filter="uikit" aria-pressed="false">UIKit</button>
+          <button class="challenge-filter" type="button" data-challenge-filter="concurrency" aria-pressed="false">Concurrency</button>
+          <button class="challenge-filter" type="button" data-challenge-filter="memory" aria-pressed="false">Memory</button>
+          <button class="challenge-filter" type="button" data-challenge-filter="reliability" aria-pressed="false">Reliability</button>
+          <button class="challenge-filter" type="button" data-challenge-filter="accessibility" aria-pressed="false">Accessibility</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="challenge-grid" id="challengeGrid" aria-label="Code review challenges"></section>
+    <div class="challenge-empty" id="challengeEmpty" hidden>No matching challenge. Try another phrase or topic.</div>
+    <p class="sr-only" id="challengeStatus" aria-live="polite"></p>
+
+    <noscript>
+      <div class="challenge-empty">This interactive deck needs JavaScript to reveal inline review comments.</div>
+    </noscript>
+  </main>
+
+  <a class="home-fab" href="../../">← Knowledge Base</a>
+  <footer class="footer shell">Code Review Challenges · iOS Knowledge Base</footer>
+
+  <script src="../../assets/app.js"></script>
+  <script src="challenges.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

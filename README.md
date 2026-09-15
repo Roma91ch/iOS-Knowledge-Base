@@ -10,6 +10,7 @@ A static, mobile-first personal learning hub for Swift, iOS and Mobile System De
 - `modules/combine/` — Combine Visual Explorer V3.4
 - `modules/mobile-system-design/` — Mobile System Design Playbook, Hotel / Reservation App case study
 - `modules/clean-architecture/` — Clean Architecture for Swift/iOS, including Domain/Data/Presentation boundaries, MVVM, SwiftUI Model–View and migration guidance
+- `modules/code-review-challenges/` — interactive interview review deck with 18 SwiftUI, UIKit, concurrency, memory, reliability, and accessibility traps
 
 ## Run locally
 
