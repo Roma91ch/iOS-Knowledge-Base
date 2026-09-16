@@ -34,6 +34,19 @@ struct ProfileView: View {
     var body: some View {
         Text(store.name)
     }
+}`,
+    fixedCode: `final class ProfileStore: ObservableObject {
+    @Published var name = ""
+
+    init() { loadProfile() }
+}
+
+struct ProfileView: View {
+    @StateObject private var store = ProfileStore()
+
+    var body: some View {
+        Text(store.name)
+    }
 }`
   },
   {
@@ -55,6 +68,13 @@ struct ProfileView: View {
     // initialize it. Later parent updates are not a state-sync mechanism.
     // Fix: use let for read-only input, or @Binding if the row edits it.
     @State var count: Int
+
+    var body: some View {
+        Text("Count: \\(count)")
+    }
+}`,
+    fixedCode: `struct CounterRow: View {
+    let count: Int
 
     var body: some View {
         Text("Count: \\(count)")
@@ -81,6 +101,18 @@ struct ProfileView: View {
         // cannot associate a new row with its previous state or animations.
         // Fix: keep a stable ID in the model and iterate the model directly.
         ForEach(items.map { (UUID(), $0) }, id: \\.0) { _, item in
+            ItemRow(item: item)
+        }
+    }
+}`,
+    fixedCode: `struct Item: Identifiable {
+    let id: UUID
+    let title: String
+}
+
+var body: some View {
+    List {
+        ForEach(items) { item in
             ItemRow(item: item)
         }
     }
@@ -115,6 +147,16 @@ struct ProfileView: View {
                 model.loadFeed()
             }
     }
+}`,
+    fixedCode: `struct FeedView: View {
+    @StateObject private var model = FeedModel()
+
+    var body: some View {
+        FeedList(items: model.items)
+            .task {
+                await model.loadFeedIfNeeded()
+            }
+    }
 }`
   },
   {
@@ -138,6 +180,22 @@ struct ProfileView: View {
     Task {
         let matches = try await api.search(query)
         results = matches
+    }
+}`,
+    fixedCode: `private var searchTask: Task<Void, Never>?
+
+func search(_ query: String) {
+    searchTask?.cancel()
+    searchTask = Task {
+        do {
+            let matches = try await api.search(query)
+            try Task.checkCancellation()
+            results = matches
+        } catch is CancellationError {
+            return
+        } catch {
+            searchError = error
+        }
     }
 }`
   },
@@ -171,6 +229,14 @@ final class LibraryModel: ObservableObject {
             self.books = books
         }
     }
+}`,
+    fixedCode: `@MainActor
+final class LibraryModel: ObservableObject {
+    @Published private(set) var books: [Book] = []
+
+    func refresh() async throws {
+        books = try await API.fetchBooks()
+    }
 }`
   },
   {
@@ -201,6 +267,40 @@ final class LibraryModel: ObservableObject {
             avatarView.image = try await imageLoader.image(for: user.avatarURL)
         }
     }
+}`,
+    fixedCode: `@MainActor
+final class AvatarCell: UITableViewCell {
+    private var imageTask: Task<Void, Never>?
+    private var representedUserID: User.ID?
+
+    func configure(with user: User) {
+        imageTask?.cancel()
+        representedUserID = user.id
+        nameLabel.text = user.name
+        avatarView.image = nil
+
+        imageTask = Task { [weak self] in
+            guard let imageLoader = self?.imageLoader else { return }
+
+            do {
+                let image = try await imageLoader.image(for: user.avatarURL)
+                try Task.checkCancellation()
+                guard let self, representedUserID == user.id else { return }
+                avatarView.image = image
+            } catch is CancellationError {
+                return
+            } catch {
+                self?.avatarView.image = nil
+            }
+        }
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageTask?.cancel()
+        representedUserID = nil
+        avatarView.image = nil
+    }
 }`
   },
   {
@@ -230,6 +330,16 @@ final class LibraryModel: ObservableObject {
         // Fix: capture [weak self] and stop/invalidate observation when appropriate.
         observation = model.observe(\\.title) { _, change in
             self.title = change.newValue
+        }
+    }
+}`,
+    fixedCode: `final class DetailViewController: UIViewController {
+    private let model: DetailModel
+    private var observation: NSKeyValueObservation?
+
+    func startObserving() {
+        observation = model.observe(\\.title) { [weak self] _, change in
+            self?.title = change.newValue
         }
     }
 }`
@@ -266,6 +376,27 @@ final class LibraryModel: ObservableObject {
     ) { [weak self] _ in
         self?.reload()
     }
+}`,
+    fixedCode: `final class LibraryViewController: UIViewController {
+    private var libraryObserver: NSObjectProtocol?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        libraryObserver = NotificationCenter.default.addObserver(
+            forName: .libraryChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.reload()
+        }
+    }
+
+    deinit {
+        if let libraryObserver {
+            NotificationCenter.default.removeObserver(libraryObserver)
+        }
+    }
 }`
   },
   {
@@ -295,6 +426,16 @@ NSLayoutConstraint.activate([
     tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
     tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
     tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+])`,
+    fixedCode: `view.addSubview(tableView)
+tableView.translatesAutoresizingMaskIntoConstraints = false
+
+let safeArea = view.safeAreaLayoutGuide
+NSLayoutConstraint.activate([
+    tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
+    tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
+    tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
+    tableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
 ])`
   },
   {
@@ -321,7 +462,10 @@ titleLabel.numberOfLines = 1
 
 NSLayoutConstraint.activate([
     titleLabel.heightAnchor.constraint(equalToConstant: 20)
-])`
+])`,
+    fixedCode: `titleLabel.font = .preferredFont(forTextStyle: .headline)
+titleLabel.adjustsFontForContentSizeCategory = true
+titleLabel.numberOfLines = 0`
   },
   {
     id: 'uikit-diffable-identity',
@@ -348,6 +492,15 @@ dataSource.apply(snapshot)`,
 var snapshot = NSDiffableDataSourceSnapshot<Section, Row>()
 snapshot.appendSections([.main])
 snapshot.appendItems(rows)
+dataSource.apply(snapshot)`,
+    fixedCode: `struct Row: Identifiable {
+    let id: UUID
+    var title: String
+}
+
+var snapshot = NSDiffableDataSourceSnapshot<Section, Row.ID>()
+snapshot.appendSections([.main])
+snapshot.appendItems(rows.map(\\.id))
 dataSource.apply(snapshot)`
   },
   {
@@ -380,6 +533,21 @@ dataSource.apply(snapshot)`
         try await ledger.recordWithdrawal(amount)
         balance -= amount
     }
+}`,
+    fixedCode: `actor BankAccount {
+    private var balance = 100
+
+    func withdraw(_ amount: Int) async throws {
+        guard balance >= amount else { throw Error.insufficientFunds }
+
+        balance -= amount
+        do {
+            try await ledger.recordWithdrawal(amount)
+        } catch {
+            balance += amount
+            throw error
+        }
+    }
 }`
   },
   {
@@ -408,7 +576,20 @@ let counter = Counter()
 // This is a data race; an unchecked Sendable conformance would only hide it.
 // Fix: isolate the counter in an actor or use an appropriate lock/atomic type.
 Task.detached { counter.value += 1 }
-Task.detached { counter.value += 1 }`
+Task.detached { counter.value += 1 }`,
+    fixedCode: `actor Counter {
+    private(set) var value = 0
+
+    func increment() {
+        value += 1
+    }
+}
+
+let counter = Counter()
+
+async let first: Void = counter.increment()
+async let second: Void = counter.increment()
+_ = await (first, second)`
   },
   {
     id: 'reliability-swallowed-error',
@@ -430,6 +611,20 @@ Task.detached { counter.value += 1 }`
     let response = try? await api.fetchLibrary()
     books = response?.books ?? []
     isLoading = false
+}`,
+    fixedCode: `func loadLibrary() async {
+    isLoading = true
+    defer { isLoading = false }
+
+    do {
+        let response = try await api.fetchLibrary()
+        books = response.books
+        loadError = nil
+    } catch is CancellationError {
+        return
+    } catch {
+        loadError = error
+    }
 }`
   },
   {
@@ -454,6 +649,24 @@ Task.detached { counter.value += 1 }`
     // Fix: use do/catch (prefer async networking for remote URLs) and report state.
     let data = try! Data(contentsOf: url)
     documents.append(parse(data))
+}`,
+    fixedCode: `enum ImportError: Error {
+    case invalidURL
+    case invalidResponse
+}
+
+func importDocument(from input: String) async throws {
+    guard let url = URL(string: input) else {
+        throw ImportError.invalidURL
+    }
+
+    let (data, response) = try await URLSession.shared.data(from: url)
+    guard let http = response as? HTTPURLResponse,
+          (200..<300).contains(http.statusCode) else {
+        throw ImportError.invalidResponse
+    }
+
+    documents.append(parse(data))
 }`
   },
   {
@@ -477,7 +690,14 @@ Image(systemName: "trash")
     .frame(width: 24, height: 24)
     .onTapGesture {
         deleteItem()
-    }`
+    }`,
+    fixedCode: `Button(action: deleteItem) {
+    Image(systemName: "trash")
+        .frame(width: 24, height: 24)
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
+}
+.accessibilityLabel("Delete item")`
   },
   {
     id: 'concurrency-task-owner-cycle',
@@ -515,6 +735,24 @@ Image(systemName: "trash")
                 self.latestStatus = status
             }
         }
+    }
+}`,
+    fixedCode: `final class StatusMonitor {
+    private var task: Task<Void, Never>?
+
+    func start() {
+        let stream = statusStream
+
+        task = Task { [weak self] in
+            for await status in stream {
+                guard !Task.isCancelled else { break }
+                self?.latestStatus = status
+            }
+        }
+    }
+
+    deinit {
+        task?.cancel()
     }
 }`
   }

@@ -28,15 +28,55 @@
     return element;
   }
 
-  function renderCode(codeElement, source, annotated) {
+  function changedLineIndexes(originalSource, nextSource) {
+    const originalLines = originalSource.split('\n');
+    const nextLines = nextSource.split('\n');
+    const rows = originalLines.length + 1;
+    const columns = nextLines.length + 1;
+    const table = Array.from({ length: rows }, () => new Uint16Array(columns));
+
+    for (let row = 1; row < rows; row += 1) {
+      for (let column = 1; column < columns; column += 1) {
+        table[row][column] = originalLines[row - 1] === nextLines[column - 1]
+          ? table[row - 1][column - 1] + 1
+          : Math.max(table[row - 1][column], table[row][column - 1]);
+      }
+    }
+
+    const unchanged = new Set();
+    let row = originalLines.length;
+    let column = nextLines.length;
+
+    while (row > 0 && column > 0) {
+      if (originalLines[row - 1] === nextLines[column - 1]) {
+        unchanged.add(column - 1);
+        row -= 1;
+        column -= 1;
+      } else if (table[row - 1][column] >= table[row][column - 1]) {
+        row -= 1;
+      } else {
+        column -= 1;
+      }
+    }
+
+    return new Set(nextLines.map((_, index) => index).filter(index => !unchanged.has(index)));
+  }
+
+  function renderCode(codeElement, source, mode, originalSource) {
     codeElement.replaceChildren();
     codeElement.classList.add('swift-code');
     codeElement.setAttribute('data-manual-swift-highlight', '');
+    const fixedLines = mode === 'fix'
+      ? changedLineIndexes(originalSource, source)
+      : new Set();
 
-    source.split('\n').forEach(sourceLine => {
+    source.split('\n').forEach((sourceLine, index) => {
       const line = makeElement('span', 'code-line');
-      if (annotated && sourceLine.trimStart().startsWith('//')) {
+      if (mode === 'problem' && sourceLine.trimStart().startsWith('//')) {
         line.classList.add('comment-line');
+      }
+      if (mode === 'fix' && fixedLines.has(index) && sourceLine.trim()) {
+        line.classList.add('fix-line');
       }
       if (globalThis.SWIFT_SYNTAX) {
         globalThis.SWIFT_SYNTAX.appendTokens(line, sourceLine || ' ');
@@ -67,7 +107,7 @@
   challenges.forEach((challenge, index) => {
     const card = makeElement('article', 'challenge-card');
     card.dataset.category = challenge.category;
-    card.dataset.annotated = 'false';
+    card.dataset.mode = 'original';
     card.style.setProperty('--challenge-accent', accentByCategory[challenge.category] || 'var(--accent)');
     card.setAttribute('aria-labelledby', `${challenge.id}-title`);
 
@@ -86,7 +126,8 @@
 
     const codeFrame = makeElement('div', 'challenge-code-frame');
     const codeToolbar = makeElement('div', 'challenge-code-toolbar');
-    codeToolbar.appendChild(makeElement('span', '', 'Swift'));
+    const codeModeLabel = makeElement('span', 'code-mode-label', 'Swift · Original');
+    codeToolbar.appendChild(codeModeLabel);
     const copyButton = makeElement('button', 'copy-challenge', 'Copy');
     copyButton.type = 'button';
     copyButton.setAttribute('aria-label', `Copy code for ${challenge.title}`);
@@ -95,35 +136,62 @@
     const pre = document.createElement('pre');
     pre.setAttribute('aria-label', `${challenge.title} code sample`);
     const code = document.createElement('code');
-    renderCode(code, challenge.cleanCode, false);
+    renderCode(code, challenge.cleanCode, 'original', challenge.cleanCode);
     pre.appendChild(code);
     codeFrame.append(codeToolbar, pre);
 
     const actions = makeElement('div', 'challenge-actions');
-    const answerState = makeElement('span', 'answer-state', 'Review comments hidden');
-    const toggle = makeElement('button', 'comment-toggle', 'Show inline comments');
-    toggle.type = 'button';
-    toggle.setAttribute('aria-pressed', 'false');
-    toggle.setAttribute('aria-controls', `${challenge.id}-code`);
-    code.id = `${challenge.id}-code`;
-    actions.append(answerState, toggle);
-
-    let annotated = false;
-    toggle.addEventListener('click', () => {
-      annotated = !annotated;
-      card.dataset.annotated = String(annotated);
-      toggle.setAttribute('aria-pressed', String(annotated));
-      toggle.textContent = annotated ? 'Hide inline comments' : 'Show inline comments';
-      answerState.textContent = annotated ? 'Review comments visible' : 'Review comments hidden';
-      renderCode(code, annotated ? challenge.annotatedCode : challenge.cleanCode, annotated);
-      status.textContent = annotated
-        ? `Inline comments shown for ${challenge.title}.`
-        : `Inline comments hidden for ${challenge.title}.`;
+    const answerState = makeElement('span', 'answer-state', 'Answer hidden');
+    const answerButtons = makeElement('div', 'answer-buttons');
+    const problemButton = makeElement('button', 'answer-toggle problem-toggle', 'Show problem');
+    const fixButton = makeElement('button', 'answer-toggle fix-toggle', 'Show fix');
+    [problemButton, fixButton].forEach(button => {
+      button.type = 'button';
+      button.setAttribute('aria-pressed', 'false');
+      button.setAttribute('aria-controls', `${challenge.id}-code`);
     });
+    code.id = `${challenge.id}-code`;
+    answerButtons.append(problemButton, fixButton);
+    actions.append(answerState, answerButtons);
+
+    let mode = 'original';
+    const sourceForMode = () => ({
+      original: challenge.cleanCode,
+      problem: challenge.annotatedCode,
+      fix: challenge.fixedCode
+    })[mode];
+
+    const setMode = nextMode => {
+      mode = mode === nextMode ? 'original' : nextMode;
+      card.dataset.mode = mode;
+      problemButton.setAttribute('aria-pressed', String(mode === 'problem'));
+      fixButton.setAttribute('aria-pressed', String(mode === 'fix'));
+      problemButton.textContent = mode === 'problem' ? 'Hide problem' : 'Show problem';
+      fixButton.textContent = mode === 'fix' ? 'Hide fix' : 'Show fix';
+      answerState.textContent = ({
+        original: 'Answer hidden',
+        problem: 'Problem explanation visible',
+        fix: 'Fix implementation visible'
+      })[mode];
+      codeModeLabel.textContent = ({
+        original: 'Swift · Original',
+        problem: 'Swift · Problem',
+        fix: 'Swift · Fix'
+      })[mode];
+      renderCode(code, sourceForMode(), mode, challenge.cleanCode);
+      status.textContent = ({
+        original: `Answer hidden for ${challenge.title}.`,
+        problem: `Problem explanation shown for ${challenge.title}.`,
+        fix: `Fix implementation shown for ${challenge.title}.`
+      })[mode];
+    };
+
+    problemButton.addEventListener('click', () => setMode('problem'));
+    fixButton.addEventListener('click', () => setMode('fix'));
 
     copyButton.addEventListener('click', async () => {
       try {
-        await copyText(annotated ? challenge.annotatedCode : challenge.cleanCode);
+        await copyText(sourceForMode());
         copyButton.textContent = 'Copied';
         status.textContent = `Code copied for ${challenge.title}.`;
       } catch {
@@ -146,7 +214,8 @@
         challenge.prompt,
         challenge.categoryLabel,
         challenge.cleanCode,
-        challenge.annotatedCode
+        challenge.annotatedCode,
+        challenge.fixedCode
       ].join(' ').toLocaleLowerCase()
     });
   });

@@ -32,17 +32,21 @@ test('covers every requested review area', () => {
   }
 });
 
-test('every clean snippet has a distinct inline-comment version', () => {
+test('every challenge has distinct problem and fix implementations', () => {
   for (const challenge of challenges) {
     assert.ok(challenge.title);
     assert.ok(challenge.context);
     assert.ok(challenge.prompt);
     assert.ok(challenge.cleanCode);
     assert.ok(challenge.annotatedCode);
+    assert.ok(challenge.fixedCode);
     assert.notEqual(challenge.cleanCode, challenge.annotatedCode, challenge.id);
+    assert.notEqual(challenge.cleanCode, challenge.fixedCode, challenge.id);
+    assert.notEqual(challenge.annotatedCode, challenge.fixedCode, challenge.id);
     assert.doesNotMatch(challenge.cleanCode, /\/\/ ⚠️|\/\/ Fix:/, challenge.id);
     assert.match(challenge.annotatedCode, /\/\/ ⚠️/, challenge.id);
     assert.match(challenge.annotatedCode, /\/\/ Fix:/, challenge.id);
+    assert.doesNotMatch(challenge.fixedCode, /\/\/ ⚠️|\/\/ Fix:/, challenge.id);
   }
 });
 
@@ -85,13 +89,19 @@ test('landing page and module page are wired together with relative paths', asyn
 });
 
 test('the interaction exposes accessible toggle and filter state', async () => {
-  const [modulePage, appSource] = await Promise.all([
+  const [modulePage, appSource, styles] = await Promise.all([
     readFile(new URL('../modules/code-review-challenges/index.html', import.meta.url), 'utf8'),
-    readFile(new URL('../modules/code-review-challenges/app.js', import.meta.url), 'utf8')
+    readFile(new URL('../modules/code-review-challenges/app.js', import.meta.url), 'utf8'),
+    readFile(new URL('../modules/code-review-challenges/styles.css', import.meta.url), 'utf8')
   ]);
 
   assert.match(modulePage, /aria-live="polite"/);
   assert.match(modulePage, /role="group" aria-label="Filter challenges by topic"/);
   assert.match(appSource, /setAttribute\('aria-pressed'/);
-  assert.match(appSource, /textContent = annotated \? 'Hide inline comments' : 'Show inline comments'/);
+  assert.match(appSource, /'Show problem'/);
+  assert.match(appSource, /'Show fix'/);
+  assert.match(appSource, /changedLineIndexes/);
+  assert.match(appSource, /line\.classList\.add\('fix-line'\)/);
+  assert.match(styles, /\.code-line\.fix-line/);
+  assert.match(styles, /#16854d/);
 });
