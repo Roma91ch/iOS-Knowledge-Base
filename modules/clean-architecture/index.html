@@ -15,6 +15,7 @@
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
   </style>
   <link rel="stylesheet" href="../../assets/mobile-header-v2.css">
+  <link rel="stylesheet" href="../../assets/swift-syntax.css">
 </head>
 <body>
   <input class="state" type="radio" name="mode" id="mode-learn" checked>
@@ -176,7 +177,7 @@ struct APIProductRepository: ProductRepository {
           <p>Large global folders named Views, ViewModels and Services become hard to navigate. Feature boundaries keep related code close while preserving dependency rules.</p>
         </div>
         <div class="scene">
-          <pre class="tree"><code>App/
+          <pre class="tree" data-no-swift-highlight><code>App/
 ├── Composition/
 │   ├── AppContainer.swift
 │   └── AppRoot.swift
@@ -497,5 +498,6 @@ func productsAreSortedByName() async throws {
 
     <a class="home-fab" href="../../index.html">← Library</a>
   </div>
+  <script src="../../assets/swift-syntax.js"></script>
 </body>
 </html>

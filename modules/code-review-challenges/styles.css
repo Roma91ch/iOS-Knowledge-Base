@@ -316,6 +316,11 @@
   overflow-wrap: anywhere;
 }
 
+.code-line.comment-line .swift-token.comment {
+  color: #ffdf87;
+  font-style: normal;
+}
+
 .challenge-card[data-annotated="true"] .challenge-code-frame {
   border-color: color-mix(in srgb, var(--yellow) 40%, var(--border));
 }
@@ -415,6 +420,10 @@
 
 :root[data-theme="light"] .code-line.comment-line {
   background: #fff5cf;
+  color: #725000;
+}
+
+:root[data-theme="light"] .code-line.comment-line .swift-token.comment {
   color: #725000;
 }
 

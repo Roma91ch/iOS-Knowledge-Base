@@ -30,11 +30,18 @@
 
   function renderCode(codeElement, source, annotated) {
     codeElement.replaceChildren();
+    codeElement.classList.add('swift-code');
+    codeElement.setAttribute('data-manual-swift-highlight', '');
 
     source.split('\n').forEach(sourceLine => {
-      const line = makeElement('span', 'code-line', sourceLine || ' ');
+      const line = makeElement('span', 'code-line');
       if (annotated && sourceLine.trimStart().startsWith('//')) {
         line.classList.add('comment-line');
+      }
+      if (globalThis.SWIFT_SYNTAX) {
+        globalThis.SWIFT_SYNTAX.appendTokens(line, sourceLine || ' ');
+      } else {
+        line.textContent = sourceLine || ' ';
       }
       codeElement.appendChild(line);
     });

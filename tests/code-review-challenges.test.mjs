@@ -11,6 +11,14 @@ const context = vm.createContext({ globalThis: {} });
 vm.runInContext(dataSource, context);
 const challenges = context.globalThis.CODE_REVIEW_CHALLENGES;
 
+const syntaxSource = await readFile(
+  new URL('../assets/swift-syntax.js', import.meta.url),
+  'utf8'
+);
+const syntaxContext = vm.createContext({ globalThis: {} });
+vm.runInContext(syntaxSource, syntaxContext);
+const swiftSyntax = syntaxContext.globalThis.SWIFT_SYNTAX;
+
 test('ships an interview-sized challenge deck with unique stable IDs', () => {
   assert.ok(Array.isArray(challenges));
   assert.ok(challenges.length >= 15 && challenges.length <= 20);
@@ -48,6 +56,20 @@ test('Swift interpolation and key paths survive JavaScript string evaluation', (
   assert.match(observationChallenge.cleanCode, /\\\.title/);
 });
 
+test('Swift syntax tokenizer preserves source and identifies Xcode-like token groups', () => {
+  const source = `@MainActor\nfinal class Store {\n    let title: String = "Swift"\n    func load() async throws {\n        // Keep UI state isolated\n        try await API.fetch(page: 2)\n    }\n}`;
+  const tokens = swiftSyntax.tokenize(source);
+
+  assert.equal(tokens.map(token => token.text).join(''), source);
+  assert.ok(tokens.some(token => token.kind === 'attribute' && token.text === '@MainActor'));
+  assert.ok(tokens.some(token => token.kind === 'keyword' && token.text === 'class'));
+  assert.ok(tokens.some(token => token.kind === 'type' && token.text === 'Store'));
+  assert.ok(tokens.some(token => token.kind === 'function' && token.text === 'load'));
+  assert.ok(tokens.some(token => token.kind === 'string' && token.text === '"Swift"'));
+  assert.ok(tokens.some(token => token.kind === 'comment'));
+  assert.ok(tokens.some(token => token.kind === 'number' && token.text === '2'));
+});
+
 test('landing page and module page are wired together with relative paths', async () => {
   const [landing, modulePage] = await Promise.all([
     readFile(new URL('../index.html', import.meta.url), 'utf8'),
@@ -57,6 +79,8 @@ test('landing page and module page are wired together with relative paths', asyn
   assert.match(landing, /href="modules\/code-review-challenges\/"/);
   assert.match(modulePage, /src="\.\.\/\.\.\/assets\/app\.js"/);
   assert.match(modulePage, /src="challenges\.js"/);
+  assert.match(modulePage, /src="\.\.\/\.\.\/assets\/swift-syntax\.js"/);
+  assert.match(modulePage, /href="\.\.\/\.\.\/assets\/swift-syntax\.css"/);
   assert.match(modulePage, /src="app\.js"/);
 });
 

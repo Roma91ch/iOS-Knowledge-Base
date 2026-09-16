@@ -1,0 +1,51 @@
+/* Lightweight Xcode-inspired Swift syntax palette for full code samples. */
+.swift-code {
+  --swift-plain: #e8f2ff;
+  --swift-comment: #7f8c98;
+  --swift-keyword: #ff7ab2;
+  --swift-type: #5dd8ff;
+  --swift-string: #ff8170;
+  --swift-number: #d9c97c;
+  --swift-attribute: #dabaFF;
+  --swift-function: #67b7a4;
+  --swift-member: #b281eb;
+  --swift-directive: #fd8f3f;
+  color: var(--swift-plain);
+}
+
+:root[data-theme="light"] .swift-code,
+#theme:checked ~ .app .swift-code {
+  --swift-plain: #172235;
+  --swift-comment: #5d6c79;
+  --swift-keyword: #9b2393;
+  --swift-type: #0b4f79;
+  --swift-string: #c41a16;
+  --swift-number: #1c00cf;
+  --swift-attribute: #703daa;
+  --swift-function: #326d74;
+  --swift-member: #6c36a9;
+  --swift-directive: #78492a;
+}
+
+.swift-token.comment { color: var(--swift-comment); font-style: italic; }
+.swift-token.keyword { color: var(--swift-keyword); font-weight: 650; }
+.swift-token.type { color: var(--swift-type); }
+.swift-token.string { color: var(--swift-string); }
+.swift-token.number { color: var(--swift-number); }
+.swift-token.attribute { color: var(--swift-attribute); }
+.swift-token.function { color: var(--swift-function); }
+.swift-token.member { color: var(--swift-member); }
+.swift-token.directive { color: var(--swift-directive); }
+
+@media (prefers-contrast: more) {
+  .swift-token.keyword,
+  .swift-token.type,
+  .swift-token.string,
+  .swift-token.number,
+  .swift-token.attribute,
+  .swift-token.function,
+  .swift-token.member,
+  .swift-token.directive {
+    font-weight: 700;
+  }
+}

@@ -58,6 +58,7 @@
     @media(max-width:520px){.shell{width:min(100% - 22px,var(--max))}.compare-grid{grid-template-columns:1fr 1fr;gap:10px}.compare-card{padding:16px}.compare-card strong{font-size:1.7rem}.doubling-row{grid-template-columns:1fr}.n-badge{justify-self:start}.halving-line{grid-template-columns:72px 1fr auto;gap:8px}.section-head{margin-top:46px}.quiz{padding:18px}.quiz pre{padding:14px;font-size:12px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
   </style>
+  <link rel="stylesheet" href="../../assets/swift-syntax.css">
 </head>
 <body>
   <header class="topbar">
@@ -206,5 +207,6 @@ while n > 1 {
       buttons.forEach(button=>button.addEventListener('click',()=>{buttons.forEach(b=>b.classList.remove('correct','wrong'));const ok=button.textContent.trim()===quiz.dataset.answer;button.classList.add(ok?'correct':'wrong');feedback.className='quiz-feedback '+(ok?'ok':'no');feedback.textContent=translations[lang][ok?'quizCorrect':'quizWrong']}));
     })();
   </script>
+  <script src="../../assets/swift-syntax.js"></script>
 </body>
 </html>
