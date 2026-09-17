@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#08101d">
+  <meta name="description" content="Two-day coding interview fast track: HashMap/Set, Two Pointers, Sliding Window and Heap for Senior iOS interview preparation.">
+  <title>Coding Interview Fast Track — iOS Knowledge Base</title>
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg:#08101d;--bg2:#07101c;--panel:rgba(15,25,43,.9);--solid:#111c2f;
+      --text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);
+      --accent:#75d5ff;--green:#64dda9;--yellow:#ffdb78;--violet:#a292ff;--red:#ff8989;
+      --code:#091321;--max:1120px;
+    }
+    :root[data-theme="light"]{
+      color-scheme:light;
+      --bg:#f4f7fb;--bg2:#eef3f9;--panel:rgba(255,255,255,.92);--solid:#f8fafc;
+      --text:#142033;--muted:#667085;--border:rgba(40,55,80,.14);
+      --accent:#0077b6;--green:#16875f;--yellow:#9a6b00;--violet:#6854d9;--red:#c33b3b;--code:#f2f5f9;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 10% -10%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 34%),radial-gradient(circle at 92% 4%,color-mix(in srgb,var(--violet) 12%,transparent),transparent 34%),linear-gradient(180deg,var(--bg),var(--bg2));line-height:1.6}
+    a{color:inherit}
+    .shell{width:min(var(--max),calc(100% - 30px));margin:auto}
+    .topbar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+    .topbar-inner{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{text-decoration:none;min-width:0}.brand b{display:block}.brand span{display:block;color:var(--muted);font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-actions{display:flex;gap:8px;align-items:center;flex:0 0 auto}.top-actions a,.theme-toggle{border:1px solid var(--border);background:var(--solid);color:var(--text);border-radius:999px;padding:9px 12px;text-decoration:none;font:inherit;cursor:pointer}
+    main{padding:38px 0 90px}
+    .hero,.section{border:1px solid var(--border);background:var(--panel);border-radius:30px;padding:30px;margin-bottom:20px}
+    .eyebrow{font-size:.78rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+    .hero h1{font-size:clamp(2.4rem,6vw,5rem);line-height:.98;letter-spacing:-.055em;margin:14px 0 18px;max-width:900px}
+    .hero p{max-width:830px;font-size:1.05rem;color:var(--muted)}
+    .goal{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.pill{padding:9px 12px;border-radius:999px;border:1px solid var(--border);background:var(--solid);font-weight:700;font-size:.88rem}
+    .hero-note{margin-top:20px;padding:18px 20px;border-left:4px solid var(--green);background:color-mix(in srgb,var(--green) 7%,var(--solid));border-radius:14px}
+    h2{font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.025em;margin:8px 0 8px}h3{margin:0 0 8px}.muted{color:var(--muted)}
+    .recognition{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+    .recognition .step{position:relative;border:1px solid var(--border);background:var(--solid);border-radius:20px;padding:18px;min-height:150px}
+    .step .keyword{display:inline-block;font:700 .78rem "SFMono-Regular",Consolas,monospace;color:var(--accent);margin-bottom:10px}.step b{display:block;font-size:1.1rem;margin-bottom:5px}.step p{margin:0;color:var(--muted);font-size:.92rem}
+    .patterns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+    .pattern{border:1px solid var(--border);background:var(--solid);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:14px;min-height:100%}
+    .pattern[data-accent="green"]{border-color:color-mix(in srgb,var(--green) 38%,var(--border))}.pattern[data-accent="yellow"]{border-color:color-mix(in srgb,var(--yellow) 38%,var(--border))}.pattern[data-accent="violet"]{border-color:color-mix(in srgb,var(--violet) 38%,var(--border))}.pattern[data-accent="accent"]{border-color:color-mix(in srgb,var(--accent) 38%,var(--border))}
+    .number{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--border);font-weight:900}
+    .pattern-top{display:flex;align-items:center;gap:12px}.pattern-title{min-width:0}.pattern-title h3{margin:0}.pattern-title span{color:var(--muted);font-size:.86rem}
+    .signal{font:700 .86rem "SFMono-Regular",Consolas,monospace;background:var(--code);border:1px solid var(--border);padding:12px 14px;border-radius:14px;white-space:normal}
+    .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{border:1px solid var(--border);border-radius:16px;padding:14px;background:var(--panel)}.mini b{display:block;font-size:.82rem;color:var(--muted);margin-bottom:4px}.mini p{margin:0;font-size:.92rem}
+    .resource{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:2px}.resource a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 13px;border-radius:999px;border:1px solid var(--border);background:var(--panel);font-weight:750}.resource span{font-size:.82rem;color:var(--muted)}
+    .plan{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.day{border:1px solid var(--border);border-radius:22px;background:var(--solid);padding:20px}.day h3{font-size:1.25rem}.task{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}.task:last-child{border-bottom:0}.check{width:22px;height:22px;flex:0 0 22px;border:2px solid var(--border);border-radius:7px;margin-top:2px}.task b{display:block}.task span{display:block;color:var(--muted);font-size:.9rem}
+    .dont{border-left:4px solid var(--yellow);background:color-mix(in srgb,var(--yellow) 7%,var(--solid));border-radius:16px;padding:18px 20px;margin-top:18px}.dont strong{color:var(--yellow)}
+    details{border:1px solid var(--border);border-radius:18px;background:var(--solid);padding:16px 18px;margin-top:14px}summary{cursor:pointer;font-weight:800}.later{columns:2;column-gap:28px;color:var(--muted)}
+    .footer-note{text-align:center;color:var(--muted);font-size:.86rem;padding-top:4px}
+    [hidden]{display:none!important}
+    @media(max-width:820px){.recognition{grid-template-columns:repeat(2,minmax(0,1fr))}.patterns,.plan{grid-template-columns:1fr}.hero,.section{padding:22px}.resource{align-items:flex-start;flex-direction:column}.mini-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.shell{width:min(var(--max),calc(100% - 20px))}.topbar-inner{display:grid;grid-template-columns:1fr auto;padding:10px 0}.brand{grid-column:1/-1}.top-actions{grid-column:1/-1;justify-content:space-between}.top-actions a,.theme-toggle{font-size:.86rem}.recognition{grid-template-columns:1fr}.mini-grid{grid-template-columns:1fr}.hero h1{font-size:2.45rem}.hero,.section{border-radius:22px;padding:19px}.pattern{padding:18px}.later{columns:1}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="./" aria-label="Coding Interview Fast Track">
+        <b>Coding Interview Fast Track</b>
+        <span>2-day DS&A recognition guide</span>
+      </a>
+      <div class="top-actions">
+        <a href="../../" aria-label="Повернутися до iOS Knowledge Base">← Knowledge Base</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Перемкнути тему">Theme</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">Apple interview prep · Data Structures & Coding</div>
+      <h1>Не вчи все. Навчись впізнавати 4 shapes.</h1>
+      <p>Це короткий fast track перед coding interview. Мета — не за два дні “закрити алгоритми”, а побачити задачу, впізнати знайомий pattern і мати базовий напрямок для рішення.</p>
+      <div class="goal">
+        <span class="pill">HashMap / Set</span>
+        <span class="pill">Two Pointers</span>
+        <span class="pill">Sliding Window</span>
+        <span class="pill">Heap — concept only</span>
+      </div>
+      <div class="hero-note"><b>Target:</b> до інтерв’ю достатньо вміти сказати: “це схоже на Two Pointers / Sliding Window / Hash lookup / Heap” — і пояснити чому.</div>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">01 · Recognition map</div>
+      <h2>Починай із wording задачі</h2>
+      <p class="muted">Не шукай назву алгоритму. Шукай сигнал у вимогах.</p>
+      <div class="recognition">
+        <div class="step"><span class="keyword">duplicate · count · lookup</span><b>HashMap / Set</b><p>Треба швидко знати: “бачив уже?”, “скільки разів?”, “де лежить complement?”.</p></div>
+        <div class="step"><span class="keyword">sorted · pair · match</span><b>Two Pointers</b><p>Два впорядковані набори або один sorted array, де pointers можуть рухатись назустріч чи вперед.</p></div>
+        <div class="step"><span class="keyword">contiguous · recent · last N</span><b>Sliding Window</b><p>Працюємо з безперервним діапазоном і оновлюємо його замість перерахунку з нуля.</p></div>
+        <div class="step"><span class="keyword">repeated min/max · top K</span><b>Heap</b><p>Потрібно багато разів швидко діставати найменший/найбільший елемент або тримати Top-K.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">02 · Must know</div>
+      <h2>Чотири патерни — і не більше</h2>
+      <p class="muted">Відео нижче — Python, але зараз це плюс: дивись на mental model, не на синтаксис. Потім відтвори ідею в Swift.</p>
+
+      <div class="patterns">
+        <article class="pattern" data-accent="green">
+          <div class="pattern-top"><div class="number">1</div><div class="pattern-title"><h3>HashMap / Set</h3><span>Найвища віддача за найменший час</span></div></div>
+          <div class="signal">“Чи бачили ми це значення?” · “Скільки разів?” · “Знайди complement.”</div>
+          <div class="mini-grid">
+            <div class="mini"><b>Team-shaped use</b><p>Deduplicate event IDs, count samples, lookup metadata by ID.</p></div>
+            <div class="mini"><b>Complexity anchor</b><p>Lookup / insert — expected <code>O(1)</code>.</p></div>
+          </div>
+          <div class="mini"><b>Practice only</b><p><strong>Contains Duplicate</strong> → потім <strong>Two Sum</strong>. Цього достатньо для refresh.</p></div>
+          <div class="resource"><a href="https://www.youtube.com/watch?v=3OamzN90kPg" target="_blank" rel="noopener">▶ NeetCode: Contains Duplicate</a><span>~5 min explanation + code</span></div>
+        </article>
+
+        <article class="pattern" data-accent="accent">
+          <div class="pattern-top"><div class="number">2</div><div class="pattern-title"><h3>Two Pointers</h3><span>Особливо релевантно до timestamp streams</span></div></div>
+          <div class="signal">“Input sorted.” · “Match two streams.” · “Find pair / intersection / merge.”</div>
+          <div class="mini-grid">
+            <div class="mini"><b>Team-shaped use</b><p>Match frames from camera A and B when timestamps are close.</p></div>
+            <div class="mini"><b>Mental model</b><p>Pointer, який уже “відстав”, можна рухати вперед — назад повертатись не треба.</p></div>
+          </div>
+          <div class="mini"><b>Practice only</b><p><strong>Two Sum II — Input Array Is Sorted.</strong> Не бери зараз 10 different pointer tasks.</p></div>
+          <div class="resource"><a href="https://www.youtube.com/watch?v=cQ1Oz4ckceM" target="_blank" rel="noopener">▶ NeetCode: Two Sum II</a><span>Подивись solution drawing, потім закодуй у Swift</span></div>
+        </article>
+
+        <article class="pattern" data-accent="yellow">
+          <div class="pattern-top"><div class="number">3</div><div class="pattern-title"><h3>Sliding Window</h3><span>Для contiguous ranges і recent data</span></div></div>
+          <div class="signal">“Last N samples.” · “Last 1 second.” · “Best contiguous range.”</div>
+          <div class="mini-grid">
+            <div class="mini"><b>Team-shaped use</b><p>Rolling average / count за останні 100 ms або 1 second.</p></div>
+            <div class="mini"><b>Mental model</b><p>Розширюй right; коли window невалідне — рухай left.</p></div>
+          </div>
+          <div class="mini"><b>Practice only</b><p><strong>Best Time to Buy and Sell Stock.</strong> Якщо легко — тоді Longest Substring Without Repeating Characters.</p></div>
+          <div class="resource"><a href="https://www.youtube.com/watch?v=1pkOgXD63yU" target="_blank" rel="noopener">▶ NeetCode: Best Time to Buy/Sell Stock</a><span>0:52 — visual explanation</span></div>
+        </article>
+
+        <article class="pattern" data-accent="violet">
+          <div class="pattern-top"><div class="number">4</div><div class="pattern-title"><h3>Heap / Priority Queue</h3><span>Concept only — не реалізуй binary heap з нуля</span></div></div>
+          <div class="signal">“Repeated smallest/largest.” · “Top K.” · “Merge K streams.”</div>
+          <div class="mini-grid">
+            <div class="mini"><b>Team-shaped use</b><p>Merge кількох timestamp streams або тримати K best frames.</p></div>
+            <div class="mini"><b>What to know</b><p>Min-heap швидко дає smallest; insert/pop ≈ <code>O(log n)</code>.</p></div>
+          </div>
+          <div class="mini"><b>Practice boundary</b><p><strong>Kth Largest Element in a Stream</strong>. Зрозумій, чому min-heap size K працює. Реалізація heap internals — later.</p></div>
+          <div class="resource"><a href="https://www.youtube.com/watch?v=hOjcdrqMoQ8" target="_blank" rel="noopener">▶ NeetCode: Kth Largest in a Stream</a><span>Heap intuition, not memorization</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">03 · Two-day boundary</div>
+      <h2>Реалістичний порядок до інтерв’ю</h2>
+      <p class="muted">Краще 4 patterns, які ти реально впізнаєш, ніж 20 тем, які зіллються в одну.</p>
+      <div class="plan">
+        <div class="day">
+          <h3>Day 1 · Recognition + easy reps</h3>
+          <div class="task"><div class="check"></div><div><b>HashMap / Set</b><span>Contains Duplicate → Two Sum. Поясни, навіщо dictionary/set.</span></div></div>
+          <div class="task"><div class="check"></div><div><b>Two Pointers</b><span>Two Sum II. Намалюй left/right і проговори, чому рухаєш конкретний pointer.</span></div></div>
+          <div class="task"><div class="check"></div><div><b>Stop</b><span>Не додавай нову тему, якщо ці дві ще не можеш пояснити без відео.</span></div></div>
+        </div>
+        <div class="day">
+          <h3>Day 2 · Window + heap intuition</h3>
+          <div class="task"><div class="check"></div><div><b>Sliding Window</b><span>Best Time to Buy/Sell Stock. Потім один team-shaped example з “last 1 second”.</span></div></div>
+          <div class="task"><div class="check"></div><div><b>Heap</b><span>Подивись Kth Largest. Твоя ціль — пояснити why heap, а не написати heap implementation.</span></div></div>
+          <div class="task"><div class="check"></div><div><b>15-minute mixed recall</b><span>Для кожного prompt назви pattern і одну причину — без коду.</span></div></div>
+        </div>
+      </div>
+      <div class="dont"><strong>Explicitly NOT NOW:</strong> BFS, DFS, trees, graphs, dynamic programming, backtracking, tries, monotonic queues, advanced interval tricks, advanced binary-search variants. Якщо вони трапляться — це буде досвід, а не тема для panic-cramming.</div>
+      <details>
+        <summary>Later — коли інтерв’ю вже позаду</summary>
+        <div class="later">
+          <p>Binary Search</p><p>Intervals</p><p>Stack / Queue</p><p>Trees: BFS / DFS</p><p>Graphs: BFS / DFS</p><p>Linked Lists</p><p>Backtracking</p><p>Dynamic Programming</p><p>Trie</p><p>Advanced Heap problems</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">04 · Interview behavior</div>
+      <h2>Навіть якщо pattern не впізнав</h2>
+      <div class="recognition">
+        <div class="step"><span class="keyword">1</span><b>Clarify</b><p>Input sorted? Duplicates? Finite? Can data fit in memory?</p></div>
+        <div class="step"><span class="keyword">2</span><b>Start simple</b><p>Опиши brute force, навіть якщо він <code>O(n²)</code>. Це краще, ніж мовчати.</p></div>
+        <div class="step"><span class="keyword">3</span><b>Find repeated work</b><p>Що ми перераховуємо? Що можна запам’ятати або рухати тільки вперед?</p></div>
+        <div class="step"><span class="keyword">4</span><b>Say complexity</b><p>Після working solution назви time і space та один trade-off.</p></div>
+      </div>
+    </section>
+
+    <div class="footer-note">Interview-focused temporary module · source notes live in <code>docs/interview-projections/</code></div>
+  </main>
+
+  <script>
+    (() => {
+      const key = 'ios-kb-theme';
+      const root = document.documentElement;
+      const button = document.querySelector('[data-theme-toggle]');
+      const saved = localStorage.getItem(key);
+      const initial = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      const apply = theme => {
+        root.dataset.theme = theme;
+        if (button) button.textContent = theme === 'dark' ? '☀︎ Light' : '◐ Dark';
+      };
+      apply(initial);
+      button?.addEventListener('click', () => {
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(key, next);
+        apply(next);
+      });
+    })();
+  </script>
+</body>
+</html>
