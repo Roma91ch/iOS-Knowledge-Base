@@ -1,793 +1,403 @@
-# Data Structures & Coding — Apple Team Projections
+# Data Structures & Coding — 2-Day Fast Track
 
-> **Purpose:** build a useful shape of the likely problem space before drilling individual LeetCode-style exercises.
+> **Goal:** не вивчити algorithms & data structures за два дні. Goal — побачити задачу, впізнати знайомий shape і мати простий starting point.
 >
-> These are **projections, not predictions**. The interviewer can still give a completely generic coding problem. The value here is that the team's domain strongly suggests a set of reusable algorithmic patterns worth prioritizing.
+> **Important:** це projections based on team context, not predictions of actual Apple questions.
 
-## 0. What the team context suggests
+## STOP: study only these 4 patterns
 
-The recurring nouns are:
+For this interview window, ignore the long list of possible algorithms. Focus on:
 
-`multiple streams` · `timestamps` · `shared clock` · `sensor data` · `video frames` · `aggregation` · `transformation` · `buffering` · `ordering`
+1. **Hash Map / Set** — lookup, duplicates, counting
+2. **Two Pointers** — two sorted streams / matching
+3. **Sliding Window** — recent contiguous range / last N samples
+4. **Heap / Priority Queue** — only conceptual level for K streams / repeatedly smallest-largest
 
-That maps surprisingly well to a small set of interview patterns:
-
-- **two pointers / multiple pointers**;
-- **min-heap / priority queue**;
-- **sliding window**;
-- **deque / queue / circular buffer**;
-- **hash map / hash set**;
-- **sorting + linear scan**;
-- **intervals**;
-- **binary search on sorted timestamps**;
-- **streaming state machines**;
-- **bounded memory / incremental processing**.
-
-The most important preparation goal is therefore not memorizing 30 solutions. It is recognizing the shape of the problem quickly.
+Everything else is **Later**, not preparation for the next two days.
 
 ---
 
-# 1. Overall task map
+# 1. Hash Map / Set — MUST KNOW
 
-| Possible task | Typical interview wording | Core pattern | Main DS |
-|---|---|---|---|
-| Merge K streams | Merge events from several devices in timestamp order | K-way merge | Min-heap |
-| Match synchronized samples | Pair frames/events whose timestamps differ by ≤ tolerance | Two pointers / sliding window | Arrays / deque |
-| Nearest timestamp | Find the sensor sample closest to a video frame timestamp | Binary search | Sorted array |
-| Sliding aggregation | Average/count/max over the last N ms / last K events | Sliding window | Queue/deque |
-| Fixed-size capture buffer | Keep only the latest N frames/events | Circular buffer | Array + indices |
-| Reorder late events | Events arrive slightly out of order; emit ordered output | Heap + watermark | Min-heap |
-| Deduplicate events | Ignore duplicate IDs / duplicate samples in recent history | Hashing + bounded window | Set / dictionary |
-| Merge intervals | Combine overlapping recording/session ranges | Sort + scan | Array |
-| Detect missing sequence ranges | Find dropped frames / missing sequence numbers | Linear scan / hashing | Array / set |
-| Bucket by time | Group events into 10 ms / 1 sec buckets and aggregate | Hashing / integer math | Dictionary |
-| Top-K samples | Keep K highest-quality frames/readings | Heap | Priority queue |
-| Bounded processing queue | Buffer work without unbounded memory growth | Queue / ring buffer | Deque / circular array |
+## Mental model
 
----
+> I need to remember something I already saw and find it quickly.
 
-# 2. Strongest domain-shaped projections
+Typical clues:
 
-## A. Merge multiple timestamped streams
+- "Have I seen this value before?"
+- duplicates
+- frequency / count
+- lookup by ID
+- find a complement such as `target - value`
 
-### Problem shape
+### Team-shaped example
 
-Several devices independently produce events already sorted by timestamp. Produce one globally ordered sequence.
-
-```text
-iPhone A:  10, 20, 40, 70
-iPhone B:  12, 21, 35, 80
-iPhone C:  11, 25, 50, 60
-
-Output:    10, 11, 12, 20, 21, 25, 35, 40, 50, 60, 70, 80
-```
-
-### Algorithmic backing
-
-This is the classic **merge K sorted lists / arrays** problem.
-
-For two streams:
-
-- two pointers;
-- `O(n + m)` time;
-- `O(1)` auxiliary space, ignoring output.
-
-For K streams:
-
-- min-heap containing the current smallest event from each stream;
-- pop smallest, advance only that stream, push its next event;
-- `O(N log K)` time;
-- `O(K)` heap space.
-
-### Why it fits the team
-
-If multiple iPhones or sensors are locked to a common time base, downstream processing frequently needs a globally ordered view of events.
-
-### Swift shape
+A sensor packet has an `eventID`. Retries can deliver the same event twice. Keep a `Set` of IDs already processed and skip duplicates.
 
 ```swift
-struct Event {
-    let timestamp: UInt64
-    let sourceID: Int
-}
-
-func merge(_ streams: [[Event]]) -> [Event] {
-    // likely solution: min-heap of (event, streamIndex, eventIndex)
-    []
-}
-```
-
-### Follow-ups an interviewer can add
-
-- streams are huge and cannot all fit in memory;
-- streams are asynchronous instead of arrays;
-- two timestamps can be identical;
-- stable ordering by source ID is required;
-- one stream stalls;
-- events arrive out of order.
-
----
-
-## B. Synchronize / match events within a timestamp tolerance
-
-### Problem shape
-
-Two cameras capture approximately the same moments but timestamps are not exactly equal. Match samples if the time difference is within `Δ`.
-
-```text
-A: 100, 205, 300, 405
-B:  97, 210, 302, 500
-Δ = 10
-
-matches:
-100 ↔ 97
-205 ↔ 210
-300 ↔ 302
-```
-
-### Algorithmic backing
-
-Usually:
-
-- **two pointers** for two sorted streams;
-- possibly **sliding window** when multiple candidates can match;
-- for K streams, multiple pointers or a heap depending on exact requirements.
-
-Typical complexity for two sorted arrays:
-
-- `O(n + m)` time;
-- `O(1)` extra space.
-
-### Key reasoning
-
-At every step:
-
-- if timestamps are close enough → match;
-- otherwise advance the pointer with the earlier timestamp;
-- never move a pointer backwards.
-
-### Why it fits the team
-
-This is almost a direct abstraction of aligning frames or sensor samples from several devices sharing a time base.
-
-### Possible variants
-
-- every event may be matched only once;
-- choose the **closest** event, not merely any event within tolerance;
-- synchronize 3–4 sources;
-- one source has a different sample rate;
-- drop unmatched samples.
-
----
-
-## C. Find the closest sensor sample to a timestamp
-
-### Problem shape
-
-A video frame has timestamp `t`. Sensor readings are sorted by timestamp. Find the reading nearest to `t`.
-
-```text
-samples = [100, 130, 170, 220, 300]
-t = 200
-
-answer = 220
-```
-
-### Algorithmic backing
-
-**Binary search**.
-
-Find insertion position for `t`, then compare the two neighbors.
-
-- `O(log n)` lookup;
-- `O(1)` space.
-
-If many query timestamps are also sorted, a two-pointer solution can reduce the entire workload to roughly `O(n + m)`.
-
-### Why this matters
-
-A very realistic interview extension is asking whether repeated binary searches are optimal when both inputs are sorted.
-
----
-
-## D. Sliding-window aggregation over sensor events
-
-### Problem shape
-
-Calculate a rolling metric such as:
-
-- average signal value over the last 1 second;
-- number of frames in the last 100 ms;
-- max quality score among recent frames;
-- moving average over the latest N samples.
-
-### Algorithmic backing
-
-**Sliding window**.
-
-For rolling sum / average:
-
-- queue/deque of active elements;
-- add incoming value;
-- remove expired values;
-- maintain running sum;
-- amortized `O(1)` per event.
-
-For rolling maximum/minimum:
-
-- **monotonic deque**;
-- amortized `O(1)` per element.
-
-### Example
-
-```swift
-struct Sample {
-    let timestamp: Int
-    let value: Double
-}
-
-func rollingAverage(
-    _ samples: [Sample],
-    windowMilliseconds: Int
-) -> [Double] {
-    // sliding window + running sum
-    []
-}
-```
-
-### What the interviewer may probe
-
-A naive implementation recalculates every window from scratch and becomes `O(n * windowSize)`. The expected improvement is usually to preserve incremental state.
-
----
-
-## E. Circular / ring buffer
-
-### Problem shape
-
-Store only the latest `N` frames or sensor values. Once capacity is reached, new data overwrites the oldest data.
-
-```text
-capacity = 4
-
-insert A → [A]
-insert B → [A B]
-insert C → [A B C]
-insert D → [A B C D]
-insert E → [E B C D]   // logical order: B C D E
-```
-
-### Algorithmic backing
-
-**Circular buffer** implemented with:
-
-- fixed array;
-- `head` / `tail` indices;
-- modulo arithmetic.
-
-Expected operations:
-
-- append: `O(1)`;
-- remove oldest: `O(1)`;
-- fixed `O(capacity)` memory.
-
-### Why it fits the team
-
-Continuous video/sensor systems cannot casually retain an unbounded history. Fixed-memory buffers are a natural primitive.
-
-### Interview traps
-
-Be precise about:
-
-- empty vs full state;
-- wrap-around;
-- count;
-- overwrite semantics;
-- capacity zero;
-- returning elements in logical rather than physical array order.
-
----
-
-## F. Reorder slightly out-of-order events
-
-### Problem shape
-
-Events have trustworthy timestamps but arrive slightly late or out of order.
-
-```text
-arrival order:
-100, 130, 110, 140, 120
-
-expected emitted order:
-100, 110, 120, 130, 140
-```
-
-The catch: the stream is potentially infinite, so we cannot simply collect everything and sort at the end.
-
-### Algorithmic backing
-
-A common streaming pattern:
-
-- min-heap ordered by timestamp;
-- known maximum lateness / reorder window;
-- keep a watermark representing how far time has safely progressed;
-- emit values that can no longer be preceded by a valid late event.
-
-### Why this is interesting in an interview
-
-It tests more than syntax. You have to identify an unstated requirement:
-
-> Without some bound on how late events can arrive, a correct online algorithm cannot know when an event is safe to emit.
-
-That clarification itself is valuable Senior-level reasoning.
-
----
-
-## G. Deduplicate recent events
-
-### Problem shape
-
-A transport layer retries data and occasionally delivers an event twice. Remove duplicates.
-
-Simple case:
-
-```text
-IDs: 1, 2, 2, 3, 1, 4
-→   1, 2, 3, 4
-```
-
-### Algorithmic backing
-
-Basic finite input:
-
-- hash set;
-- expected `O(n)` time;
-- `O(n)` memory.
-
-Infinite stream:
-
-- an unbounded set is not acceptable;
-- maintain only recent IDs using a queue + set, TTL, sequence range, or LRU-like structure.
-
-### Why it fits
-
-Reliable data-transfer pipelines naturally encounter retries, duplicated chunks and reconnect behavior.
-
----
-
-## H. Merge overlapping time intervals
-
-### Problem shape
-
-Recording or availability ranges overlap.
-
-```text
-[1, 5], [3, 7], [10, 12], [11, 15]
-
-→ [1, 7], [10, 15]
-```
-
-### Algorithmic backing
-
-Classic **Merge Intervals**:
-
-1. sort by start time;
-2. scan from left to right;
-3. merge when current start ≤ previous end.
-
-Complexity:
-
-- `O(n log n)` because of sorting;
-- `O(n)` scan.
-
-If input is already sorted, the processing portion is `O(n)`.
-
-### Variants
-
-- find intersection instead of union;
-- find gaps;
-- compute total covered duration;
-- merge intervals from multiple devices.
-
----
-
-## I. Detect dropped frames / missing sequence ranges
-
-### Problem shape
-
-Frames carry monotonically increasing sequence numbers.
-
-```text
-100, 101, 102, 106, 107, 110
-
-missing:
-103...105
-108...109
-```
-
-### Algorithmic backing
-
-If ordered:
-
-- single linear scan;
-- `O(n)` time;
-- `O(1)` auxiliary space.
-
-If unordered:
-
-- sorting → `O(n log n)`;
-- or hashing when the numeric range is appropriate.
-
-### What this can test
-
-- off-by-one correctness;
-- range representation;
-- duplicates;
-- unordered input;
-- extremely large sequence ranges.
-
----
-
-## J. Time bucketing / aggregation
-
-### Problem shape
-
-Group events into fixed windows, for example 100 ms buckets, then calculate count/average/max for each bucket.
-
-```text
-bucketSize = 100
-
-timestamps:
-21, 45, 117, 150, 199, 201
-
-buckets:
-0...99    → 2 events
-100...199 → 3 events
-200...299 → 1 event
-```
-
-### Algorithmic backing
-
-Bucket index:
-
-```swift
-let bucket = timestamp / bucketSize
-```
-
-Then aggregate with a dictionary or, when the range is dense and known, an array.
-
-Expected:
-
-- `O(n)` time;
-- `O(numberOfBuckets)` space.
-
-### Useful interview discussion
-
-This is a good place to discuss whether events are sorted. If sorted, results can often be emitted incrementally without retaining a dictionary of every bucket.
-
----
-
-# 3. Secondary but still plausible tasks
-
-## Top-K frames / readings
-
-Example: keep the 10 highest-quality frames out of a huge stream.
-
-Pattern:
-
-- min-heap of size `K`;
-- `O(n log K)`;
-- `O(K)` space.
-
-The important observation is that sorting all `n` elements is unnecessary.
-
----
-
-## Bounded queue / producer-consumer buffer
-
-The coding portion may simplify a real pipeline problem into implementing a queue with a maximum capacity.
-
-Potential policies:
-
-- reject newest;
-- drop oldest;
-- block producer;
-- overwrite oldest.
-
-The algorithmic core is often a queue/deque or circular buffer. The concurrency policy belongs more naturally to the Swift & Apple Systems interview.
-
----
-
-## LRU cache
-
-Could model cached transformed chunks, metadata or recently accessed objects.
-
-Canonical implementation:
-
-- dictionary → node lookup in `O(1)`;
-- doubly linked list → recency order in `O(1)`;
-- `get` / `put` both `O(1)` average.
-
-Not especially specific to the team, but still a common Senior coding pattern.
-
----
-
-# 4. Patterns to recognize immediately
-
-## Two pointers
-
-Think of it when:
-
-- both inputs are sorted;
-- you need matching / intersection / merge;
-- pointers only need to move forward.
-
-Typical team-shaped problems:
-
-- synchronize two timestamp streams;
-- merge two streams;
-- compare sensor and video events;
-- find intersections of active time ranges.
-
----
-
-## Sliding window
-
-Think of it when the wording includes:
-
-- last N events;
-- last X milliseconds;
-- contiguous range;
-- moving average;
-- recent history.
-
-Often combined with:
-
-- running sum;
-- dictionary of counts;
-- deque;
-- monotonic deque.
-
----
-
-## Heap / priority queue
-
-Think of it when:
-
-- repeatedly need the smallest/largest element;
-- merging K sorted sources;
-- Top-K;
-- bounded reordering of events.
-
-Common complexity signal:
-
-```text
-O(N log K)
-```
-
-instead of sorting all data globally.
-
----
-
-## Hash map / set
-
-Think of it when:
-
-- membership matters;
-- duplicates matter;
-- counts/frequencies matter;
-- lookup by ID matters.
-
-Expected average lookup: `O(1)`.
-
----
-
-## Sort + scan
-
-Often the simplest optimal-enough approach when dealing with:
-
-- intervals;
-- timestamps that are initially unordered;
-- grouping adjacent values;
-- missing ranges.
-
-Do not reject `O(n log n)` automatically. Sorting can drastically simplify correctness.
-
----
-
-## Binary search
-
-Think of it when:
-
-- timestamp samples are sorted;
-- you need nearest / first ≥ target / last ≤ target;
-- repeated point queries are made against stable data.
-
-Know the difference between finding an exact value and finding an insertion boundary.
-
----
-
-# 5. Swift-specific implementation areas worth refreshing
-
-These are not separate algorithms, but they can make or break the coding round.
-
-### Collection indexing
-
-`String` is **not** integer-indexed in Swift. Arrays are much easier for algorithmic pointer work.
-
-### Dictionary / Set
-
-Be fluent with:
-
-```swift
-var counts: [Int: Int] = [:]
-counts[value, default: 0] += 1
-
 var seen: Set<Int> = []
-if seen.insert(value).inserted {
-    // first occurrence
+
+for id in eventIDs {
+    if seen.contains(id) {
+        continue
+    }
+
+    seen.insert(id)
+    // process event
 }
 ```
 
-### Sorting
+Typical complexity: average `O(1)` lookup, therefore often `O(n)` for the whole input.
 
-```swift
-let sorted = events.sorted { $0.timestamp < $1.timestamp }
+## NeetCode practice
+
+### First: Contains Duplicate — LC 217
+
+NeetCode: https://www.youtube.com/watch?v=3OamzN90kPg
+
+Why: simplest possible "when do I reach for a Set?" example.
+
+### Then: Two Sum — LC 1
+
+NeetCode: https://www.youtube.com/watch?v=KLlXCFG5TnA
+
+Why: shows the most important interview transformation:
+
+```text
+nested search O(n²)
+→ remember previous values in HashMap
+→ O(n)
 ```
 
-### Higher-order functions
+### Optional quick reference
 
-Useful when they improve clarity:
+NeetCode HashMap crash course:
+https://neetcode.io/cheatsheets/hashmap-crash-course
 
-```swift
-map
-compactMap
-filter
-reduce
-zip
-```
-
-But in algorithm interviews, a plain loop is often easier to reason about for complexity and stateful window logic.
-
-### Heap
-
-Swift's standard library historically has not exposed a universal built-in `Heap` type across all interview environments. Be prepared either to:
-
-- implement a minimal binary heap;
-- use a heap utility if CoderPad provides one;
-- first explain the heap-based optimal solution, then code a simpler version if the interviewer explicitly accepts it.
-
-Minimal conceptual API:
-
-```swift
-struct MinHeap<Element> {
-    mutating func insert(_ element: Element) {}
-    mutating func popMin() -> Element? { nil }
-    var min: Element? { nil }
-}
-```
-
-For the interview, understand `siftUp` and `siftDown` even if a full generic production heap is unnecessary.
+**Do not** learn hash-table implementation internals now.
 
 ---
 
-# 6. Complexity expectations
+# 2. Two Pointers — MUST KNOW
 
-For this team-shaped problem space, these are useful mental anchors:
+## Mental model
 
-| Pattern | Typical time | Typical extra space |
-|---|---:|---:|
-| Two-pointer merge | `O(n + m)` | `O(1)` |
-| K-way merge | `O(N log K)` | `O(K)` |
-| Sliding window | `O(n)` | window-dependent |
-| Hash dedupe | `O(n)` average | `O(n)` or bounded window |
-| Merge intervals | `O(n log n)` | `O(n)` output |
-| Binary search | `O(log n)` | `O(1)` |
-| Ring buffer append/remove | `O(1)` | fixed `O(capacity)` |
-| Top-K with heap | `O(n log K)` | `O(K)` |
+> I have ordered data and two positions can move through it without going backwards.
 
-The interviewer may care as much about **bounded memory** as raw asymptotic runtime because the real domain involves continuous streams and potentially large video/sensor data.
+Typical clues:
+
+- sorted array(s)
+- compare left vs right
+- merge two sorted inputs
+- match values from two streams
+- find pairs
+
+### Team-shaped example
+
+Two iPhones produce timestamped frames:
+
+```text
+A = [100, 205, 300, 405]
+B = [ 97, 210, 302, 500]
+tolerance = 10
+```
+
+We want to match timestamps that are close enough.
+
+Conceptually:
+
+```text
+A[i] ≈ B[j] → match, move both
+A[i] < B[j] → move i
+A[i] > B[j] → move j
+```
+
+Each pointer only moves forward, so instead of comparing every item with every other item, the scan can be `O(n + m)`.
+
+## NeetCode practice
+
+### Main problem: Two Sum II — LC 167
+
+NeetCode: https://www.youtube.com/watch?v=cQ1Oz4ckceM
+
+Relevant timestamps in the video:
+
+- intuition / brute force first
+- around `3:55` — two-pointer optimal approach
+- around `6:39` — implementation
+
+This is the one Two Pointers problem to understand before the interview.
+
+### Optional: Valid Palindrome — LC 125
+
+NeetCode: https://www.youtube.com/watch?v=jJXJ16kPFWg
+
+Only do it if Two Sum II already makes sense.
+
+## Recognition phrase
+
+When you see **sorted input + matching/comparing**, ask:
+
+> Can I put one pointer on each side / each stream and move only forward?
 
 ---
 
-# 7. Clarifying questions that signal good Senior reasoning
+# 3. Sliding Window — MUST KNOW
 
-For streaming/data questions, ask before coding when relevant:
+## Mental model
 
-> Are events already sorted by timestamp?
+> I care about one contiguous moving region, not every possible combination.
 
-> Are timestamps unique?
+Typical clues:
 
-> Can events arrive late or out of order?
+- "last N elements"
+- "last X seconds"
+- contiguous subarray / substring
+- moving average
+- longest/shortest contiguous range satisfying a condition
 
-> Is there a known maximum lateness / tolerance?
+### Team-shaped example
 
-> Is the input finite, or should the solution work as a stream?
+Sensor samples arrive continuously. Calculate the average over the latest 1 second.
 
-> Can all input fit in memory?
+Instead of recalculating the whole range for every sample:
 
-> Can one event match more than one event from another source?
+```text
+add new sample on the right
+remove expired sample(s) from the left
+keep the window state
+```
 
-> If multiple candidates are within tolerance, should I choose the nearest one?
+Visually:
 
-> What should happen with unmatched events?
+```text
+[ 10 12 14 ] 20 25
+      ↓ slide
+10 [ 12 14 20 ] 25
+```
 
-> Do we optimize for latency, memory, throughput, or simplest correctness?
+The important idea is just **left boundary + right boundary + state for what is inside**.
 
-These questions can completely change the correct algorithm.
+## NeetCode practice
+
+### First: Best Time to Buy and Sell Stock — LC 121
+
+NeetCode: https://www.youtube.com/watch?v=1pkOgXD63yU
+
+This is the easier introduction. NeetCode explicitly presents it as Sliding Window.
+
+### Only if comfortable: Longest Substring Without Repeating Characters — LC 3
+
+NeetCode: https://www.youtube.com/watch?v=wiGpQwVHdE0
+
+This combines:
+
+```text
+Sliding Window + Set
+```
+
+and is a very useful example of patterns composing together.
+
+Do **not** study Sliding Window Maximum / monotonic deque now.
+
+## Recognition phrase
+
+When you see **contiguous + longest/shortest/recent**, ask:
+
+> Can I keep a left and right boundary and update the answer while the window moves?
 
 ---
 
-# 8. Do not overfit to the team's domain
+# 4. Heap / Priority Queue — KNOW THE IDEA, NOT THE IMPLEMENTATION
 
-Even with this context, the coding round may still be a standard generic problem unrelated to cameras or sensors. A safe baseline is to remain comfortable with:
+## Mental model
 
-- arrays / strings;
-- hash maps / sets;
-- two pointers;
-- sliding window;
-- stack / queue;
-- linked-list basics;
-- binary search;
-- intervals;
-- heap / Top-K;
-- basic tree traversal BFS / DFS;
-- basic graph traversal BFS / DFS;
-- recursion vs iterative traversal;
-- Big-O analysis.
+> I repeatedly need the smallest or largest item, but I do not need the entire collection fully sorted.
 
-For this particular preparation window, the **highest-value overlap** between generic interviews and the team's domain is:
+For this interview, the goal is only to recognize what a heap is useful for.
+
+Typical clues:
+
+- smallest/largest repeatedly
+- Top K
+- merge K sorted streams
+- "what event should be processed next?"
+
+### Team-shaped example
+
+Three timestamp streams:
+
+```text
+A: 10, 40, 70
+B: 12, 35, 80
+C: 11, 50, 60
+```
+
+To build one ordered stream, keep only the current next event from each source in a **min-heap**.
+
+```text
+heap initially: 10(A), 12(B), 11(C)
+
+pop 10(A)
+push next from A → 40(A)
+
+pop 11(C)
+push next from C → 50(C)
+...
+```
+
+This is the idea behind **K-way merge**.
+
+You do **not** need to implement a generic binary heap from scratch in the next two days unless an interviewer specifically asks.
+
+## Fastest useful video
+
+NeetCode — Top 8 Data Structures for Coding Interviews:
+https://www.youtube.com/watch?v=uhYq27iSk9s
+
+Jump to roughly `9:47` for the Heap section. Do not watch a multi-hour heap course.
+
+### Optional application
+
+NeetCode — Merge K Sorted Lists — LC 23:
+https://www.youtube.com/watch?v=q5a5OiGbT6Q
+
+Watch for the problem shape, not to memorize linked-list code.
+
+## Recognition phrase
+
+When you see **repeatedly give me min/max among many candidates**, think:
+
+> Priority Queue / Heap might fit here.
+
+---
+
+# One-screen recognition map
+
+```text
+Need fast lookup / duplicate / count?
+→ HashMap / Set
+
+Sorted inputs + compare / match / merge?
+→ Two Pointers
+
+Contiguous range / last N / recent time window?
+→ Sliding Window
+
+Repeated smallest/largest across many candidates?
+→ Heap / Priority Queue
+```
+
+That is the whole mental map for now.
+
+---
+
+# How these patterns can combine
+
+Real interview questions are not always "one algorithm".
+
+### Example A
+
+```text
+Longest range with no duplicate event IDs
+```
+
+Likely:
+
+```text
+Sliding Window + Set
+```
+
+### Example B
+
+```text
+Match two sorted timestamp streams within ±10 ms
+```
+
+Likely:
 
 ```text
 Two Pointers
-→ Sliding Window
-→ Hash Map / Set
-→ Heap / Priority Queue
-→ Intervals
-→ Binary Search
-→ Queue / Circular Buffer
+```
+
+### Example C
+
+```text
+Merge the next timestamped event from 4 devices
+```
+
+Likely:
+
+```text
+Heap / Priority Queue
+```
+
+### Example D
+
+```text
+Ignore duplicate packets while processing a stream
+```
+
+Likely:
+
+```text
+Hash Set
 ```
 
 ---
 
-# 9. Suggested drill order
+# 2-day preparation boundary
 
-Do not start by solving random problems. Drill the patterns in this order:
+## Must do
 
-1. merge two sorted timestamp arrays — **two pointers**;
-2. match timestamps within tolerance — **two pointers**;
-3. closest timestamp — **binary search**;
-4. rolling average over time — **sliding window**;
-5. merge intervals — **sort + scan**;
-6. deduplicate stream — **hash set**;
-7. merge K streams — **min-heap**;
-8. Top-K frames — **heap**;
-9. ring buffer — **array + modulo arithmetic**;
-10. reorder bounded-late events — **heap + watermark**.
+- understand HashMap / Set recognition;
+- solve or re-solve `Contains Duplicate` and `Two Sum`;
+- understand `Two Sum II` and implement the Two Pointers solution yourself;
+- understand `Best Time to Buy and Sell Stock` as a moving-window problem;
+- understand what a min-heap / priority queue gives you conceptually;
+- for every solution, say Time + Space complexity out loud.
 
-After these, do one generic tree BFS/DFS and one generic graph BFS/DFS so the preparation is not too narrowly tailored.
+## Only if there is time
+
+- `Valid Palindrome`;
+- `Longest Substring Without Repeating Characters`;
+- conceptual `Merge K Sorted Lists`.
+
+## Explicitly NOT NOW
+
+Do not spend the next two days learning:
+
+- BFS / DFS;
+- trees;
+- graphs;
+- tries;
+- dynamic programming;
+- backtracking;
+- monotonic queues;
+- advanced interval algorithms;
+- heap implementation from scratch;
+- advanced binary-search variants;
+- streaming watermarks / reorder algorithms.
+
+They are useful topics eventually, but adding them now creates more noise than interview readiness.
 
 ---
 
-# 10. Next expansion
+# What success looks like on Friday
 
-For each item above, create a separate exercise with:
+Success is **not** "I know NeetCode 150."
 
-- interviewer-style prompt;
-- 1–2 examples;
-- clarification questions;
-- naive solution;
-- optimized solution;
-- Swift implementation;
-- Big-O;
-- common mistakes;
-- follow-up variations;
-- relation to camera / sensor pipelines.
+Success is being able to hear a problem and do this:
 
-The first exercises to expand should be:
+```text
+1. Clarify the input and constraints.
+2. Give a simple brute-force solution first.
+3. State its Big-O.
+4. Notice one familiar pattern if it applies.
+5. Improve the solution.
+6. Write straightforward Swift.
+7. Test it with 2–3 edge cases.
+```
 
-1. **Merge K Timestamped Streams**
-2. **Synchronize Two Streams Within Tolerance**
-3. **Sliding Window Sensor Aggregation**
-4. **Circular Buffer for Recent Frames**
-5. **Reorder Bounded-Late Events**
+If the optimal pattern does not come immediately, a correct brute-force implementation plus clear reasoning is still a much better starting point than freezing while searching for a memorized algorithm.
