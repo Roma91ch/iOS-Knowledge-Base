@@ -5,250 +5,152 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#08101d">
-  <meta name="description" content="Visual guide to four common coding interview patterns: HashMap/Set, Two Pointers, Sliding Window and Heap.">
+  <meta name="description" content="Visual guide to four common coding interview patterns with complete task descriptions and examples.">
   <title>Coding Patterns — iOS Knowledge Base</title>
   <style>
-    :root{
-      color-scheme:dark;
-      --bg:#08101d;--bg2:#0d1728;--panel:rgba(15,25,43,.86);--solid:#111c2f;--solid2:#16243a;
-      --text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;
-      --yellow:#ffcf5a;--green:#64dda9;--violet:#a292ff;--red:#ff8989;--code:#091321;
-      --shadow:0 24px 70px rgba(0,0,0,.25);--max:1180px
-    }
-    :root[data-theme="light"]{
-      color-scheme:light;
-      --bg:#f5f8fc;--bg2:#edf3f8;--panel:rgba(255,255,255,.94);--solid:#fff;--solid2:#f2f6fa;
-      --text:#132033;--muted:#617087;--border:#d8e3ed;--accent:#087fc2;
-      --yellow:#946200;--green:#087a52;--violet:#6854d9;--red:#bd3030;--code:#f3f7fb;
-      --shadow:0 22px 55px rgba(46,67,92,.12)
-    }
+    :root{color-scheme:dark;--bg:#08101d;--bg2:#0d1728;--panel:rgba(15,25,43,.86);--solid:#111c2f;--solid2:#16243a;--text:#f4f8ff;--muted:#9eabc0;--border:rgba(154,174,210,.18);--accent:#75d5ff;--yellow:#ffcf5a;--green:#64dda9;--violet:#a292ff;--red:#ff8989;--code:#091321;--shadow:0 24px 70px rgba(0,0,0,.25);--max:1180px}
+    :root[data-theme="light"]{color-scheme:light;--bg:#f5f8fc;--bg2:#edf3f8;--panel:rgba(255,255,255,.94);--solid:#fff;--solid2:#f2f6fa;--text:#132033;--muted:#617087;--border:#d8e3ed;--accent:#087fc2;--yellow:#946200;--green:#087a52;--violet:#6854d9;--red:#bd3030;--code:#f3f7fb;--shadow:0 22px 55px rgba(46,67,92,.12)}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;overflow-x:hidden;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 8% -8%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 32%),radial-gradient(circle at 95% 8%,color-mix(in srgb,var(--violet) 9%,transparent),transparent 34%),linear-gradient(180deg,var(--bg),var(--bg2));line-height:1.6}button{font:inherit}[hidden]{display:none!important}.shell{width:min(var(--max),calc(100% - 30px));margin:0 auto}
-
-    .topbar{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-    .topbar-inner{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0}.brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:var(--text)}
-    .brand-mark{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--green) 38%,var(--border));border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--green) 12%,var(--solid));color:var(--green);font-weight:900}.brand-copy{min-width:0}.brand-copy b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-copy span{display:block;color:var(--muted);font-size:.76rem}.controls{display:flex;align-items:center;gap:8px}.tabs{display:flex;gap:4px;padding:5px;border:1px solid var(--border);border-radius:17px 17px 23px 17px;background:var(--panel)}.tab,.theme-toggle{min-height:42px;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:12px 12px 17px 12px;font-weight:790}.tab{padding:0 14px;background:transparent;color:var(--muted)}.tab.active{color:#07130d;background:linear-gradient(135deg,#90f1c4,#59d9a0)}.theme-toggle{width:44px;border:1px solid var(--border);background:var(--panel);color:var(--text);display:grid;place-items:center}.theme-toggle svg{width:19px;height:19px}
-
-    main{padding:34px 0 92px}.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr;gap:32px;align-items:center;padding:42px;border:1px solid var(--border);border-radius:38px 38px 70px 38px;background:var(--panel);box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:350px;height:350px;right:-155px;top:-195px;border-radius:50%;border:1px solid color-mix(in srgb,var(--green) 24%,transparent);box-shadow:0 0 0 52px color-mix(in srgb,var(--green) 4%,transparent),0 0 0 104px color-mix(in srgb,var(--violet) 3%,transparent);pointer-events:none}.kicker{color:var(--green);font-size:.78rem;font-weight:860;letter-spacing:.12em;text-transform:uppercase}h1{margin:12px 0 16px;font-size:clamp(2.7rem,7vw,5.2rem);line-height:.95;letter-spacing:-.055em}.hero p{margin:0;color:var(--muted);font-size:1.05rem;line-height:1.7}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.pill{padding:8px 11px;border:1px solid var(--border);border-radius:999px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:720}
-
+    .topbar{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.topbar-inner{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0}.brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:var(--text)}.brand-mark{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--green) 38%,var(--border));border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--green) 12%,var(--solid));color:var(--green);font-weight:900}.brand-copy{min-width:0}.brand-copy b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-copy span{display:block;color:var(--muted);font-size:.76rem}.controls{display:flex;align-items:center;gap:8px}.tabs{display:flex;gap:4px;padding:5px;border:1px solid var(--border);border-radius:17px 17px 23px 17px;background:var(--panel)}.tab,.theme-toggle{min-height:42px;border:0;cursor:pointer;border-radius:12px 12px 17px 12px;font-weight:790}.tab{padding:0 14px;background:transparent;color:var(--muted)}.tab.active{color:#07130d;background:linear-gradient(135deg,#90f1c4,#59d9a0)}.theme-toggle{width:44px;border:1px solid var(--border);background:var(--panel);color:var(--text);display:grid;place-items:center}.theme-toggle svg{width:19px;height:19px}
+    main{padding:34px 0 92px}.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr;gap:32px;align-items:center;padding:42px;border:1px solid var(--border);border-radius:38px 38px 70px 38px;background:var(--panel);box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:350px;height:350px;right:-155px;top:-195px;border-radius:50%;border:1px solid color-mix(in srgb,var(--green) 24%,transparent);box-shadow:0 0 0 52px color-mix(in srgb,var(--green) 4%,transparent),0 0 0 104px color-mix(in srgb,var(--violet) 3%,transparent);pointer-events:none}.kicker,.eyebrow{color:var(--green);font-size:.78rem;font-weight:860;letter-spacing:.12em;text-transform:uppercase}h1{margin:12px 0 16px;font-size:clamp(2.7rem,7vw,5.2rem);line-height:.95;letter-spacing:-.055em}.hero p{margin:0;color:var(--muted);font-size:1.05rem;line-height:1.7}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.pill{padding:8px 11px;border:1px solid var(--border);border-radius:999px;background:var(--solid);color:var(--muted);font-size:.8rem;font-weight:720}
     .shape-map{position:relative;z-index:1;padding:18px;border:1px solid var(--border);border-radius:28px 28px 42px 28px;background:var(--solid);box-shadow:var(--shadow)}.shape-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}.shape-row:last-child{border-bottom:0}.shape-signal{font:750 .78rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.shape-arrow{color:var(--muted);font-weight:900}.shape-pattern{padding:10px 12px;border:1px solid var(--border);border-radius:15px 15px 20px 15px;background:var(--panel);font-weight:850}.shape-row:nth-child(1) .shape-pattern{color:var(--green)}.shape-row:nth-child(2) .shape-pattern{color:var(--accent)}.shape-row:nth-child(3) .shape-pattern{color:var(--yellow)}.shape-row:nth-child(4) .shape-pattern{color:var(--violet)}
-
-    .section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:58px 0 18px}.section-head h2{margin:7px 0 0;font-size:clamp(1.85rem,4vw,2.9rem);letter-spacing:-.045em}.section-head p{margin:0;max-width:520px;color:var(--muted);line-height:1.55}.eyebrow{color:var(--green);font-size:.78rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.scene{padding:28px;border:1px solid var(--border);border-radius:32px 32px 50px 32px;background:var(--panel);box-shadow:0 16px 50px rgba(0,0,0,.1)}
-
-    .mental{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.mental-card{padding:19px;border:1px solid var(--border);border-radius:25px 25px 34px 25px;background:var(--solid)}.mental-card .signal{display:block;margin-bottom:9px;font:750 .76rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.mental-card b{display:block;margin:0 0 7px;font-size:1.08rem}.mental-card span{display:block;color:var(--muted);line-height:1.5;font-size:.84rem}.mental-card:nth-child(1){border-color:color-mix(in srgb,var(--green) 42%,var(--border))}.mental-card:nth-child(2){border-color:color-mix(in srgb,var(--accent) 42%,var(--border))}.mental-card:nth-child(3){border-color:color-mix(in srgb,var(--yellow) 42%,var(--border))}.mental-card:nth-child(4){border-color:color-mix(in srgb,var(--violet) 42%,var(--border))}
-
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:58px 0 18px}.section-head h2{margin:7px 0 0;font-size:clamp(1.85rem,4vw,2.9rem);letter-spacing:-.045em}.section-head p{margin:0;max-width:540px;color:var(--muted)}.scene{padding:28px;border:1px solid var(--border);border-radius:32px 32px 50px 32px;background:var(--panel);box-shadow:0 16px 50px rgba(0,0,0,.1)}
+    .mental{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.mental-card{padding:19px;border:1px solid var(--border);border-radius:25px 25px 34px 25px;background:var(--solid)}.mental-card .signal{display:block;margin-bottom:9px;font:750 .76rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.mental-card b{display:block;margin:0 0 7px;font-size:1.08rem}.mental-card span{display:block;color:var(--muted);line-height:1.5;font-size:.84rem}
     .pattern-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pattern-card{min-width:0;padding:22px;border:1px solid var(--border);border-radius:28px 28px 38px 28px;background:var(--solid)}.pattern-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}.pattern-icon{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--border);border-radius:14px 14px 19px 14px;background:var(--solid2);font-weight:900}.pattern-head h3{margin:0}.pattern-head span{display:block;color:var(--muted);font-size:.8rem}.pattern-body{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{padding:14px;border:1px solid var(--border);border-radius:17px 17px 23px 17px;background:var(--panel)}.mini b{display:block;margin-bottom:4px;color:var(--muted);font-size:.77rem;text-transform:uppercase;letter-spacing:.045em}.mini p{margin:0;font-size:.92rem}.visual{margin:12px 0 14px;padding:16px;border:1px solid var(--border);border-radius:20px;background:var(--code);overflow:auto}.resource{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}.resource a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:9px 12px;border:1px solid var(--border);border-radius:999px;background:var(--panel);font-weight:780}.resource small{color:var(--muted)}
-
-    .array{display:flex;align-items:center;gap:7px;min-width:max-content}.cell{min-width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--border);border-radius:12px;background:var(--solid);font:800 .84rem ui-monospace,SFMono-Regular,Menlo,monospace}.cell.active-green{border-color:var(--green);box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 12%,transparent)}.cell.active-accent{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}.cell.active-yellow{border-color:var(--yellow);box-shadow:0 0 0 2px color-mix(in srgb,var(--yellow) 12%,transparent)}.pointer-line{display:flex;justify-content:space-between;gap:12px;margin-top:8px;color:var(--muted);font:700 .72rem ui-monospace,SFMono-Regular,Menlo,monospace}.window-wrap{position:relative;display:inline-flex;gap:7px;padding:10px;border:1px dashed var(--yellow);border-radius:16px}.heap{display:grid;justify-items:center;gap:8px}.heap-level{display:flex;gap:18px}.heap-node{min-width:46px;height:40px;display:grid;place-items:center;border:1px solid var(--violet);border-radius:14px;background:var(--solid);font-weight:850}.map-flow{display:flex;align-items:center;gap:8px;min-width:max-content}.map-chip{padding:9px 11px;border:1px solid var(--green);border-radius:13px;background:var(--solid);font:800 .78rem ui-monospace,SFMono-Regular,Menlo,monospace}.arrow{color:var(--muted);font-weight:900}
-
+    .problem{margin:14px 0;padding:17px;border:1px solid color-mix(in srgb,var(--accent) 34%,var(--border));border-radius:20px 20px 28px 20px;background:color-mix(in srgb,var(--accent) 5%,var(--panel))}.problem h4{margin:0 0 8px;font-size:1rem}.problem p{margin:0 0 10px;color:var(--muted);font-size:.92rem}.problem ul{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:.9rem}.problem-example{margin-top:12px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--code);font:700 .79rem/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}.task-label{display:inline-flex;margin-bottom:8px;padding:5px 8px;border:1px solid var(--border);border-radius:999px;background:var(--solid);font-size:.72rem;font-weight:850;color:var(--accent)}
+    .array{display:flex;align-items:center;gap:7px;min-width:max-content}.cell{min-width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--border);border-radius:12px;background:var(--solid);font:800 .84rem ui-monospace,SFMono-Regular,Menlo,monospace}.cell.active-green{border-color:var(--green)}.cell.active-accent{border-color:var(--accent)}.cell.active-yellow{border-color:var(--yellow)}.pointer-line{display:flex;justify-content:space-between;gap:12px;margin-top:8px;color:var(--muted);font:700 .72rem ui-monospace,SFMono-Regular,Menlo,monospace}.window-wrap{display:inline-flex;gap:7px;padding:10px;border:1px dashed var(--yellow);border-radius:16px}.heap{display:grid;justify-items:center;gap:8px}.heap-level{display:flex;gap:18px}.heap-node{min-width:46px;height:40px;display:grid;place-items:center;border:1px solid var(--violet);border-radius:14px;background:var(--solid);font-weight:850}.map-flow{display:flex;align-items:center;gap:8px;min-width:max-content}.map-chip{padding:9px 11px;border:1px solid var(--green);border-radius:13px;background:var(--solid);font:800 .78rem ui-monospace,SFMono-Regular,Menlo,monospace}.arrow{color:var(--muted);font-weight:900}
     .code-panel{margin-top:14px;min-width:0;padding:17px;border:1px solid var(--border);border-radius:22px;background:var(--code);overflow:auto}pre{margin:0;white-space:pre;tab-size:2}code{font:12.5px/1.65 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-
     .path{display:grid;grid-template-columns:1fr 1fr;gap:16px}.day{padding:20px;border:1px solid var(--border);border-radius:25px 25px 34px 25px;background:var(--solid)}.day h3{margin:0 0 8px}.task{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}.task:last-child{border-bottom:0}.check{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--green) 14%,var(--solid2));color:var(--green);font-style:normal;font-weight:900}.task b{display:block}.task span{display:block;color:var(--muted);font-size:.86rem}.soft-note{margin-top:16px;padding:17px 19px;border-left:4px solid var(--accent);border-radius:15px;background:color-mix(in srgb,var(--accent) 7%,var(--solid));color:var(--muted)}
-
-    .review-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.review-card{padding:19px;border:1px solid var(--border);border-radius:25px 25px 34px 25px;background:var(--solid)}.review-card b{display:block;margin-bottom:6px}.review-card span{display:block;color:var(--muted);font-size:.82rem;line-height:1.5}.review-card code{display:inline-block;margin-top:10px;padding:6px 8px;border-radius:9px;background:var(--code)}.checklist{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.check-card{padding:18px;border:1px solid var(--border);border-radius:24px;background:var(--solid)}.check-card i{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--green) 14%,var(--solid2));color:var(--green);font-style:normal;font-weight:900}.check-card b{display:block;margin:10px 0 5px}.check-card span{color:var(--muted);font-size:.8rem;line-height:1.45}
-
-    .quiz-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.quiz{min-width:0;padding:20px;border:1px solid var(--border);border-radius:28px;background:var(--panel)}.quiz h3{margin:0 0 8px}.quiz p{margin:0 0 14px;color:var(--muted)}.quiz-options{display:flex;gap:7px;flex-wrap:wrap}.quiz-options button{border:1px solid var(--border);background:var(--solid);color:var(--text);border-radius:16px;padding:9px 11px;text-align:left;font-weight:780;cursor:pointer}.quiz-feedback{min-height:42px;margin-top:12px;color:var(--muted);font-size:.82rem;font-weight:700}.quiz.correct{border-color:color-mix(in srgb,var(--green) 50%,var(--border))}.quiz.wrong{border-color:color-mix(in srgb,var(--red) 50%,var(--border))}.quiz-options button.correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--solid))}.quiz-options button.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--solid))}
-
-    details{margin-top:16px;padding:15px 17px;border:1px solid var(--border);border-radius:18px;background:var(--solid)}summary{cursor:pointer;font-weight:800}.later{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.later span{padding:7px 9px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.82rem}.home-fab{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;padding:10px 13px;border:1px solid var(--border);border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--solid) 94%,transparent);color:var(--text);text-decoration:none;font-size:.8rem;font-weight:800;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-
-    @media(max-width:960px){.hero{grid-template-columns:1fr}.mental,.review-grid,.checklist{grid-template-columns:repeat(2,1fr)}.pattern-grid,.path{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}}
-    @media(max-width:720px){.topbar-inner{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:8px}.brand{width:100%;min-width:0}.controls{width:100%;min-width:0;display:flex}.tabs{flex:1 1 auto;min-width:0}.tab{flex:1 1 0;min-width:0;padding-inline:8px;font-size:.79rem}.theme-toggle{flex:0 0 44px}.brand-copy span{display:none}main{padding-top:24px}.hero{padding:26px 21px 30px;border-radius:28px 28px 44px 28px}.scene{padding:20px}.pattern-body{grid-template-columns:1fr}.quiz-grid{grid-template-columns:1fr}.resource{align-items:flex-start;flex-direction:column}}
-    @media(max-width:520px){.shell{width:min(100% - 22px,var(--max))}.mental,.review-grid,.checklist{grid-template-columns:1fr}.shape-row{grid-template-columns:1fr auto 1fr;gap:6px}.shape-signal{font-size:.69rem}.shape-pattern{padding:9px 8px;font-size:.78rem}.section-head{margin-top:46px}.quiz{padding:16px}.hero h1{font-size:2.55rem}}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+    .review-grid,.checklist{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.review-card,.check-card{padding:18px;border:1px solid var(--border);border-radius:24px;background:var(--solid)}.review-card b,.check-card b{display:block;margin-bottom:6px}.review-card span,.check-card span{display:block;color:var(--muted);font-size:.82rem;line-height:1.5}.review-card code{display:inline-block;margin-top:10px;padding:6px 8px;border-radius:9px;background:var(--code)}.check-card i{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--green) 14%,var(--solid2));color:var(--green);font-style:normal;font-weight:900}
+    .quiz-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.quiz{min-width:0;padding:20px;border:1px solid var(--border);border-radius:28px;background:var(--panel)}.quiz h3{margin:0 0 8px}.quiz p{margin:0 0 14px;color:var(--muted)}.quiz-options{display:flex;gap:7px;flex-wrap:wrap}.quiz-options button{border:1px solid var(--border);background:var(--solid);color:var(--text);border-radius:16px;padding:9px 11px;text-align:left;font-weight:780;cursor:pointer}.quiz-feedback{min-height:42px;margin-top:12px;color:var(--muted);font-size:.82rem;font-weight:700}.quiz.correct{border-color:color-mix(in srgb,var(--green) 50%,var(--border))}.quiz.wrong{border-color:color-mix(in srgb,var(--red) 50%,var(--border))}.quiz-options button.correct{border-color:var(--green)}.quiz-options button.wrong{border-color:var(--red)}
+    details{margin-top:16px;padding:15px 17px;border:1px solid var(--border);border-radius:18px;background:var(--solid)}summary{cursor:pointer;font-weight:800}.later{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.later span{padding:7px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted)}.home-fab{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;padding:10px 13px;border:1px solid var(--border);border-radius:15px 15px 21px 15px;background:color-mix(in srgb,var(--solid) 94%,transparent);color:var(--text);text-decoration:none;font-size:.8rem;font-weight:800;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.mental,.review-grid,.checklist{grid-template-columns:1fr 1fr}.pattern-grid,.path{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}}@media(max-width:720px){.topbar-inner{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:8px}.controls{width:100%}.tabs{flex:1}.tab{flex:1;padding-inline:8px;font-size:.79rem}.brand-copy span{display:none}.hero{padding:26px 21px 30px;border-radius:28px 28px 44px 28px}.scene{padding:20px}.pattern-body{grid-template-columns:1fr}.quiz-grid{grid-template-columns:1fr}}@media(max-width:520px){.shell{width:min(100% - 22px,var(--max))}.mental,.review-grid,.checklist{grid-template-columns:1fr}.hero h1{font-size:2.55rem}.shape-row{grid-template-columns:1fr auto 1fr}.resource{align-items:flex-start;flex-direction:column}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
   </style>
   <link rel="stylesheet" href="../../assets/swift-syntax.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="shell topbar-inner">
-      <a class="brand" href="../../index.html" aria-label="iOS Knowledge Base">
-        <div class="brand-mark">CP</div>
-        <div class="brand-copy"><b>Coding Patterns</b><span>Algorithms &amp; Data Structures</span></div>
-      </a>
-      <div class="controls">
-        <div class="tabs" role="tablist" aria-label="Режим">
-          <button class="tab active" type="button" data-mode="learn" role="tab" aria-selected="true">Навчання</button>
-          <button class="tab" type="button" data-mode="review" role="tab" aria-selected="false">Повторення</button>
-          <button class="tab" type="button" data-mode="practice" role="tab" aria-selected="false">Практика</button>
-        </div>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Перемкнути тему"></button>
-      </div>
-    </div>
-  </header>
+<header class="topbar"><div class="shell topbar-inner"><a class="brand" href="../../index.html"><div class="brand-mark">CP</div><div class="brand-copy"><b>Coding Patterns</b><span>Algorithms &amp; Data Structures</span></div></a><div class="controls"><div class="tabs" role="tablist"><button class="tab active" type="button" data-mode="learn" aria-selected="true">Навчання</button><button class="tab" type="button" data-mode="review" aria-selected="false">Повторення</button><button class="tab" type="button" data-mode="practice" aria-selected="false">Практика</button></div><button class="theme-toggle" type="button" data-theme-toggle aria-label="Перемкнути тему"></button></div></div></header>
+<main class="shell">
+<section data-panel="learn">
+  <div class="hero"><div><div class="kicker">Coding interview patterns</div><h1>4 patterns для розпізнавання типових задач.</h1><p>Focused guide для Data Structures &amp; Coding interview: signal → problem requirements → mental model → Swift skeleton. Кожна practice task нижче тепер має повну умову, щоб було зрозуміло, що саме треба розв’язати.</p><div class="pills"><span class="pill">HashMap / Set</span><span class="pill">Two Pointers</span><span class="pill">Sliding Window</span><span class="pill">Heap / Priority Queue</span></div></div><div class="shape-map"><div class="shape-row"><span class="shape-signal">duplicate · count · lookup</span><span class="shape-arrow">→</span><span class="shape-pattern">HashMap / Set</span></div><div class="shape-row"><span class="shape-signal">sorted · pair · match</span><span class="shape-arrow">→</span><span class="shape-pattern">Two Pointers</span></div><div class="shape-row"><span class="shape-signal">contiguous · recent · last N</span><span class="shape-arrow">→</span><span class="shape-pattern">Sliding Window</span></div><div class="shape-row"><span class="shape-signal">repeated min/max · top K</span><span class="shape-arrow">→</span><span class="shape-pattern">Heap</span></div></div></div>
 
-  <main class="shell">
-    <section data-panel="learn">
-      <div class="hero">
-        <div>
-          <div class="kicker">Coding interview patterns</div>
-          <h1>4 patterns для розпізнавання типових задач.</h1>
-          <p>Focused guide для Data Structures &amp; Coding interview: які сигнали в умові підказують потрібний підхід, як виглядає mental model і де ці патерни можуть з’явитися в задачах про timestamped data, sensors та multiple streams.</p>
-          <div class="pills"><span class="pill">HashMap / Set</span><span class="pill">Two Pointers</span><span class="pill">Sliding Window</span><span class="pill">Heap / Priority Queue</span></div>
-        </div>
-        <div class="shape-map" aria-label="Recognition map">
-          <div class="shape-row"><span class="shape-signal">duplicate · count · lookup</span><span class="shape-arrow">→</span><span class="shape-pattern">HashMap / Set</span></div>
-          <div class="shape-row"><span class="shape-signal">sorted · pair · match</span><span class="shape-arrow">→</span><span class="shape-pattern">Two Pointers</span></div>
-          <div class="shape-row"><span class="shape-signal">contiguous · recent · last N</span><span class="shape-arrow">→</span><span class="shape-pattern">Sliding Window</span></div>
-          <div class="shape-row"><span class="shape-signal">repeated min/max · top K</span><span class="shape-arrow">→</span><span class="shape-pattern">Heap</span></div>
-        </div>
-      </div>
+  <div class="section-head"><div><div class="eyebrow">01 · Recognition</div><h2>Спочатку shape задачі</h2></div><p>Швидкий словник між wording задачі та data structure / algorithmic pattern.</p></div>
+  <div class="scene"><div class="mental"><div class="mental-card"><span class="signal">duplicate · count · lookup</span><b>HashMap / Set</b><span>Membership, frequency, complement lookup.</span></div><div class="mental-card"><span class="signal">sorted · pair · match</span><b>Two Pointers</b><span>Два indices рухаються без повернення назад.</span></div><div class="mental-card"><span class="signal">contiguous · recent · last N</span><b>Sliding Window</b><span>Підтримуємо активний діапазон incremental.</span></div><div class="mental-card"><span class="signal">min/max · top K · K streams</span><b>Heap</b><span>Repeated smallest/largest або обмежений Top-K.</span></div></div></div>
 
-      <div class="section-head"><div><div class="eyebrow">01 · Recognition</div><h2>Спочатку shape задачі</h2></div><p>Ці чотири картки — швидкий словник між wording задачі та data structure / algorithmic pattern.</p></div>
-      <div class="scene">
-        <div class="mental">
-          <div class="mental-card"><span class="signal">duplicate · count · lookup</span><b>HashMap / Set</b><span>Швидко запам’ятати, чи бачили значення, скільки разів воно зустрілось або де лежить потрібний key.</span></div>
-          <div class="mental-card"><span class="signal">sorted · pair · match</span><b>Two Pointers</b><span>Два індекси рухаються вперед або назустріч без повернення до вже оброблених елементів.</span></div>
-          <div class="mental-card"><span class="signal">contiguous · recent · last N</span><b>Sliding Window</b><span>Підтримуємо активний безперервний діапазон і оновлюємо його замість повного перерахунку.</span></div>
-          <div class="mental-card"><span class="signal">min/max · top K · K streams</span><b>Heap</b><span>Корисний, коли багато разів потрібен поточний smallest / largest або обмежений Top-K.</span></div>
-        </div>
-      </div>
+  <div class="section-head"><div><div class="eyebrow">02 · Visual models + tasks</div><h2>Pattern → нормальна умова задачі</h2></div><p>Під кожним pattern є одна canonical task з requirements, input/output і прикладом.</p></div>
+  <div class="pattern-grid">
+    <article class="pattern-card">
+      <div class="pattern-head"><div class="pattern-icon" style="color:var(--green)">#</div><div><h3>HashMap / Set</h3><span>Fast membership, counting, lookup by key</span></div></div>
+      <div class="visual"><div class="map-flow"><span class="map-chip">eventID 42</span><span class="arrow">→</span><span class="map-chip">seen?</span><span class="arrow">→</span><span class="map-chip">Set</span></div></div>
+      <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Deduplicate event IDs or lookup metadata by ID.</p></div><div class="mini"><b>Complexity anchor</b><p>Lookup / insert — expected <code>O(1)</code>.</p></div></div>
+      <div class="problem"><span class="task-label">Task · Contains Duplicate</span><h4>Знайди, чи масив містить хоча б один duplicate</h4><p>Тобі дано масив цілих чисел <code>nums</code>. Поверни <code>true</code>, якщо будь-яке значення зустрічається щонайменше двічі. Якщо всі значення унікальні — поверни <code>false</code>.</p><ul><li>Input: <code>[Int]</code></li><li>Output: <code>Bool</code></li><li>Не потрібно повертати саме duplicate value — лише факт його існування.</li></ul><div class="problem-example">Input:  [1, 2, 3, 1]
+Output: true
+Reason: value 1 appears twice.
 
-      <div class="section-head"><div><div class="eyebrow">02 · Visual models</div><h2>Як кожен pattern виглядає</h2></div><p>Візуальні моделі, team-shaped приклади та мінімальні Swift skeletons — у тому ж форматі, що й інші Visual Explorer сторінки.</p></div>
-      <div class="pattern-grid">
-        <article class="pattern-card">
-          <div class="pattern-head"><div class="pattern-icon" style="color:var(--green)">#</div><div><h3>HashMap / Set</h3><span>Fast membership, counting, lookup by key</span></div></div>
-          <div class="visual"><div class="map-flow"><span class="map-chip">eventID 42</span><span class="arrow">→</span><span class="map-chip">seen?</span><span class="arrow">→</span><span class="map-chip">Set</span></div></div>
-          <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Deduplicate event IDs, count samples, lookup metadata by ID.</p></div><div class="mini"><b>Complexity anchor</b><p>Lookup / insert — expected <code>O(1)</code>.</p></div></div>
-          <div class="code-panel"><pre><code>var seen: Set&lt;Int&gt; = []
+Input:  [1, 2, 3, 4]
+Output: false</div></div>
+      <div class="code-panel"><pre><code>var seen: Set&lt;Int&gt; = []
 
-for id in eventIDs {
-    if !seen.insert(id).inserted {
-        // duplicate
+for value in nums {
+    if !seen.insert(value).inserted {
+        return true
     }
-}</code></pre></div>
-          <div class="resource"><a href="https://www.youtube.com/watch?v=3OamzN90kPg" target="_blank" rel="noopener">▶ NeetCode: Contains Duplicate</a><small>Then: Two Sum</small></div>
-        </article>
+}
+return false</code></pre></div>
+      <div class="resource"><a href="https://www.youtube.com/watch?v=3OamzN90kPg" target="_blank" rel="noopener">▶ NeetCode: Contains Duplicate</a><small>Then: Two Sum</small></div>
+    </article>
 
-        <article class="pattern-card">
-          <div class="pattern-head"><div class="pattern-icon" style="color:var(--accent)">↔</div><div><h3>Two Pointers</h3><span>Sorted inputs, matching, pairs, intersections</span></div></div>
-          <div class="visual"><div class="array"><span class="cell active-accent">97</span><span class="cell">210</span><span class="cell">302</span><span class="cell">500</span><span class="arrow">↔</span><span class="cell active-accent">100</span><span class="cell">205</span><span class="cell">300</span><span class="cell">405</span></div><div class="pointer-line"><span>left stream pointer ↑</span><span>↑ right stream pointer</span></div></div>
-          <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Match frames from two sorted timestamp streams within a tolerance.</p></div><div class="mini"><b>Mental model</b><p>Якщо один timestamp раніше — просуваємо саме його pointer.</p></div></div>
-          <div class="code-panel"><pre><code>var i = 0
-var j = 0
+    <article class="pattern-card">
+      <div class="pattern-head"><div class="pattern-icon" style="color:var(--accent)">↔</div><div><h3>Two Pointers</h3><span>Sorted inputs, matching, pairs, intersections</span></div></div>
+      <div class="visual"><div class="array"><span class="cell active-accent">2</span><span class="cell">7</span><span class="cell">11</span><span class="cell active-accent">15</span></div><div class="pointer-line"><span>left ↑</span><span>↑ right</span></div></div>
+      <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Match two sorted timestamp streams within tolerance.</p></div><div class="mini"><b>Mental model</b><p>Sorted order tells us which pointer can safely move.</p></div></div>
+      <div class="problem"><span class="task-label">Task · Two Sum II</span><h4>Знайди два числа у sorted array, що дають target</h4><p>Дано масив <code>numbers</code>, відсортований у non-decreasing order, і число <code>target</code>. Знайди два різні елементи, сума яких дорівнює <code>target</code>.</p><ul><li>Гарантується рівно одне правильне рішення.</li><li>Не можна використати один і той самий елемент двічі.</li><li>LeetCode очікує 1-based indices; на інтерв’ю уточни indexing.</li></ul><div class="problem-example">Input:  numbers = [2, 7, 11, 15], target = 9
+Output: [1, 2]
+Reason: 2 + 7 = 9
 
-while i &lt; a.count &amp;&amp; j &lt; b.count {
-    if isMatch(a[i], b[j]) { /* use pair */ }
-    else if a[i] &lt; b[j] { i += 1 }
-    else { j += 1 }
-}</code></pre></div>
-          <div class="resource"><a href="https://www.youtube.com/watch?v=cQ1Oz4ckceM" target="_blank" rel="noopener">▶ NeetCode: Two Sum II</a><small>Focus on pointer movement</small></div>
-        </article>
+Input:  numbers = [2, 3, 4], target = 6
+Output: [1, 3]</div></div>
+      <div class="code-panel"><pre><code>var left = 0
+var right = numbers.count - 1
 
-        <article class="pattern-card">
-          <div class="pattern-head"><div class="pattern-icon" style="color:var(--yellow)">▭</div><div><h3>Sliding Window</h3><span>Contiguous range, recent history, rolling state</span></div></div>
-          <div class="visual"><div class="window-wrap"><span class="cell active-yellow">110</span><span class="cell active-yellow">120</span><span class="cell active-yellow">150</span><span class="cell active-yellow">190</span></div><div class="pointer-line"><span>← left expires old samples</span><span>right adds new →</span></div></div>
-          <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Rolling average / count за останні 100 ms або 1 second.</p></div><div class="mini"><b>Mental model</b><p>Розширюємо right; коли window невалідне — рухаємо left.</p></div></div>
-          <div class="code-panel"><pre><code>var left = 0
+while left &lt; right {
+    let sum = numbers[left] + numbers[right]
+    if sum == target { return [left + 1, right + 1] }
+    if sum &lt; target { left += 1 }
+    else { right -= 1 }
+}
+return []</code></pre></div>
+      <div class="resource"><a href="https://www.youtube.com/watch?v=cQ1Oz4ckceM" target="_blank" rel="noopener">▶ NeetCode: Two Sum II</a><small>Focus on why pointer movement is safe</small></div>
+    </article>
 
-for right in samples.indices {
-    add(samples[right])
+    <article class="pattern-card">
+      <div class="pattern-head"><div class="pattern-icon" style="color:var(--yellow)">▭</div><div><h3>Sliding Window</h3><span>Contiguous range, recent history, rolling state</span></div></div>
+      <div class="visual"><div class="window-wrap"><span class="cell active-yellow">1</span><span class="cell active-yellow">5</span><span class="cell active-yellow">3</span><span class="cell active-yellow">6</span></div><div class="pointer-line"><span>buy / left</span><span>sell / right</span></div></div>
+      <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Rolling average/count over the last 100 ms or 1 second.</p></div><div class="mini"><b>Mental model</b><p>Expand right; move left when current range is no longer useful.</p></div></div>
+      <div class="problem"><span class="task-label">Task · Best Time to Buy and Sell Stock</span><h4>Знайди максимальний profit з однієї buy і однієї sell операції</h4><p>Масив <code>prices</code> містить ціну акції по днях. Обери один день для покупки і пізніший день для продажу. Поверни максимальний profit. Якщо profit отримати неможливо — поверни <code>0</code>.</p><ul><li>Sell day повинен бути після buy day.</li><li>Можна виконати лише одну buy і одну sell операцію.</li><li>Треба знайти максимум, а не самі indices.</li></ul><div class="problem-example">Input:  prices = [7, 1, 5, 3, 6, 4]
+Output: 5
+Reason: buy at 1, sell at 6 → profit = 5
 
-    while windowIsTooLarge(left, right) {
-        remove(samples[left])
-        left += 1
+Input:  prices = [7, 6, 4, 3, 1]
+Output: 0</div></div>
+      <div class="code-panel"><pre><code>var left = 0
+var best = 0
+
+for right in 1..&lt;prices.count {
+    if prices[right] &lt; prices[left] {
+        left = right
+    } else {
+        best = max(best, prices[right] - prices[left])
     }
-}</code></pre></div>
-          <div class="resource"><a href="https://www.youtube.com/watch?v=1pkOgXD63yU" target="_blank" rel="noopener">▶ NeetCode: Best Time to Buy/Sell Stock</a><small>Then optionally: Longest Substring</small></div>
-        </article>
+}
+return best</code></pre></div>
+      <div class="resource"><a href="https://www.youtube.com/watch?v=1pkOgXD63yU" target="_blank" rel="noopener">▶ NeetCode: Best Time to Buy/Sell Stock</a><small>Then optionally: Longest Substring</small></div>
+    </article>
 
-        <article class="pattern-card">
-          <div class="pattern-head"><div class="pattern-icon" style="color:var(--violet)">△</div><div><h3>Heap / Priority Queue</h3><span>Repeated min/max, Top-K, merge K streams</span></div></div>
-          <div class="visual"><div class="heap"><div class="heap-level"><span class="heap-node">10</span></div><div class="heap-level"><span class="heap-node">18</span><span class="heap-node">25</span></div><div class="heap-level"><span class="heap-node">40</span><span class="heap-node">31</span><span class="heap-node">50</span></div></div></div>
-          <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Merge several timestamp streams or retain K highest-quality frames.</p></div><div class="mini"><b>Complexity anchor</b><p>Peek smallest: <code>O(1)</code>; insert/pop: <code>O(log n)</code>.</p></div></div>
-          <div class="code-panel"><pre><code>// Conceptual API — enough for pattern recognition
+    <article class="pattern-card">
+      <div class="pattern-head"><div class="pattern-icon" style="color:var(--violet)">△</div><div><h3>Heap / Priority Queue</h3><span>Repeated min/max, Top-K, merge K streams</span></div></div>
+      <div class="visual"><div class="heap"><div class="heap-level"><span class="heap-node">4</span></div><div class="heap-level"><span class="heap-node">5</span><span class="heap-node">8</span></div></div></div>
+      <div class="pattern-body"><div class="mini"><b>Team-shaped use</b><p>Merge several timestamp streams or keep K best frames.</p></div><div class="mini"><b>Complexity anchor</b><p>Peek min <code>O(1)</code>; insert/pop <code>O(log n)</code>.</p></div></div>
+      <div class="problem"><span class="task-label">Task · Kth Largest Element in a Stream</span><h4>Після кожного нового числа повертай K-th largest серед усіх побачених</h4><p>Створи структуру <code>KthLargest</code>. Вона отримує <code>k</code> і початковий масив. Метод <code>add(value)</code> додає нове число до stream і повертає поточний <strong>k-th largest</strong> element серед усіх значень, які вже були передані.</p><ul><li>Це не “k-th element by insertion order”.</li><li>Для <code>k = 3</code> треба знати третє найбільше значення.</li><li>Зручний pattern: min-heap максимум із <code>k</code> елементів; root = k-th largest.</li></ul><div class="problem-example">k = 3, initial = [4, 5, 8, 2]
+
+add(3)  → 4
+add(5)  → 5
+add(10) → 5
+add(9)  → 8
+add(4)  → 8</div></div>
+      <div class="code-panel"><pre><code>// Mental model:
+// keep only the K largest values in a min-heap.
+// The smallest among those K values is the K-th largest.
+
 heap.insert(value)
-let smallest = heap.min
-let next = heap.popMin()</code></pre></div>
-          <div class="resource"><a href="https://www.youtube.com/watch?v=hOjcdrqMoQ8" target="_blank" rel="noopener">▶ NeetCode: Kth Largest in a Stream</a><small>Focus on why a size-K heap works</small></div>
-        </article>
-      </div>
+if heap.count &gt; k { heap.popMin() }
+return heap.min!</code></pre></div>
+      <div class="resource"><a href="https://www.youtube.com/watch?v=hOjcdrqMoQ8" target="_blank" rel="noopener">▶ NeetCode: Kth Largest in a Stream</a><small>Focus on why a size-K heap works</small></div>
+    </article>
+  </div>
 
-      <div class="section-head"><div><div class="eyebrow">03 · Preparation path</div><h2>Suggested sequence for the next two days</h2></div><p>Пріоритет — recognition, одна базова задача на pattern і коротке пояснення complexity.</p></div>
-      <div class="scene">
-        <div class="path">
-          <div class="day"><h3>Day 1 · Lookup + sorted data</h3><div class="task"><i class="check">1</i><div><b>HashMap / Set</b><span>Contains Duplicate → Two Sum. Поясни, навіщо потрібні Set / Dictionary.</span></div></div><div class="task"><i class="check">2</i><div><b>Two Pointers</b><span>Two Sum II. Намалюй left/right і проговори pointer movement.</span></div></div><div class="task"><i class="check">3</i><div><b>Recall</b><span>Для 4–5 коротких prompts назви pattern без написання коду.</span></div></div></div>
-          <div class="day"><h3>Day 2 · Range + priority</h3><div class="task"><i class="check">1</i><div><b>Sliding Window</b><span>Best Time to Buy/Sell Stock + один приклад із “last 1 second”.</span></div></div><div class="task"><i class="check">2</i><div><b>Heap</b><span>Kth Largest. Зрозумій min-heap / Top-K mental model; heap internals можна лишити на потім.</span></div></div><div class="task"><i class="check">3</i><div><b>Mixed review</b><span>Pattern → чому він підходить → expected time/space.</span></div></div></div>
-        </div>
-        <div class="soft-note">Інші topics — Binary Search, Intervals, Stack/Queue, Trees, Graphs, Backtracking, Dynamic Programming — залишаються в broader roadmap. Ця сторінка просто задає вузький фокус для поточного interview prep.</div>
-        <details><summary>Broader roadmap</summary><div class="later"><span>Binary Search</span><span>Intervals</span><span>Stack / Queue</span><span>Linked Lists</span><span>Trees · BFS / DFS</span><span>Graphs · BFS / DFS</span><span>Backtracking</span><span>Dynamic Programming</span><span>Trie</span><span>Advanced Heap</span></div></details>
-      </div>
-    </section>
+  <div class="section-head"><div><div class="eyebrow">03 · Preparation path</div><h2>Suggested sequence</h2></div><p>Одна базова задача на pattern, потім короткий recall без коду.</p></div>
+  <div class="scene"><div class="path"><div class="day"><h3>Day 1 · Lookup + sorted data</h3><div class="task"><i class="check">1</i><div><b>Contains Duplicate</b><span>Прочитай full statement вище → виріши з Set → назви O(n) time / O(n) space.</span></div></div><div class="task"><i class="check">2</i><div><b>Two Sum II</b><span>Намалюй left/right → поясни, чому при sum &lt; target рухаємо left.</span></div></div></div><div class="day"><h3>Day 2 · Range + priority</h3><div class="task"><i class="check">1</i><div><b>Best Time to Buy/Sell Stock</b><span>Поясни, що left — best buy candidate, right — current sell candidate.</span></div></div><div class="task"><i class="check">2</i><div><b>Kth Largest</b><span>Зрозумій size-K min-heap mental model; heap internals — optional.</span></div></div></div></div><div class="soft-note">Broader roadmap залишається окремо: Binary Search, Intervals, Stack/Queue, Trees, Graphs, Backtracking, Dynamic Programming.</div><details><summary>Broader roadmap</summary><div class="later"><span>Binary Search</span><span>Intervals</span><span>Stack / Queue</span><span>Linked Lists</span><span>Trees · BFS / DFS</span><span>Graphs · BFS / DFS</span><span>Backtracking</span><span>Dynamic Programming</span><span>Trie</span><span>Advanced Heap</span></div></details></div>
+</section>
 
-    <section data-panel="review" hidden>
-      <div class="section-head"><div><div class="eyebrow">Quick review</div><h2>4 patterns в одному екрані</h2></div><p>Для повторення перед інтерв’ю: signal → mental model → complexity anchor.</p></div>
-      <div class="review-grid">
-        <div class="review-card"><b>HashMap / Set</b><span>Signal: duplicate, count, lookup, complement.</span><code>lookup ≈ O(1)</code></div>
-        <div class="review-card"><b>Two Pointers</b><span>Signal: sorted input, pair, match, intersection.</span><code>scan ≈ O(n + m)</code></div>
-        <div class="review-card"><b>Sliding Window</b><span>Signal: contiguous, recent, last N, rolling.</span><code>usually O(n)</code></div>
-        <div class="review-card"><b>Heap</b><span>Signal: repeated min/max, Top-K, K streams.</span><code>insert/pop O(log n)</code></div>
-      </div>
+<section data-panel="review" hidden>
+  <div class="section-head"><div><div class="eyebrow">Quick review</div><h2>4 patterns в одному екрані</h2></div><p>Signal → task shape → complexity anchor.</p></div>
+  <div class="review-grid"><div class="review-card"><b>HashMap / Set</b><span>Duplicate, count, lookup, complement.</span><code>lookup ≈ O(1)</code></div><div class="review-card"><b>Two Pointers</b><span>Sorted input, pair, match, intersection.</span><code>scan ≈ O(n + m)</code></div><div class="review-card"><b>Sliding Window</b><span>Contiguous, recent, last N, rolling.</span><code>usually O(n)</code></div><div class="review-card"><b>Heap</b><span>Repeated min/max, Top-K, K streams.</span><code>insert/pop O(log n)</code></div></div>
+  <div class="section-head"><div><div class="eyebrow">Interview flow</div><h2>Коли solution ще не очевидний</h2></div></div>
+  <div class="scene"><div class="checklist"><div class="check-card"><i>1</i><b>Clarify</b><span>Sorted? Duplicates? Expected output? Constraints?</span></div><div class="check-card"><i>2</i><b>Example</b><span>Пройди один input руками і переконайся, що зрозумів requirements.</span></div><div class="check-card"><i>3</i><b>Start simple</b><span>Опиши brute force, потім знайди repeated work.</span></div><div class="check-card"><i>4</i><b>Complexity</b><span>Назви time, space і trade-off.</span></div></div></div>
+</section>
 
-      <div class="section-head"><div><div class="eyebrow">Interview flow</div><h2>Коли solution ще не очевидний</h2></div><p>Це та сама checklist-style visual language, яка вже використовується в інших Knowledge Base modules.</p></div>
-      <div class="scene">
-        <div class="checklist">
-          <div class="check-card"><i>1</i><b>Clarify</b><span>Sorted? Duplicates? Finite stream? Memory constraints? Matching rules?</span></div>
-          <div class="check-card"><i>2</i><b>Start simple</b><span>Опиши brute-force solution і переконайся, що behavior правильний.</span></div>
-          <div class="check-card"><i>3</i><b>Find repeated work</b><span>Що ми перераховуємо? Що можна запам’ятати або рухати лише вперед?</span></div>
-          <div class="check-card"><i>4</i><b>Complexity</b><span>Назви time, space і один trade-off після working solution.</span></div>
-        </div>
-      </div>
-
-      <div class="section-head"><div><div class="eyebrow">Team-shaped recall</div><h2>Camera / sensor vocabulary → pattern</h2></div></div>
-      <div class="scene">
-        <div class="mental">
-          <div class="mental-card"><span class="signal">duplicate event IDs</span><b>HashMap / Set</b><span>Transport retry produced a duplicate event.</span></div>
-          <div class="mental-card"><span class="signal">two sorted timestamp streams</span><b>Two Pointers</b><span>Align camera A and camera B samples.</span></div>
-          <div class="mental-card"><span class="signal">last 100 ms of samples</span><b>Sliding Window</b><span>Rolling count / average over recent data.</span></div>
-          <div class="mental-card"><span class="signal">merge K ordered streams</span><b>Heap</b><span>Repeatedly take the smallest next timestamp.</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section data-panel="practice" hidden>
-      <div class="section-head"><div><div class="eyebrow">Pattern practice</div><h2>Впізнай pattern до коду</h2></div><p>Короткі recognition drills. Тут важливе не memorization, а причина, чому pattern підходить.</p></div>
-      <div class="quiz-grid">
-        <article class="quiz" data-answer="HashMap / Set" data-explanation="Потрібен fast membership check: чи бачили ми eventID раніше."><h3>01 · Duplicate events</h3><p>Stream може повторно доставити event з тим самим ID. Треба швидко ігнорувати duplicates.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
-        <article class="quiz" data-answer="Two Pointers" data-explanation="Обидва timestamp arrays sorted, тому можна просувати pointer відстаючого stream і пройти дані один раз."><h3>02 · Timestamp alignment</h3><p>Два sorted arrays timestamp-ів. Треба знайти пари, різниця між якими не перевищує tolerance.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
-        <article class="quiz" data-answer="Sliding Window" data-explanation="Умова описує recent contiguous time range — підтримуй активне window і прибирай expired samples."><h3>03 · Recent sensor average</h3><p>Для кожного нового sample треба знати average за останні 100 milliseconds.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
-        <article class="quiz" data-answer="Heap" data-explanation="Top-K не потребує повного sort: min-heap розміру K зберігає тільки найкращі кандидати."><h3>04 · Best frames</h3><p>З великого stream треба постійно зберігати 10 frames з найвищим quality score.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
-        <article class="quiz" data-answer="HashMap / Set" data-explanation="Two Sum у unsorted array часто зводиться до lookup complement у Dictionary / Set."><h3>05 · Complement lookup</h3><p>Unsorted array. Для кожного value треба швидко перевірити, чи вже існує target − value.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
-        <article class="quiz" data-answer="Heap" data-explanation="Для K already-sorted streams heap тримає current smallest item з кожного stream, тому next global minimum дістається efficiently."><h3>06 · Merge K streams</h3><p>Є кілька independently sorted timestamp streams. Треба видавати один globally ordered stream.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
-      </div>
-    </section>
-  </main>
-
-  <a class="home-fab" href="../../index.html">← Knowledge Base</a>
-  <script src="../../assets/app.js"></script>
-  <script src="../../assets/swift-syntax.js"></script>
-  <script>
-    (() => {
-      const tabs = [...document.querySelectorAll('[data-mode]')];
-      const panels = [...document.querySelectorAll('[data-panel]')];
-      const activate = mode => {
-        tabs.forEach(tab => {
-          const active = tab.dataset.mode === mode;
-          tab.classList.toggle('active', active);
-          tab.setAttribute('aria-selected', active ? 'true' : 'false');
-        });
-        panels.forEach(panel => panel.hidden = panel.dataset.panel !== mode);
-        window.scrollTo({top:0, behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
-      };
-      tabs.forEach(tab => tab.addEventListener('click', () => activate(tab.dataset.mode)));
-
-      document.querySelectorAll('.quiz').forEach(quiz => {
-        const answer = quiz.dataset.answer;
-        const explanation = quiz.dataset.explanation;
-        const feedback = quiz.querySelector('.quiz-feedback');
-        const buttons = [...quiz.querySelectorAll('.quiz-options button')];
-        buttons.forEach(button => button.addEventListener('click', () => {
-          const ok = button.textContent.trim() === answer;
-          quiz.classList.remove('correct','wrong');
-          quiz.classList.add(ok ? 'correct' : 'wrong');
-          buttons.forEach(item => item.classList.remove('correct','wrong'));
-          button.classList.add(ok ? 'correct' : 'wrong');
-          feedback.textContent = ok ? `✓ ${explanation}` : `→ Think: ${explanation}`;
-        }));
-      });
-    })();
-  </script>
-</body>
-</html>
+<section data-panel="practice" hidden>
+  <div class="section-head"><div><div class="eyebrow">Pattern practice</div><h2>Впізнай pattern до коду</h2></div><p>Короткі recognition drills.</p></div>
+  <div class="quiz-grid">
+    <article class="quiz" data-answer="HashMap / Set" data-explanation="Потрібен fast membership check: чи бачили eventID раніше."><h3>01 · Duplicate events</h3><p>Stream може повторно доставити event з тим самим ID. Треба швидко ігнорувати duplicates.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
+    <article class="quiz" data-answer="Two Pointers" data-explanation="Обидва arrays sorted, тому можна рухати pointer відстаючого stream."><h3>02 · Timestamp alignment</h3><p>Два sorted arrays timestamp-ів. Треба знайти пари, різниця між якими не перевищує tolerance.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
+    <article class="quiz" data-answer="Sliding Window" data-explanation="Recent contiguous range — підтримуй window і прибирай expired samples."><h3>03 · Recent sensor average</h3><p>Для кожного нового sample треба знати average за останні 100 milliseconds.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
+    <article class="quiz" data-answer="Heap" data-explanation="Top-K не потребує повного sort: min-heap розміру K зберігає найкращих кандидатів."><h3>04 · Best frames</h3><p>З великого stream треба постійно зберігати 10 frames з найвищим quality score.</p><div class="quiz-options"><button>HashMap / Set</button><button>Two Pointers</button><button>Sliding Window</button><button>Heap</button></div><div class="quiz-feedback"></div></article>
+  </div>
+</section>
+</main>
+<a class="home-fab" href="../../index.html">← Knowledge Base</a>
+<script src="../../assets/app.js"></script><script src="../../assets/swift-syntax.js"></script>
+<script>(()=>{const tabs=[...document.querySelectorAll('[data-mode]')];const panels=[...document.querySelectorAll('[data-panel]')];const activate=mode=>{tabs.forEach(t=>{const a=t.dataset.mode===mode;t.classList.toggle('active',a);t.setAttribute('aria-selected',a?'true':'false')});panels.forEach(p=>p.hidden=p.dataset.panel!==mode);window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})};tabs.forEach(t=>t.addEventListener('click',()=>activate(t.dataset.mode)));document.querySelectorAll('.quiz').forEach(q=>{q.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const ok=b.textContent.trim()===q.dataset.answer;q.classList.remove('correct','wrong');q.classList.add(ok?'correct':'wrong');q.querySelectorAll('button').forEach(x=>x.classList.remove('correct','wrong'));b.classList.add(ok?'correct':'wrong');q.querySelector('.quiz-feedback').textContent=(ok?'Correct. ':'Not quite. ')+q.dataset.explanation}))})})();</script>
+</body></html>
