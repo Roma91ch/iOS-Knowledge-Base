@@ -20,20 +20,17 @@
 
 ### 1. Data Structures & Coding
 
-Детальний working draft: [data-structures-and-coding.md](./data-structures-and-coding.md)
+- Working notes: [data-structures-and-coding.md](./data-structures-and-coding.md)
+- Visual fast track: [Coding Interview Fast Track](../../modules/coding-interview-fast-track/)
 
-Основні сімейства задач:
+До інтерв'ю фокус навмисно звужений до **4 patterns**:
 
-- merge кількох timestamped streams;
-- align / match events from multiple streams within tolerance;
-- sliding window aggregation;
-- ring / circular buffer;
-- out-of-order events + reordering buffer;
-- deduplication;
-- intervals and overlap;
-- sequence gaps / missing data;
-- bounded queues and buffering;
-- grouping / bucketing timestamped data.
+1. **HashMap / Set** — duplicate, count, lookup.
+2. **Two Pointers** — sorted arrays / timestamp streams / matching.
+3. **Sliding Window** — contiguous ranges / last N / recent data.
+4. **Heap / Priority Queue** — concept only: repeated min/max, Top-K, K streams.
+
+Все інше — later, щоб не перевантажувати підготовку за два дні.
 
 ### 2. Swift & Apple Systems
 
